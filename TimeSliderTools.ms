@@ -73,7 +73,6 @@ struct TimeSliderTools_v
 	(
 		format "\n"; print "TimeSliderTools_v.setFrame()"
 		format "frame: %\n" frame
-		format "btn_current_frame: %\n" btn_current_frame
 		
 		/** Get frame button color
 		 */
@@ -81,14 +80,14 @@ struct TimeSliderTools_v
 		
 		frame = frame as integer
 		
+		if not this.isInRange(frame) then
+			return false
 		
 		buttons = this.getFrameButtons()
 		--if btn_current_frame == undefined then
 		btn_current_frame = buttons[frame]
 		
 		sliderTime = frame
-		
-		--color_default = color 95 138 193
 		
 		/*------------------------------------------------------------------------------
 			SYNC CONTROLS 
@@ -159,18 +158,49 @@ struct TimeSliderTools_v
 	function setAnimRange start_or_end frame =
 	(
 		format "\n"; print "TimeSliderTools_v.setAnimRange()"
-		_Interval = if start_or_end == #START then Interval frame (animationRange.end.frame) else Interval (animationRange.start.frame) frame
-
-		format "TEST: %\n" (_Interval.start.frame as integer == _Interval.end.frame as integer)
-		/* Prevent zero length anim range */
-		format "_INTERVAL: %\n" _Interval
 		
-		if _Interval.start.frame as integer == _Interval.end.frame as integer then
-			 _Interval.end += 1
+		local _Interval
+			
+		
+		if not keyboard.controlPressed then
+		(
+			_Interval = if start_or_end == #START then Interval frame (animationRange.end.frame) else Interval (animationRange.start.frame) frame
+	
+			format "TEST: %\n" (_Interval.start.frame as integer == _Interval.end.frame as integer )
+			/* Prevent zero length anim range */
+			format "_INTERVAL: %\n" _Interval
+			
+			if _Interval.start.frame as integer == _Interval.end.frame as integer then
+				 _Interval.end += 1
+			
+		)
+		else
+		(
+			local last_frame_button
+			
+			buttons = this.getFrameButtons()
+			format "buttons: %\n" buttons
+			for i = buttons.keys.count - 1 to 0 by -1  do
+			format "buttons[i]: %\n" buttons[i].visible
+			
+			for i = buttons.keys.count - 1 to 0 by -1 while last_frame_button == undefined where buttons[i].visible do last_frame_button = buttons[i]
+			format "last_frame_button: %\n" last_frame_button
+			frame_start = animationRange.start.frame
+			frame_end = animationRange.end.frame
+			
+			 if start_or_end == #END then
+				frame_end = last_frame_button.text as integer
+			else
+				frame_start = _rollout.btn_range_start.text as integer
+			
+			
+			_Interval = Interval frame_start frame_end
+		)
+		
 		
 		if currentTime == animationRange.start or currentTime == animationRange.end then
 			shift_frame = _Interval.start.frame
-			
+		
 		format "_INTERVAL: %\n" _Interval
 		/* Set new animation range */
 		animationRange = _Interval

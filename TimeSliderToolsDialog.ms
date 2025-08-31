@@ -29,12 +29,12 @@ function timeSliderToolsDialog =
 
 	dialog_width = width_groupbox_2 + width_slider + buttons_margin - ( width_button / 2)
 	
-	dialog_height = 96
+	dialog_height = 80
 	
 	--id = #DIALOG_time_slider_tools
 	
 	/* DIALOG */
-	Dialog 	    = Dialog_v ("Time Slider Tools") width:(dialog_width + 0 )
+	Dialog 	    = Dialog_v ("Time Slider Tools") width:(dialog_width + 0 ) ini:(getSourceFileName())
 	--Dialog 	    = Dialog_v ("Test") --ini:(getSourceFileName())
 	
 	Dialog.Event #OPEN ("TimeTools = TimeSliderTools_v("+Dialog.id as string +")")	tooltip:"PRESSED Tooltip"
@@ -52,7 +52,7 @@ function timeSliderToolsDialog =
 	_Timer = _Controls.control #TIMER "Timer" id:#clock interval:500 active:true
 	_Timer.Event #TICK ("if TimeTools != undefined then TimeTools.onTimerTick(is_playing_now)")
 
-	bar   = _Controls.control #imgTag "" id:#status_bar color:red width:dialog_width height:1 across:1 pos:[0,0] visible:false
+	bar   = _Controls.control #imgTag "" id:#status_bar color:red width:dialog_width height:1 across:1 pos:[0,0] visible:false --align:#CENTER
 	/*------------------------------------------------------------------------------
 		GROUPBOX 
 	------------------------------------------------------------------------------*/
@@ -96,14 +96,14 @@ function timeSliderToolsDialog =
 	pos_x_button =  pos_x_origin - ( width_button / 2 )
 	
 	/*------------------------------------------------------------------------------
-		SLIDER
+		SLIDER & CONTROLS 
 	--------------------------------------------------------------------------------*/
 	_Srart  = _Controls.control #BUTTON "0"	id:#btn_range_start	 width:width_btn_small	height:32	pos:[ pos_x, pos_y + 4 ]	tooltip:"Set Animation range START"
 	_Slider = _Controls.control #SLIDER ""	id:#slider_current_time	 width:width_slider	type:#integer	pos:[ pos_x += width_button - align_slider_to_buttons , pos_y ]  range:[0, frame_range, 0] ticks:frame_range
-	_End    = _Controls.control #BUTTON "1"	id:#btn_range_end	 width:width_btn_small	height:32 Start:32	pos:[ pos_x += width_slider - align_slider_to_buttons,  pos_y + 4 ] tooltip:"Set Animation range END"
+	_End    = _Controls.control #BUTTON "1"	id:#btn_range_end	 width:width_btn_small	height:32 Start:32	pos:[ pos_x += width_slider - align_slider_to_buttons,  pos_y + 4 ] tooltip:"Set Animation range END\n\nCTRL: Set RANGE END by last button"
 	
 	/* EVENTS */ 
-	_Slider.Event #CHANGED ("TimeTools.setFrame( "+i as string +")" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
+	_Slider.Event #CHANGED ("TimeTools.setFrame" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 
 	_Srart.Event #PRESSED	"TimeTools.setAnimRange #START ( animationRange.start.frame - 1 )"	tooltip:" - 1 frame"
 	_Srart.Event #RIGHTCLICK	"TimeTools.setAnimRange #START ( animationRange.start.frame + 1 )"	tooltip:" + 1 frame"
@@ -111,6 +111,7 @@ function timeSliderToolsDialog =
 	_End.Event #PRESSED	"TimeTools.setAnimRange #END ( animationRange.end.frame - 1 )"	tooltip:" - 1 frame"
 	_End.Event #RIGHTCLICK	"TimeTools.setAnimRange #END ( animationRange.end.frame + 1 )"	tooltip:" + 1 frame"
 
+	
 	/** Get highlight color
 	 */
 	function getHighlightColor =
@@ -123,7 +124,7 @@ function timeSliderToolsDialog =
 	pos_y += width_button
 	
 	/*------------------------------------------------------------------------------
-		ADD BUTTONS
+		FRAME BUTTONS
 	------------------------------------------------------------------------------*/
 	for i = 0 to frame_range do
 	(
@@ -141,7 +142,7 @@ function timeSliderToolsDialog =
 		DIALOG CREATE
 	------------------------------------------------------------------------------*/
 	--------Dialog.create()
-	Dialog.create height:dialog_height lockHeight:true
+	Dialog.create height:dialog_height lockWidth:true lockHeight:true
 	
 	Dialog.register()
 )
