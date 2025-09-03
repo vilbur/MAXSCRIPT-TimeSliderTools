@@ -105,11 +105,11 @@ function timeSliderToolsDialog =
 	/* EVENTS */ 
 	_Slider.Event #CHANGED ("TimeTools.setFrame" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 
-	_Srart.Event #PRESSED	"TimeTools.setAnimRange #START ( animationRange.start.frame - 1 )"	tooltip:" - 1 frame"
-	_Srart.Event #RIGHTCLICK	"TimeTools.setAnimRange #START ( animationRange.start.frame + 1 )"	tooltip:" + 1 frame"
+	_Srart.Event #PRESSED	"TimeTools.setAnimRange #START ( animationRange.start.frame + 1 )"	tooltip:" + 1 frame"
+	_Srart.Event #RIGHTCLICK	"TimeTools.setAnimRange #START ( animationRange.start.frame - 1 )"	tooltip:" - 1 frame"
 	
-	_End.Event #PRESSED	"TimeTools.setAnimRange #END ( animationRange.end.frame - 1 )"	tooltip:" - 1 frame"
-	_End.Event #RIGHTCLICK	"TimeTools.setAnimRange #END ( animationRange.end.frame + 1 )"	tooltip:" + 1 frame"
+	_End.Event #PRESSED	"TimeTools.setAnimRange #END ( animationRange.end.frame + 1 )"	tooltip:" + 1 frame"
+	_End.Event #RIGHTCLICK	"TimeTools.setAnimRange #END ( animationRange.end.frame - 1 )"	tooltip:" - 1 frame"
 
 	
 	/** Get highlight color
@@ -133,6 +133,8 @@ function timeSliderToolsDialog =
 		
 		--_Frame_btn.Event #CHANGED ("TimeTools.setFrame( "+i as string +")( EventFired.control )") --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 		_Frame_btn.Event #CHANGED ("TimeTools.setFrame( "+i as string +")" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
+		
+		_Frame_btn.Event #RIGHTCLICK ("frameButtonRcMenu( "+i as string +")" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 
 	)
 	

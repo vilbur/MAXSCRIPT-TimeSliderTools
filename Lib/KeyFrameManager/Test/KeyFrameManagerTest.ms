@@ -37,13 +37,13 @@ function createTestObject =
 --	obj = createTestObject()
 
 
-if selection.count > 0 then
-	for obj in selection do
-	(
+
+KeyFrameManager 	= KeyFrameManager_v trim:#RIGHT -- DELETE CURRENT TIME IF trim == undefined 
+
+KeyFrameManager.only_selected = true
+
+KeyFrameManager.removeAllAnimKeys selection[1]
+
+KeyFrameManager.removeAnimKeysFromObjects()
+
 	
-		KeyFrameManager 	= KeyFrameManager_v(obj) --trim:#RIGHT -- DELETE CURRENT TIME IF trim == undefined 
-	
-		
-		KeyFrameManager.removeAllKeys()
-		
-	)

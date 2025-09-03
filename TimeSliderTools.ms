@@ -2,6 +2,9 @@ clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/Dialog/Dialog.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/Dialog/Dialog.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/Lib/KeyFrameManager/KeyFrameManager.ms" )	--"./Lib/KeyFrameManager/KeyFrameManager.ms"
+
+filein( getFilenamePath(getSourceFileName()) + "/Lib/frameButtonRcMenu/frameButtonRcMenu.ms" )	--"./Lib/frameButtonRcMenu/frameButtonRcMenu.ms"
 
 
 /* 
@@ -22,14 +25,17 @@ struct TimeSliderTools_v
 	(
 		--format "\n"; print "TimeSliderTools_v.onTimerTick()"
 		--_rollout.status_bar.visible = true
+		--format "TEST: %\n" (_rollout.slider_current_time.value != sliderTime )
 		--format "_rollout.status_bar.visible: % ANIMATIONMODE: %\n" _rollout.status_bar.visible animButtonState 
 		_rollout.status_bar.visible = animButtonState
 		
 		
-		
 		if is_playing_now then
 			this.setNextFrame()
-			
+		
+		else
+			if _rollout.slider_current_time.value != sliderTime.frame then
+				this.setFrame sliderTime.frame
 			
 		--format "_rollout: %\n" _rollout.status_bar
 		
@@ -215,6 +221,10 @@ struct TimeSliderTools_v
 			this.setFrame shift_frame
 	),
 	
+
+
+
+
 	--function getFrameButton frame = execute ("dialog_trackbar_tools.btn_frame_"+ (frame as integer ) as string )
 
 	/** Get frame buttons

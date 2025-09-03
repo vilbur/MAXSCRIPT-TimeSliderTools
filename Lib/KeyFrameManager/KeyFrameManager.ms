@@ -3,43 +3,59 @@
 struct KeyFrameManager_v
 (
 	/* construct */
-	obj,
-
 	/* required */
-	
-
 	/* properties */
 	trim, -- #LEFT | #RIGHT
 	
-	include_current_frame = false,
+	only_selected = false,
 	
-	start_time = if include_current_frame then currentTime else ( currentTime + 1),
-
-
 	/* private */
 	/* dependency */
 	/* reference */
 	/* inhered */
+	
+	
+	/** Remove anim keys from selection
+	  * 
+	  * @param Array objs if undefined then use current selection
+	  * 
+	  * 
+	 */
+	function removeAnimKeysFromObjects objs: =
+	(
+		--format "\n"; print "KeyFrameManager_v.removeAnimKeysFromObjects()"
+		--format "objs: %\n" objs
+		if objs == unsupplied then 
+			objs = selection as Array
+		
+		
+		for obj in objs do
+			--format "obj: %\n" obj
+			this.removeAllAnimKeys obj
+		
+	),
+	
 	/** Remove keys
 	 */
-	function removeAllKeys =
+	function removeAllAnimKeys obj =
 	(
-		format "\n"
-		format "\n"; print "KeyFrameManager_v.removeAllKeys()"
-		format "OBJ: %\n" OBJ
-		this.removeKeysFromTransformations()
+		--format "\n"; print "KeyFrameManager_v.removeAllAnimKeys()"
+		--format "\n"
+		--format "\nremoveAllKeys OBJ: % TRIM: %: " obj.name ( if trim != undefined then trim else false )
+		this.removeKeysFromTransformations( obj )
 		
-		this.removeKeysOfProperties()
+		this.removeKeysOfProperties( obj )
 	),
 
-	function removeKeysFromTransformations =
+	function removeKeysFromTransformations obj =
 	(
-		--format "\n"; print "KeyFrameManager_v.removeAllKeys()"
+		--format "\n"; print "KeyFrameManager_v.removeAllAnimKeys()"
 		track_list = #(obj.position.controller, obj.rotation.controller, obj.scale.controller)
 
 		for ctrl in track_list do
 			if isController ctrl then
 				this._deleteKeysFromController ctrl
+				
 	),
 		
 	/** Remove keys of properties
@@ -53,7 +69,7 @@ struct KeyFrameManager_v
 		SubAnim[7]:Object_Motion_Blur_On_Off
 		
 	 */
-	function removeKeysOfProperties =
+	function removeKeysOfProperties obj =
 	(
 		--format "\n"; print "KeyFrameManager_v.removeKeysOfProperties()"
 		
@@ -109,6 +125,7 @@ struct KeyFrameManager_v
 						/* DELETE KEYS OF SUBANIM */ 
 						this._deleteKeysFromController sub_ctrl
 		)
+		
 		/*------------------------------------------------------------------------------
 			DELETE KEYS FROM CONTROLLER
 		--------------------------------------------------------------------------------*/
@@ -138,15 +155,16 @@ struct KeyFrameManager_v
 	function _deleteKeys ctrl num_keys =
 	(
 		--format "\n"; print "KeyFrameManager_v._deleteKeys()"
+		--format "currentTime: %\n" currentTime
 		controler_keys	= #()
 
+		/* GET KEYS */ 
 		for k = 1 to num_keys do
 		(
-			
 			key_time = getKeyTime ctrl k
 			
 			--format "key_time: %\n" key_time
-			is_key_deleted = case trim of
+			key_match_time = case trim of
 			(
 				#LEFT:  key_time < currentTime
 				#RIGHT: key_time > currentTime
@@ -154,10 +172,13 @@ struct KeyFrameManager_v
 				default: key_time == currentTime
 			)
 			
-			if is_key_deleted then
-				appendIfUnique controler_keys k
+			if key_match_time then
+				if not only_selected or ( only_selected and isKeySelected ctrl k ) then
+					appendIfUnique controler_keys k
+			
 		)
 		
+		/* DELETE KEYS */ 
 		for i = controler_keys.count to 1 by -1 do 
 			deleteKey ctrl controler_keys[i]
 	
