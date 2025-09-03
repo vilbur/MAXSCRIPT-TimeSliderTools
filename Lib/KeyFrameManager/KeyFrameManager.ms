@@ -20,63 +20,113 @@ struct KeyFrameManager_v
 	/* inhered */
 	/** Remove keys
 	 */
-	function removeKeys =
+	function removeAllKeys =
 	(
-		--format "\n"; print "KeyFrameManager_v.removeKeys()"
+		--format "\n"; print "KeyFrameManager_v.removeAllKeys()"
+		this.removeKeysFromTransformations()
+		
+		this.removeKeysOfProperties()
+	),
+
+	function removeKeysFromTransformations =
+	(
+		--format "\n"; print "KeyFrameManager_v.removeAllKeys()"
 		track_list = #(obj.position.controller, obj.rotation.controller, obj.scale.controller)
 
 		for ctrl in track_list do
-		(
 			if isController ctrl then
-			(
-				format "\n---------------------------------------------\n"
-				format "ctrl: %\n" ctrl
-				format "isController ctrl: %\n" (isController ctrl)
-	
-				this.deleteKeysFromController ctrl start_time
-				--deleteKeysFromController ctrl start_time
-			)
-		)
-		
-		
+				this._deleteKeysFromController ctrl start_time
 	),
 		
+	/** Remove keys of properties
+	  
+		SubAnim[1]:Visibility
+		SubAnim[2]:Space_Warps
+		SubAnim[3]:Transform
+		SubAnim[4]:Modified_Object
+		SubAnim[5]:Material
+		SubAnim[6]:Image_Motion_Blur_Multiplier
+		SubAnim[7]:Object_Motion_Blur_On_Off
+		
+	 */
+	function removeKeysOfProperties =
+	(
+		format "\n"; print "KeyFrameManager_v.removeKeysOfProperties()"
+		
+		if isProperty obj #numSubs and obj.numSubs > 0 then
+		(
+			mods = getSubAnim obj 4
+
+			/*------------------------------------------------------------------------------
+				LOOP EACH MOD IN MOD STACK 
+			--------------------------------------------------------------------------------*/ 
+			for m = 1 to mods.numSubs do
+			(
+				_mod = getSubAnim mods m
+				
+				/* PROPERTY KEYS */ 
+				this._deleteKeysFromProperties (_mod)
+				
+
+				/* CUSTOM ATTRIBUTES KEYS */ 
+				for cust_attributes in _mod.custAttributes do
+					this._deleteKeysFromProperties (cust_attributes)
+
+			)
+		)
+	),
 
 	private
+		
 
 	/** Delete keys from controller
 	 */
-	function deleteKeysFromController ctrl start_time =
+	function _deleteKeysFromController ctrl start_time =
 	(
-		--format "\n"; print "KeyFrameManager_v.deleteKeysFromController()"
+		--format "\n"; print "KeyFrameManager_v._deleteKeysFromController()"
 		format "\n\n*********************************\n"
-		format "ctrl: %\n" ctrl
-		format "isController ctrl: %\n" (isController ctrl)
-		format "classOf ctrl: %\n" ( classOf ctrl )
-		format "NUMKEYS CTRL: %\n" (numKeys CTRL)
-		format "ctrl.numSubs: %\n" ctrl.numSubs
+		--format "ctrl: %\n" ctrl
+		--format "isController ctrl: %\n" (isController ctrl)
+		--format "classOf ctrl: %\n" ( classOf ctrl )
+		--format "NUMKEYS CTRL: %\n" (numKeys CTRL)
+		--format "ctrl.numSubs: %\n" ctrl.numSubs
 		
+		/*------------------------------------------------------------------------------
+			SEARCH FOR KEYS IN SUBANIMS
+		--------------------------------------------------------------------------------*/
 		if ( num_keys = numKeys ctrl ) == -1 then
 		(
-			for i = 1 to ctrl.numSubs where (sub_anim_ctrl = getSubAnim ctrl i) != undefined do
-			(
-				
-				format "sub_anim_ctrl: %\n" sub_anim_ctrl
-				
-				subCtrl = getPropertyController ctrl sub_anim_ctrl.name
-				
-				format "subCtrl: %\n" subCtrl
-	
-	
-				if subCtrl != undefined then
-					this.deleteKeysFromController subCtrl num_keys
-
-				
-			)
+			/* LOOP SUBANIMS */ 
+			for i = 1 to ctrl.numSubs do
+				/* GET SUBANIM */ 
+				if (sub_anim_ctrl = getSubAnim ctrl i) != undefined then
+					/* GET CONTROLLER OF SUBANIM */ 
+					if (sub_ctrl = getPropertyController ctrl sub_anim_ctrl.name) != undefined then
+						/* DELETE KEYS OF SUBANIM */ 
+						this._deleteKeysFromController sub_ctrl num_keys
 		)
+		/*------------------------------------------------------------------------------
+			DELETE KEYS FROM CONTROLLER
+		--------------------------------------------------------------------------------*/
 		else
 			this._deleteKeys ctrl num_keys
 		
+	),
+	
+	
+	/** Delete keys from properties
+	 */
+	function _deleteKeysFromProperties sub_anim =
+	(
+		--format "\n"; print "KeyFrameManager_v._deleteKeysFromProperties()"
+					
+		for i = 1 to ( prop_names = getPropNames sub_anim ).count do 
+		(
+			ctrl = getPropertyController sub_anim prop_names[i]
+			
+			if ctrl != undefined then
+				this._deleteKeysFromController ctrl num_keys
+		)
 	),
 	
 	/** Delete keys

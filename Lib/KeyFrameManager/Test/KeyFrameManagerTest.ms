@@ -31,11 +31,13 @@ function createTestObject =
 	obj --return
 )
 
---obj = createTestObject()
 
-obj	= selection[1]
+if selection.count > 0 then
+	obj	= selection[1]
+else
+	obj = createTestObject()
+
 
 KeyFrameManager 	= KeyFrameManager_v(obj)
 
-
-KeyFrameManager.removeKeys()
+KeyFrameManager.removeAllKeys()
