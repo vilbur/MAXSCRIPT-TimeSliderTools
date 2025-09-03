@@ -9,6 +9,8 @@ struct KeyFrameManager_v
 	
 
 	/* properties */
+	trim, -- #LEFT | #RIGHT
+	
 	include_current_frame = false,
 	
 	start_time = if include_current_frame then currentTime else ( currentTime + 1),
@@ -22,7 +24,9 @@ struct KeyFrameManager_v
 	 */
 	function removeAllKeys =
 	(
-		--format "\n"; print "KeyFrameManager_v.removeAllKeys()"
+		format "\n"
+		format "\n"; print "KeyFrameManager_v.removeAllKeys()"
+		format "OBJ: %\n" OBJ
 		this.removeKeysFromTransformations()
 		
 		this.removeKeysOfProperties()
@@ -35,7 +39,7 @@ struct KeyFrameManager_v
 
 		for ctrl in track_list do
 			if isController ctrl then
-				this._deleteKeysFromController ctrl start_time
+				this._deleteKeysFromController ctrl
 	),
 		
 	/** Remove keys of properties
@@ -51,27 +55,27 @@ struct KeyFrameManager_v
 	 */
 	function removeKeysOfProperties =
 	(
-		format "\n"; print "KeyFrameManager_v.removeKeysOfProperties()"
+		--format "\n"; print "KeyFrameManager_v.removeKeysOfProperties()"
 		
 		if isProperty obj #numSubs and obj.numSubs > 0 then
 		(
-			mods = getSubAnim obj 4
-
+			mods = obj[4]
+			
 			/*------------------------------------------------------------------------------
 				LOOP EACH MOD IN MOD STACK 
 			--------------------------------------------------------------------------------*/ 
-			for m = 1 to mods.numSubs do
+			for m = 1 to mods.numSubs where (_mod = getSubAnim mods m) != undefined do
 			(
-				_mod = getSubAnim mods m
-				
 				/* PROPERTY KEYS */ 
 				this._deleteKeysFromProperties (_mod)
 				
-
-				/* CUSTOM ATTRIBUTES KEYS */ 
-				for cust_attributes in _mod.custAttributes do
-					this._deleteKeysFromProperties (cust_attributes)
-
+				/* CUSTOM ATTRIBUTES KEYS */
+				try(
+					
+					for cust_attributes in _mod.custAttributes do
+						this._deleteKeysFromProperties (cust_attributes)
+					
+				)catch()
 			)
 		)
 	),
@@ -81,10 +85,10 @@ struct KeyFrameManager_v
 
 	/** Delete keys from controller
 	 */
-	function _deleteKeysFromController ctrl start_time =
+	function _deleteKeysFromController ctrl =
 	(
 		--format "\n"; print "KeyFrameManager_v._deleteKeysFromController()"
-		format "\n\n*********************************\n"
+		--format "\n\n*********************************\n"
 		--format "ctrl: %\n" ctrl
 		--format "isController ctrl: %\n" (isController ctrl)
 		--format "classOf ctrl: %\n" ( classOf ctrl )
@@ -103,7 +107,7 @@ struct KeyFrameManager_v
 					/* GET CONTROLLER OF SUBANIM */ 
 					if (sub_ctrl = getPropertyController ctrl sub_anim_ctrl.name) != undefined then
 						/* DELETE KEYS OF SUBANIM */ 
-						this._deleteKeysFromController sub_ctrl num_keys
+						this._deleteKeysFromController sub_ctrl
 		)
 		/*------------------------------------------------------------------------------
 			DELETE KEYS FROM CONTROLLER
@@ -125,7 +129,7 @@ struct KeyFrameManager_v
 			ctrl = getPropertyController sub_anim prop_names[i]
 			
 			if ctrl != undefined then
-				this._deleteKeysFromController ctrl num_keys
+				this._deleteKeysFromController ctrl
 		)
 	),
 	
@@ -141,12 +145,13 @@ struct KeyFrameManager_v
 			
 			key_time = getKeyTime ctrl k
 			
-			format "key_time: %\n" key_time
-			is_key_deleted = case of
+			--format "key_time: %\n" key_time
+			is_key_deleted = case trim of
 			(
+				#LEFT:  key_time < currentTime
+				#RIGHT: key_time > currentTime
 				
-				--(xxxxxxxxxxxxxxx):
-				default: key_time >= start_time
+				default: key_time == currentTime
 			)
 			
 			if is_key_deleted then
