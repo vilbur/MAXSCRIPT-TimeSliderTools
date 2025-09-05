@@ -45,9 +45,9 @@ struct TimeSliderTools_v
 	 */
 	function setInterval val =
 	(
-		format "\n"; print "TimeSliderTools_v.setInterval()"
-		format "val: %\n" val
-		format "EventFired: %\n" EventFired
+		--format "\n"; print "TimeSliderTools_v.setInterval()"
+		--format "val: %\n" val
+		--format "EventFired: %\n" EventFired
 		
 		fps = _rollout.DL_fps.items[val] as integer
 
@@ -77,8 +77,8 @@ struct TimeSliderTools_v
 	/* set frame */ 
 	function setFrame frame =
 	(
-		format "\n"; print "TimeSliderTools_v.setFrame()"
-		format "frame: %\n" frame
+		--format "\n"; print "TimeSliderTools_v.setFrame()"
+		--format "frame: %\n" frame
 		
 		/** Get frame button color
 		 */
@@ -137,12 +137,16 @@ struct TimeSliderTools_v
 			buttons[frame_of_button].visible = this.isInRange frame_of_button
 	),
 	
-	/* Go to frame */
-	function jumpToPhase =
+	
+	/* Go to frame
+	 * 
+	 * @param -1|1 direction 
+	*/
+	function jumpToPhase direction =
 	(
-		format "\n"; print "TimeSliderTools_v.jumpToPhase()"
-		format "EventFired: %\n" EventFired
-		direction = if EventFired.type == #rightClick  then -1 else 1
+		--format "\n"; print "TimeSliderTools_v.jumpToPhase()"
+		--format "EventFired: %\n" EventFired
+		--direction = if EventFired.type == #rightClick  then -1 else 1
 		
 		frames_increment = _rollout.DL_phase.items[ _rollout.DL_phase.selected as integer ] as integer
 		
@@ -163,7 +167,7 @@ struct TimeSliderTools_v
 	/* Set anim range */
 	function setAnimRange start_or_end frame =
 	(
-		format "\n"; print "TimeSliderTools_v.setAnimRange()"
+		--format "\n"; print "TimeSliderTools_v.setAnimRange()"
 		
 		local _Interval
 			
@@ -172,9 +176,9 @@ struct TimeSliderTools_v
 		(
 			_Interval = if start_or_end == #START then Interval frame (animationRange.end.frame) else Interval (animationRange.start.frame) frame
 	
-			format "TEST: %\n" (_Interval.start.frame as integer == _Interval.end.frame as integer )
+			--format "TEST: %\n" (_Interval.start.frame as integer == _Interval.end.frame as integer )
 			/* Prevent zero length anim range */
-			format "_INTERVAL: %\n" _Interval
+			--format "_INTERVAL: %\n" _Interval
 			
 			if _Interval.start.frame as integer == _Interval.end.frame as integer then
 				 _Interval.end += 1
@@ -185,12 +189,12 @@ struct TimeSliderTools_v
 			local last_frame_button
 			
 			buttons = this.getFrameButtons()
-			format "buttons: %\n" buttons
+			--format "buttons: %\n" buttons
 			for i = buttons.keys.count - 1 to 0 by -1  do
-			format "buttons[i]: %\n" buttons[i].visible
+			--format "buttons[i]: %\n" buttons[i].visible
 			
 			for i = buttons.keys.count - 1 to 0 by -1 while last_frame_button == undefined where buttons[i].visible do last_frame_button = buttons[i]
-			format "last_frame_button: %\n" last_frame_button
+			--format "last_frame_button: %\n" last_frame_button
 			frame_start = animationRange.start.frame
 			frame_end = animationRange.end.frame
 			
@@ -207,7 +211,7 @@ struct TimeSliderTools_v
 		if currentTime == animationRange.start or currentTime == animationRange.end then
 			shift_frame = _Interval.start.frame
 		
-		format "_INTERVAL: %\n" _Interval
+		--format "_INTERVAL: %\n" _Interval
 		/* Set new animation range */
 		animationRange = _Interval
 		
@@ -216,7 +220,7 @@ struct TimeSliderTools_v
 		
 		/* Update range buttons (UI removed) */
 		this.updateAnimRangeButtons()
-		format "SHIFT_FRAME: %\n" shift_frame
+		--format "SHIFT_FRAME: %\n" shift_frame
 		if shift_frame != undefined and not this.isInRange(shift_frame) then 
 			this.setFrame shift_frame
 	),
@@ -233,7 +237,7 @@ struct TimeSliderTools_v
 	(
 		--format "\n"; print ".getFrameButtons()"
 		buttons	=  Dictionary #INTEGER
-		format "_rollout.controls: %\n" _rollout.controls
+		--format "_rollout.controls: %\n" _rollout.controls
 		--for ctrl in _rollout.controls do
 		--format "ctrl: %\n" ctrl
 		

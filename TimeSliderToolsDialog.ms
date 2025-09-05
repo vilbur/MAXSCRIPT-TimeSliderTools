@@ -77,11 +77,11 @@ function timeSliderToolsDialog =
 	--------------------------------------------------------------------------------*/
 	_Switch	= _Controls.control #BUTTON "S W I T C H"	groupbox:_right.id across:1 width:width_btn_big height:height_btn_big offset:[ 0, -16 ] 
 	_Phase_label	= _Controls.control #LABEL "PHASE"	groupbox:_right.id across:2 align:#LEFT  offset:[-6, 10 ] 
-	_Phase_ddl	= _Controls.control #DROPDOWN "[Phase]"	groupbox:_right.id across:2 align:#RIGHT offset:[ 6, 8 ]  width:44  offset:[ 0, 8 ] items:#( "2", "3", "4", "5", "6", "7", "8", "9", "10" ) value:2
+	_Phase_ddl	= _Controls.control #DROPDOWN "[Phase]"	groupbox:_right.id across:2 align:#RIGHT offset:[ 6, 8 ]  width:44  offset:[ 0, 8 ] items:( for i = 1 to 10 collect i as string ) value:2 height:11
 	
 	--_Phase.Event #CHANGED (Dialog.id as string +".clock.interval = EventFired.val as integer" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
-	_Switch.Event #PRESSED ("TimeTools.jumpToPhase()" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
-	_Switch.Event #RIGHTCLICK ("TimeTools.jumpToPhase()" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
+	_Switch.Event #PRESSED ("TimeTools.jumpToPhase(-1)" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
+	_Switch.Event #RIGHTCLICK ("TimeTools.jumpToPhase(1)" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 	
 	--_Phase_ddl.Event #SELECTED  ("format \"EventFired: %\n\" EventFired " ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 
@@ -105,11 +105,11 @@ function timeSliderToolsDialog =
 	/* EVENTS */ 
 	_Slider.Event #CHANGED ("TimeTools.setFrame" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 
-	_Srart.Event #PRESSED	"TimeTools.setAnimRange #START ( animationRange.start.frame + 1 )"	tooltip:" + 1 frame"
-	_Srart.Event #RIGHTCLICK	"TimeTools.setAnimRange #START ( animationRange.start.frame - 1 )"	tooltip:" - 1 frame"
+	_Srart.Event #PRESSED	"TimeTools.setAnimRange #START ( animationRange.start.frame - 1 )"	tooltip:" - 1 frame"
+	_Srart.Event #RIGHTCLICK	"TimeTools.setAnimRange #START ( animationRange.start.frame + 1 )"	tooltip:" + 1 frame"
 	
-	_End.Event #PRESSED	"TimeTools.setAnimRange #END ( animationRange.end.frame + 1 )"	tooltip:" + 1 frame"
-	_End.Event #RIGHTCLICK	"TimeTools.setAnimRange #END ( animationRange.end.frame - 1 )"	tooltip:" - 1 frame"
+	_End.Event #PRESSED	"TimeTools.setAnimRange #END ( animationRange.end.frame - 1 )"	tooltip:" - 1 frame"
+	_End.Event #RIGHTCLICK	"TimeTools.setAnimRange #END ( animationRange.end.frame + 1 )"	tooltip:" + 1 frame"
 
 	
 	/** Get highlight color
