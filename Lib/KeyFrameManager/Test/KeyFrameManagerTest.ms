@@ -16,15 +16,15 @@ function createTestObject =
 	
     animate on
     (
-        at time 1 obj.position  = [ 10, 0, 0 ]
-        at time 10 obj.position = [ 50, 0, 0 ]
-        at time 40 obj.position = [ 80, 0, 0 ]
+        --at time 1 obj.position  = [ 10, 0, 0 ]
+        at time 10 obj.position = [ 100, 0, 0 ]
+        at time 20 obj.position = [ 200, 0, 0 ]
+        at time 30 obj.position = [ 300, 0, 0 ]
 		
 		
-		at time 60 
-			Rotate obj ( AngleAxis -180 [0,0,1])
+		at time 90 Rotate obj ( AngleAxis -180 [0,0,1])
 
-		at time 80  obj.radius = 100
+		at time 100  obj.radius = 100
     )
 	
 
@@ -51,6 +51,9 @@ function createTestObject =
 
 sliderTime = 10
 
+/*------------------------------------------------------------------------------
+	NEW ISNTANCE
+--------------------------------------------------------------------------------*/
 
 KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF time == undefined 
 
@@ -68,6 +71,9 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 /*------------------------------------------------------------------------------
 	DELETE KEYS
 --------------------------------------------------------------------------------*/
+
+
+
 
 /* TRANSFROM AND PROPERTIES OF SELECTION */ 
 --KeyFrameManager.removeKeys()

@@ -51,7 +51,7 @@ struct KeyFrameManager_v
 		for obj in objs do
 		(
 			/* GET CONTROLELRS AND KEYS */ 
-			this._setControllersForObject(obj)(transforms)
+			this._setControllersForObject(obj)(transforms)(mods)
 			
 			/* DELETE KEYS */ 
 			--for i = ControllersKeys.count to 1 by -1 do
@@ -65,13 +65,36 @@ struct KeyFrameManager_v
 	
 	/** Set controllers for object
 	 */
-	function _setControllersForObject obj transforms =
+	function _setControllersForObject obj transforms mods =
 	(
 		--format "\n"; print "KeyFrameManager_v._setControllersForObject()"
+		/** Get mods
+		 */
+		function _getMods mods max_index = for m = 1 to max_index where (_mod = getSubAnim mods m) != undefined collect _mod
+		
+		/** Get transform tracks
+		 */
+		function _getTransformTracks transforms =
+		(
+			--format "\n"; print "KeyFrameManager_v._getTransformTracks()"
+			if classOf transforms == Array then
+					transforms
+				
+				else  if classOf transforms == name then
+					#(transforms)
+					
+				
+				else if transforms == true then
+					transform_tracks_all
+				
+				else #()
+			
+		)
+		
 		ControllersKeys	= #()
 		
 		/* DELETE TRANSFORMS */ 
-		for transform_track in ( this._getTransformTracks transforms ) do
+		for transform_track in ( _getTransformTracks transforms ) do
 			this._getKeysFromTransformations obj transform_track
 		
 		
@@ -80,91 +103,35 @@ struct KeyFrameManager_v
 		(
 			mods_all = obj[4] --  Modified_Object
 			
-			mods_to_delete = case mods of
+			mods_to_delete = case mods of 
 			(
-				true:         this._getMods mods_all mods_all.numSubs
+				true:         _getMods mods_all mods_all.numSubs
 				
-				#MODIFIERS:   this._getMods mods_all (mods_all.numSubs - 1)
+				#MODIFIERS:   _getMods mods_all (mods_all.numSubs - 1)
 				
 				#BASEOBJECT: #( getSubAnim mods_all mods_all.numSubs )
 		
 				default: #()
 			)
 			
-			
+			/*  */ 	
 			for _mod in mods_to_delete do
 				this._getKeysFromMod _mod
 		)
-		
-		
 	),
 	
-	/** Get transform tracks
-	 */
-	function _getTransformTracks transforms =
-	(
-		--format "\n"; print "KeyFrameManager_v._getTransformTracks()"
-		if classOf transforms == Array then
-				transforms
-			
-			else  if classOf transforms == name then
-				#(transforms)
-				
-			
-			else if transforms == true then
-				transform_tracks_all
-			
-			else #()
-		
-	),
-	
-	/** Get mods
-	 */
-	function _getMods mods max_index =
-	(
-		--format "\n"; print "KeyFrameManager_v._getMods()"
-		for m = 1 to max_index where (_mod = getSubAnim mods m) != undefined collect _mod
-	),
-	
-
-	--/** Remove keys
-	-- */
-	--function removeAllAnimKeys obj =
-	--(
-	--	--format "\n"; print "KeyFrameManager_v.removeAllAnimKeys()"
-	--	--format "\n"
-	--	--format "\nremoveAllKeys OBJ: % TRIM: %: " obj.name ( if time != undefined then time else false )
-	--	this._getKeysFromTransformations( obj )
-	--	
-	--	this.removeKeysOfProperties( obj )
-	--),
-
 	function _getKeysFromTransformations obj transform_track =
 	(
 		format "\n"; print "KeyFrameManager_v._getKeysFromTransformations()"
-		format "transform_track: %\n" transform_track
 
-		--track_list = Dictionary #( #position, obj.position.controller ) #( #position, obj.rotation.controller ) #( #position, obj.scale.controller)
-
-		ctrl = this.getTransformController obj transform_track
-		format "ctrl: %\n" ctrl
-		--for ctrl in track_list do
-			--if isController ctrl then
-		this._searchForController ctrl
+		ctrl =  case transform_track of
+				(
+					#POSITION: obj.position.controller 
+					#ROTATION: obj.rotation.controller 
+					#SCALE:    obj.scale.controller 
+				)
 				
-	),
-	
-	/** Get transform track
-	 */
-	function getTransformController obj transform_track =
-	(
-		--format "\n"; print "KeyFrameManager_v.getTransformController()"
-		case transform_track of
-			(
-				#POSITION: obj.position.controller 
-				#ROTATION: obj.rotation.controller 
-				#SCALE:    obj.scale.controller 
-			)
+		this._searchForController ctrl
 	),
 	
 	/** Remove keys from mod
@@ -172,12 +139,27 @@ struct KeyFrameManager_v
 	function _getKeysFromMod _mod =
 	(
 		format "\n"; print "KeyFrameManager_v._getKeysFromMod()"
+		/** Delete keys from properties
+		 */
+		function _getKeysFromProperties sub_anim =
+		(
+			--format "\n"; print "KeyFrameManager_v._getKeysFromProperties()"
+						
+			for i = 1 to ( prop_names = getPropNames sub_anim ).count do 
+			(
+				ctrl = getPropertyController sub_anim prop_names[i]
+				
+				if ctrl != undefined then
+					this._searchForController ctrl
+			)
+		)
+
 		/*------------------------------------------------------------------------------
 
 			DELETE KEYS OF PROPERTIES
 			
 		--------------------------------------------------------------------------------*/
-		this._getKeysFromProperties (_mod)
+		_getKeysFromProperties (_mod)
 		
 		/*------------------------------------------------------------------------------
 		  
@@ -187,7 +169,7 @@ struct KeyFrameManager_v
 		try( -- prevent error with deleted scene node
 			
 			for cust_attributes in _mod.custAttributes do
-				this._getKeysFromProperties (cust_attributes)
+				_getKeysFromProperties (cust_attributes)
 			
 		)catch()
 		
@@ -195,20 +177,20 @@ struct KeyFrameManager_v
 
 	private
 	
-	/** Delete keys from properties
-	 */
-	function _getKeysFromProperties sub_anim =
-	(
-		--format "\n"; print "KeyFrameManager_v._getKeysFromProperties()"
-					
-		for i = 1 to ( prop_names = getPropNames sub_anim ).count do 
-		(
-			ctrl = getPropertyController sub_anim prop_names[i]
-			
-			if ctrl != undefined then
-				this._searchForController ctrl
-		)
-	),
+	--/** Delete keys from properties
+	-- */
+	--function _getKeysFromProperties sub_anim =
+	--(
+	--	--format "\n"; print "KeyFrameManager_v._getKeysFromProperties()"
+	--				
+	--	for i = 1 to ( prop_names = getPropNames sub_anim ).count do 
+	--	(
+	--		ctrl = getPropertyController sub_anim prop_names[i]
+	--		
+	--		if ctrl != undefined then
+	--			this._searchForController ctrl
+	--	)
+	--),
 
 	/** Delete keys from controller
 	 */
@@ -278,11 +260,9 @@ struct KeyFrameManager_v
 					appendIfUnique ControllerKeys.keys k
 				
 		)
-		
+
 		if ControllerKeys.keys.count > 0 then
 			append ControllersKeys ControllerKeys
-
-	
 	),
 	
 
