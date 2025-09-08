@@ -42,28 +42,16 @@ struct KeyFrameManager_v
 			transforms = mods = true 
 	
 		--mods_all = #( #MODIFIERS, #BASEOBJECT )
-		
-		transform_tracks_delete = if classOf transforms == Array then
-									transforms
-								
-								else  if classOf transforms == name then
-									#(transforms)
-									
-								
-								else if transforms == true then
-									transform_tracks_all
-								
-								else #()
-	
 
 		
 		for obj in objs do
 		(
 			
-			for transform_track in transform_tracks_delete collect
+			/* DELETE TRANSFORMS */ 
+			for transform_track in ( this._getTransformTracks transforms ) do
 				this.removeKeysFromTransformations obj transform_track
 			
-			
+			/* DELETE MODS */ 
 			if isProperty obj #numSubs and obj.numSubs > 0 then
 			(
 				mods_all = obj[4] --  Modified_Object
@@ -74,7 +62,7 @@ struct KeyFrameManager_v
 					
 					#MODIFIERS:   this._getMods mods_all (mods_all.numSubs - 1)
 					
-					#BASEOBJECT: #( getSubAnim mods_all mods_all.count )
+					#BASEOBJECT: #( getSubAnim mods_all mods_all.numSubs )
 			
 					default: #()
 				)
@@ -84,6 +72,25 @@ struct KeyFrameManager_v
 					this._deleteKeysFromMod _mod
 			)
 		)
+	),
+	
+	/** Get transform tracks
+	 */
+	function _getTransformTracks transforms =
+	(
+		--format "\n"; print "KeyFrameManager_v._getTransformTracks()"
+		if classOf transforms == Array then
+				transforms
+			
+			else  if classOf transforms == name then
+				#(transforms)
+				
+			
+			else if transforms == true then
+				transform_tracks_all
+			
+			else #()
+		
 	),
 	
 	/** Get mods

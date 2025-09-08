@@ -11,7 +11,7 @@ function createTestObject =
 	
 	delete objects
 	
-	obj = Teapot isSelected:true
+	obj = Teapot isSelected:true radius:20
 	
 	
     animate on
@@ -24,9 +24,10 @@ function createTestObject =
 		at time 60 
 			Rotate obj ( AngleAxis -180 [0,0,1])
 
+		at time 80  obj.radius = 100
     )
 	
-	
+
 	addModifier obj ( Bend())
 	
 	 /* Animate Angle parameter */ 
@@ -42,7 +43,8 @@ function createTestObject =
 )
 
 
---	obj	= selection[1]
+
+	--obj	= selection[1]
 
 	obj = createTestObject()
 
@@ -68,7 +70,7 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 --------------------------------------------------------------------------------*/
 
 /* TRANSFROM AND PROPERTIES OF SELECTION */ 
-KeyFrameManager.removeKeys()
+--KeyFrameManager.removeKeys()
 
 /* DELETE ALL KEYS FROM OBJECTS */ 
 --KeyFrameManager.removeKeys objs: selection[1]
@@ -84,17 +86,14 @@ KeyFrameManager.removeKeys()
 
 
 
-
-
-/* PROPERTIES all */
+/* PROPERTIES all modifiers and baseobject */
+--KeyFrameManager.removeKeys mods:true
 
 
 /* MODIFIERS */
-
- 
-/* MODIFIER SELECTED */
-
+--KeyFrameManager.removeKeys mods:#MODIFIERS
  
 /* BASEOBJECT */
+KeyFrameManager.removeKeys mods:#BASEOBJECT
 
 
