@@ -9,6 +9,11 @@ struct KeyFrameManager_v
 	
 	only_selected = false,
 	
+	transform_tracks_all = #( #POSITION, #ROTATION, #SCALE ),
+	
+	--controller_tracks = Dictionary 
+	
+	
 	/* private */
 	/* dependency */
 	/* reference */
@@ -19,96 +24,170 @@ struct KeyFrameManager_v
 	  * 
 	  * @param Array objs if undefined then use current selection
 	  * 
-	  * 
+	  * @param boolean|name|Array transforms	true|false|#POSITION|#ROTATION|#SCALE|#( #POSITION, #ROTATION, #SCALE )
+	  * @param boolean|name|Array mods	true|false|#MODIFIERS|#BASEOBJECT|#( #MODIFIERS, #BASEOBJECT )
 	 */
-	function removeAnimKeysFromObjects objs: =
+	function removeKeys objs: transforms: mods: trim: =
 	(
-		--format "\n"; print "KeyFrameManager_v.removeAnimKeysFromObjects()"
+		format "\n"; print "KeyFrameManager_v.removeKeys()"
 		--format "objs: %\n" objs
+		
+		if trim != unsupplied then 
+			this.trim = trim
+		
 		if objs == unsupplied then 
 			objs = selection as Array
 		
+		if transforms == unsupplied and mods == unsupplied  then
+			transforms = mods = true 
+	
+		--mods_all = #( #MODIFIERS, #BASEOBJECT )
+		
+		transform_tracks_delete = if classOf transforms == Array then
+									transforms
+								
+								else  if classOf transforms == name then
+									#(transforms)
+									
+								
+								else if transforms == true then
+									transform_tracks_all
+								
+								else #()
+	
+
 		
 		for obj in objs do
-			--format "obj: %\n" obj
-			this.removeAllAnimKeys obj
-		
-	),
-	
-	/** Remove keys
-	 */
-	function removeAllAnimKeys obj =
-	(
-		--format "\n"; print "KeyFrameManager_v.removeAllAnimKeys()"
-		--format "\n"
-		--format "\nremoveAllKeys OBJ: % TRIM: %: " obj.name ( if trim != undefined then trim else false )
-		this.removeKeysFromTransformations( obj )
-		
-		this.removeKeysOfProperties( obj )
-	),
-
-	function removeKeysFromTransformations obj =
-	(
-		--format "\n"; print "KeyFrameManager_v.removeAllAnimKeys()"
-		track_list = #(obj.position.controller, obj.rotation.controller, obj.scale.controller)
-
-		for ctrl in track_list do
-			if isController ctrl then
-				this._deleteKeysFromController ctrl
-				
-	),
-		
-	/** Remove keys of properties
-	  
-		SubAnim[1]:Visibility
-		SubAnim[2]:Space_Warps
-		SubAnim[3]:Transform
-		SubAnim[4]:Modified_Object
-		SubAnim[5]:Material
-		SubAnim[6]:Image_Motion_Blur_Multiplier
-		SubAnim[7]:Object_Motion_Blur_On_Off
-		
-	 */
-	function removeKeysOfProperties obj =
-	(
-		--format "\n"; print "KeyFrameManager_v.removeKeysOfProperties()"
-		
-		if isProperty obj #numSubs and obj.numSubs > 0 then
 		(
-			mods = obj[4]
 			
-			/*------------------------------------------------------------------------------
-				LOOP EACH MOD IN MOD STACK 
-			--------------------------------------------------------------------------------*/ 
-			for m = 1 to mods.numSubs where (_mod = getSubAnim mods m) != undefined do
+			for transform_track in transform_tracks_delete collect
+				this.removeKeysFromTransformations obj transform_track
+			
+			
+			if isProperty obj #numSubs and obj.numSubs > 0 then
 			(
-				/* PROPERTY KEYS */ 
-				this._deleteKeysFromProperties (_mod)
+				mods_all = obj[4] --  Modified_Object
 				
-				/* CUSTOM ATTRIBUTES KEYS */
-				try(
+				mods_to_delete = case mods of
+				(
+					true:         this._getMods mods_all mods_all.numSubs
 					
-					for cust_attributes in _mod.custAttributes do
-						this._deleteKeysFromProperties (cust_attributes)
+					#MODIFIERS:   this._getMods mods_all (mods_all.numSubs - 1)
 					
-				)catch()
+					#BASEOBJECT: #( getSubAnim mods_all mods_all.count )
+			
+					default: #()
+				)
+				
+				
+				for _mod in mods_to_delete do
+					this._deleteKeysFromMod _mod
 			)
 		)
 	),
+	
+	/** Get mods
+	 */
+	function _getMods mods max_index =
+	(
+		--format "\n"; print "KeyFrameManager_v._getMods()"
+		for m = 1 to max_index where (_mod = getSubAnim mods m) != undefined collect _mod
+	),
+	
+
+	--/** Remove keys
+	-- */
+	--function removeAllAnimKeys obj =
+	--(
+	--	--format "\n"; print "KeyFrameManager_v.removeAllAnimKeys()"
+	--	--format "\n"
+	--	--format "\nremoveAllKeys OBJ: % TRIM: %: " obj.name ( if trim != undefined then trim else false )
+	--	this.removeKeysFromTransformations( obj )
+	--	
+	--	this.removeKeysOfProperties( obj )
+	--),
+
+	function removeKeysFromTransformations obj transform_track =
+	(
+		format "\n"; print "KeyFrameManager_v.removeKeysFromTransformations()"
+		format "transform_track: %\n" transform_track
+
+		--track_list = Dictionary #( #position, obj.position.controller ) #( #position, obj.rotation.controller ) #( #position, obj.scale.controller)
+
+		ctrl = this.getTransformController obj transform_track
+		format "ctrl: %\n" ctrl
+		--for ctrl in track_list do
+			--if isController ctrl then
+		this._deleteKeysFromController ctrl
+				
+	),
+	
+	/** Get transform track
+	 */
+	function getTransformController obj transform_track =
+	(
+		--format "\n"; print "KeyFrameManager_v.getTransformController()"
+		case transform_track of
+			(
+				#POSITION: obj.position.controller 
+				#ROTATION: obj.rotation.controller 
+				#SCALE:    obj.scale.controller 
+			)
+	),
+	
+	/** Remove keys from mod
+	 */
+	function _deleteKeysFromMod _mod =
+	(
+		format "\n"; print "KeyFrameManager_v._deleteKeysFromMod()"
+		/*------------------------------------------------------------------------------
+
+			DELETE KEYS OF PROPERTIES
+			
+		--------------------------------------------------------------------------------*/
+		this._deleteKeysFromProperties (_mod)
+		
+		/*------------------------------------------------------------------------------
+		  
+			DELETE KEYS OF CUSTOM ATTRIBUTES
+			
+		--------------------------------------------------------------------------------*/
+		try( -- prevent error with deleted scene node
+			
+			for cust_attributes in _mod.custAttributes do
+				this._deleteKeysFromProperties (cust_attributes)
+			
+		)catch()
+		
+	),
 
 	private
-		
+	
+	/** Delete keys from properties
+	 */
+	function _deleteKeysFromProperties sub_anim =
+	(
+		--format "\n"; print "KeyFrameManager_v._deleteKeysFromProperties()"
+					
+		for i = 1 to ( prop_names = getPropNames sub_anim ).count do 
+		(
+			ctrl = getPropertyController sub_anim prop_names[i]
+			
+			if ctrl != undefined then
+				this._deleteKeysFromController ctrl
+		)
+	),
 
 	/** Delete keys from controller
 	 */
 	function _deleteKeysFromController ctrl =
 	(
-		--format "\n"; print "KeyFrameManager_v._deleteKeysFromController()"
+		format "\n"; print "KeyFrameManager_v._deleteKeysFromController()"
 		--format "\n\n*********************************\n"
 		--format "ctrl: %\n" ctrl
-		--format "isController ctrl: %\n" (isController ctrl)
-		--format "classOf ctrl: %\n" ( classOf ctrl )
-		--format "NUMKEYS CTRL: %\n" (numKeys CTRL)
+		format "isController ctrl: %\n" (isController ctrl)
+		format "classOf ctrl: %\n" ( classOf ctrl )
+		format "NUMKEYS CTRL: %\n" (numKeys CTRL)
 		--format "ctrl.numSubs: %\n" ctrl.numSubs
 		
 		/*------------------------------------------------------------------------------
@@ -134,36 +213,24 @@ struct KeyFrameManager_v
 		
 	),
 	
-	
-	/** Delete keys from properties
-	 */
-	function _deleteKeysFromProperties sub_anim =
-	(
-		--format "\n"; print "KeyFrameManager_v._deleteKeysFromProperties()"
-					
-		for i = 1 to ( prop_names = getPropNames sub_anim ).count do 
-		(
-			ctrl = getPropertyController sub_anim prop_names[i]
-			
-			if ctrl != undefined then
-				this._deleteKeysFromController ctrl
-		)
-	),
-	
+
 	/** Delete keys
 	 */
 	function _deleteKeys ctrl num_keys =
 	(
-		--format "\n"; print "KeyFrameManager_v._deleteKeys()"
+		format "\n"; print "KeyFrameManager_v._deleteKeys()"
+		format "trim: %\n" trim
 		--format "currentTime: %\n" currentTime
-		controler_keys	= #()
+
+		keys_to_delete	= #()
 
 		/* GET KEYS */ 
 		for k = 1 to num_keys do
 		(
 			key_time = getKeyTime ctrl k
 			
-			--format "key_time: %\n" key_time
+			format "key: % key_time: %\n" k key_time
+			
 			key_match_time = case trim of
 			(
 				#LEFT:  key_time < currentTime
@@ -172,15 +239,16 @@ struct KeyFrameManager_v
 				default: key_time == currentTime
 			)
 			
+			format "KEYS_TO_DELETE: %\n" keys_to_delete
 			if key_match_time then
 				if not only_selected or ( only_selected and isKeySelected ctrl k ) then
-					appendIfUnique controler_keys k
+					appendIfUnique keys_to_delete k
 			
 		)
-		
+
 		/* DELETE KEYS */ 
-		for i = controler_keys.count to 1 by -1 do 
-			deleteKey ctrl controler_keys[i]
+		for i = keys_to_delete.count to 1 by -1 do 
+			deleteKey ctrl keys_to_delete[i]
 	
 	),
 	

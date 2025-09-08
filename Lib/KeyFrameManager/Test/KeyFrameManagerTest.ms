@@ -11,39 +11,89 @@ function createTestObject =
 	
 	delete objects
 	
-	obj = Teapot()
+	obj = Teapot isSelected:true
 	
-	addModifier obj ( Bend())
 	
     animate on
     (
         at time 1 obj.position  = [ 10, 0, 0 ]
         at time 10 obj.position = [ 50, 0, 0 ]
+        at time 40 obj.position = [ 80, 0, 0 ]
+		
+		
+		at time 60 
+			Rotate obj ( AngleAxis -180 [0,0,1])
+
     )
 	
-	-- Animate Angle parameter
-	animate on
-	(
-		at time 0 obj.modifiers[#bend].angle = 0
-		at time 20 obj.modifiers[#bend].angle = 45
-		at time 40 obj.modifiers[#bend].angle = -30
-	)
+	
+	--addModifier obj ( Bend())
+	--
+	-- /* Animate Angle parameter */ 
+	--animate on
+	--(
+	--	at time 0 obj.modifiers[#bend].angle = 0
+	--	at time 20 obj.modifiers[#bend].angle = 45
+	--	at time 40 obj.modifiers[#bend].angle = -30
+	--)
+	
+	
 	obj --return
 )
 
 
 --	obj	= selection[1]
 
---	obj = createTestObject()
+	obj = createTestObject()
 
 
+sliderTime = 20
 
-KeyFrameManager 	= KeyFrameManager_v trim:#RIGHT -- DELETE CURRENT TIME IF trim == undefined 
 
-KeyFrameManager.only_selected = true
+KeyFrameManager 	= KeyFrameManager_v() --trim:#RIGHT -- DELETE CURRENT TIME IF trim == undefined 
 
-KeyFrameManager.removeAllAnimKeys selection[1]
 
-KeyFrameManager.removeAnimKeysFromObjects()
+/*------------------------------------------------------------------------------
+	OPTIONS
+--------------------------------------------------------------------------------*/
+
+/* DELETE ONLY SELECTED KEYS */ 
+--KeyFrameManager.only_selected = true
+
+KeyFrameManager.trim = #RIGHT
+
+/*------------------------------------------------------------------------------
+	DELETE KEYS
+--------------------------------------------------------------------------------*/
+
+/* DELETE ALL KEYS FROM SELECTION */ 
+--KeyFrameManager.removeKeys()
+
+/* DELETE ALL KEYS FROM OBJECTS */ 
+--KeyFrameManager.removeKeys objs: selection[1]
 
 	
+/* TRANSFORMS all */
+--KeyFrameManager.removeKeys transforms:true trim:undefined
+
+/* TRANSFORMS each */
+--KeyFrameManager.removeKeys transforms:#POSITION
+--KeyFrameManager.removeKeys transforms:#ROTATION
+--KeyFrameManager.removeKeys transforms:#SCALE
+
+
+
+
+
+/* PROPERTIES all */
+
+
+/* MODIFIERS */
+
+ 
+/* MODIFIER SELECTED */
+
+ 
+/* BASEOBJECT */
+
+
