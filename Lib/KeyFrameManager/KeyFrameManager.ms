@@ -50,33 +50,8 @@ struct KeyFrameManager_v
 		
 		for obj in objs do
 		(
-			ControllersKeys	= #()
-			
-			/* DELETE TRANSFORMS */ 
-			for transform_track in ( this._getTransformTracks transforms ) do
-				this._getKeysFromTransformations obj transform_track
-			
-			/* DELETE MODS */ 
-			if isProperty obj #numSubs and obj.numSubs > 0 then
-			(
-				mods_all = obj[4] --  Modified_Object
-				
-				mods_to_delete = case mods of
-				(
-					true:         this._getMods mods_all mods_all.numSubs
-					
-					#MODIFIERS:   this._getMods mods_all (mods_all.numSubs - 1)
-					
-					#BASEOBJECT: #( getSubAnim mods_all mods_all.numSubs )
-			
-					default: #()
-				)
-				
-				
-				for _mod in mods_to_delete do
-					this._getKeysFromMod _mod
-			)
-			
+			/* GET CONTROLELRS AND KEYS */ 
+			this._setControllersForObject(obj)(transforms)
 			
 			/* DELETE KEYS */ 
 			--for i = ControllersKeys.count to 1 by -1 do
@@ -85,6 +60,43 @@ struct KeyFrameManager_v
 				for k = ControllerKeys.keys.count to 1 by -1 do 
 					deleteKey ControllerKeys.ctrl ControllerKeys.keys[k]
 		)
+	),
+	
+	
+	/** Set controllers for object
+	 */
+	function _setControllersForObject obj transforms =
+	(
+		--format "\n"; print "KeyFrameManager_v._setControllersForObject()"
+		ControllersKeys	= #()
+		
+		/* DELETE TRANSFORMS */ 
+		for transform_track in ( this._getTransformTracks transforms ) do
+			this._getKeysFromTransformations obj transform_track
+		
+		
+		/* DELETE MODS */ 
+		if isProperty obj #numSubs and obj.numSubs > 0 then
+		(
+			mods_all = obj[4] --  Modified_Object
+			
+			mods_to_delete = case mods of
+			(
+				true:         this._getMods mods_all mods_all.numSubs
+				
+				#MODIFIERS:   this._getMods mods_all (mods_all.numSubs - 1)
+				
+				#BASEOBJECT: #( getSubAnim mods_all mods_all.numSubs )
+		
+				default: #()
+			)
+			
+			
+			for _mod in mods_to_delete do
+				this._getKeysFromMod _mod
+		)
+		
+		
 	),
 	
 	/** Get transform tracks
