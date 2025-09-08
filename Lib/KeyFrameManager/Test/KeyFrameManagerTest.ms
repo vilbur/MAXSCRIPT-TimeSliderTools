@@ -35,7 +35,7 @@ function createTestObject =
 	(
 		at time 0 obj.modifiers[#bend].angle = 0
 		at time 20 obj.modifiers[#bend].angle = 45
-		at time 40 obj.modifiers[#bend].angle = -30
+		at time 40 obj.modifiers[#bend].angle = -30 
 	)
 	
 	

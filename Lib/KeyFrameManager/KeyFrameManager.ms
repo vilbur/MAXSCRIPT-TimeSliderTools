@@ -3,9 +3,10 @@
 struct KeyFrameManager_v
 (
 	/* construct */
+	time, -- #LEFT | #RIGHT | #CURRENT | undefined 
+	
 	/* required */
 	/* properties */
-	time, -- #LEFT | #RIGHT | #CURRENT
 	
 	only_selected = false,
 	
