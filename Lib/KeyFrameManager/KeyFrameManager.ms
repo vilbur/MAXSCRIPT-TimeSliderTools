@@ -5,7 +5,7 @@ struct KeyFrameManager_v
 	/* construct */
 	/* required */
 	/* properties */
-	trim, -- #LEFT | #RIGHT
+	time, -- #LEFT | #RIGHT | #CURRENT
 	
 	only_selected = false,
 	
@@ -27,13 +27,13 @@ struct KeyFrameManager_v
 	  * @param boolean|name|Array transforms	true|false|#POSITION|#ROTATION|#SCALE|#( #POSITION, #ROTATION, #SCALE )
 	  * @param boolean|name|Array mods	true|false|#MODIFIERS|#BASEOBJECT|#( #MODIFIERS, #BASEOBJECT )
 	 */
-	function removeKeys objs: transforms: mods: trim: =
+	function removeKeys objs: transforms: mods: time: =
 	(
 		format "\n"; print "KeyFrameManager_v.removeKeys()"
 		--format "objs: %\n" objs
 		
-		if trim != unsupplied then 
-			this.trim = trim
+		if time != unsupplied then 
+			this.time = time
 		
 		if objs == unsupplied then 
 			objs = selection as Array
@@ -101,7 +101,7 @@ struct KeyFrameManager_v
 	--(
 	--	--format "\n"; print "KeyFrameManager_v.removeAllAnimKeys()"
 	--	--format "\n"
-	--	--format "\nremoveAllKeys OBJ: % TRIM: %: " obj.name ( if trim != undefined then trim else false )
+	--	--format "\nremoveAllKeys OBJ: % TRIM: %: " obj.name ( if time != undefined then time else false )
 	--	this.removeKeysFromTransformations( obj )
 	--	
 	--	this.removeKeysOfProperties( obj )
@@ -219,7 +219,7 @@ struct KeyFrameManager_v
 	function _deleteKeys ctrl num_keys =
 	(
 		format "\n"; print "KeyFrameManager_v._deleteKeys()"
-		format "trim: %\n" trim
+		format "time: %\n" time
 		--format "currentTime: %\n" currentTime
 
 		keys_to_delete	= #()
@@ -231,12 +231,14 @@ struct KeyFrameManager_v
 			
 			format "key: % key_time: %\n" k key_time
 			
-			key_match_time = case trim of
+			key_match_time = case time of
 			(
 				#LEFT:  key_time < currentTime
 				#RIGHT: key_time > currentTime
 				
-				default: key_time == currentTime
+				#CURRENT: key_time == currentTime
+				
+				default: true
 			)
 			
 			format "KEYS_TO_DELETE: %\n" keys_to_delete

@@ -27,15 +27,15 @@ function createTestObject =
     )
 	
 	
-	--addModifier obj ( Bend())
-	--
-	-- /* Animate Angle parameter */ 
-	--animate on
-	--(
-	--	at time 0 obj.modifiers[#bend].angle = 0
-	--	at time 20 obj.modifiers[#bend].angle = 45
-	--	at time 40 obj.modifiers[#bend].angle = -30
-	--)
+	addModifier obj ( Bend())
+	
+	 /* Animate Angle parameter */ 
+	animate on
+	(
+		at time 0 obj.modifiers[#bend].angle = 0
+		at time 20 obj.modifiers[#bend].angle = 45
+		at time 40 obj.modifiers[#bend].angle = -30
+	)
 	
 	
 	obj --return
@@ -47,10 +47,10 @@ function createTestObject =
 	obj = createTestObject()
 
 
-sliderTime = 20
+sliderTime = 10
 
 
-KeyFrameManager 	= KeyFrameManager_v() --trim:#RIGHT -- DELETE CURRENT TIME IF trim == undefined 
+KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF time == undefined 
 
 
 /*------------------------------------------------------------------------------
@@ -60,21 +60,22 @@ KeyFrameManager 	= KeyFrameManager_v() --trim:#RIGHT -- DELETE CURRENT TIME IF t
 /* DELETE ONLY SELECTED KEYS */ 
 --KeyFrameManager.only_selected = true
 
-KeyFrameManager.trim = #RIGHT
+--KeyFrameManager.time = #RIGHT
+--KeyFrameManager.time = #CURRENT
 
 /*------------------------------------------------------------------------------
 	DELETE KEYS
 --------------------------------------------------------------------------------*/
 
-/* DELETE ALL KEYS FROM SELECTION */ 
---KeyFrameManager.removeKeys()
+/* TRANSFROM AND PROPERTIES OF SELECTION */ 
+KeyFrameManager.removeKeys()
 
 /* DELETE ALL KEYS FROM OBJECTS */ 
 --KeyFrameManager.removeKeys objs: selection[1]
 
 	
 /* TRANSFORMS all */
---KeyFrameManager.removeKeys transforms:true trim:undefined
+--KeyFrameManager.removeKeys transforms:true time:undefined
 
 /* TRANSFORMS each */
 --KeyFrameManager.removeKeys transforms:#POSITION
