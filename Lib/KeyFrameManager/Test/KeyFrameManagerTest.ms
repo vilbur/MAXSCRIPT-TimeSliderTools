@@ -109,7 +109,6 @@ KeyFrameManager.removeKeys time:#RIGHT
 --------------------------------------------------------------------------------*/
 sliderTime = 0
 KeyFrameManager.copyKeys time:#CURRENT
-KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF time == undefined 
 
 /* Copy keys in range 1-10 to 11-20 */ 
 KeyFrameManager.copyKeys time:[ 1, 10 ] transforms:true mods:false -- default increment is length ofrange + 1

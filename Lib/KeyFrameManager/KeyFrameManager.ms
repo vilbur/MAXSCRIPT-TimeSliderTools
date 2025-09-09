@@ -62,7 +62,7 @@ struct KeyFrameManager_v
 	 */
 	function copyKeys objs: transforms: mods: time: increment: =
 	(
-		format "\n"; print "KeyFrameManager_v.copyKeys()"
+		--format "\n"; print "KeyFrameManager_v.copyKeys()"
 		
 		this.setParameters objs:objs transforms:transforms mods:mods time:time
 		--format "this.time: %\n" this.time
@@ -85,11 +85,11 @@ struct KeyFrameManager_v
 			--for i = ControllersKeys.count to 1 by -1 do
 			for ControllerKeys in ControllersKeys do
 			(
-				format "ControllerKeys.keys: %\n" ControllerKeys.keys
+				--format "ControllerKeys.keys: %\n" ControllerKeys.keys
 				/* DELETE KEYS BY INDEX IN REVERSE */ 
 				for k = ControllerKeys.keys.count to 1 by -1 where ( key_time = ControllerKeys.keys[k] ) != undefined do
 				(
-					format "% > %\n" key_time (key_time + increment) 
+					--format "% > %\n" key_time (key_time + increment) 
 					with animate on at time (key_time + increment) 
 						ControllerKeys.ctrl.value = at time key_time ControllerKeys.ctrl.value  
 				)
