@@ -5,11 +5,14 @@ filein( getFilenamePath(getSourceFileName()) + "/ControllerKeys/ControllerKeys.m
 struct KeyFrameManager_v
 (
 	/* construct */
-	time, -- #LEFT | #RIGHT | #CURRENT | undefined 
+	time, -- undefined | #LEFT | #RIGHT | #CURRENT | [ range_start, range_end ]
 	
 	/* required */
 	/* properties */
-	
+	objs,
+	transforms,
+	mods,
+
 	only_selected = false,
 	
 	transform_tracks_all = #( #POSITION, #ROTATION, #SCALE ),
@@ -33,41 +36,103 @@ struct KeyFrameManager_v
 	 */
 	function removeKeys objs: transforms: mods: time: =
 	(
-		format "\n"; print "KeyFrameManager_v.removeKeys()"
+		--format "\n"; print "KeyFrameManager_v.removeKeys()"
 		--format "objs: %\n" objs
+		this.setParameters objs:objs transforms:transforms mods:mods time:time
 		
-		if time != unsupplied then 
-			this.time = time
 		
-		if objs == unsupplied then 
-			objs = selection as Array
-		
-		if transforms == unsupplied and mods == unsupplied  then
-			transforms = mods = true 
-	
-		--mods_all = #( #MODIFIERS, #BASEOBJECT )
-
-		
-		for obj in objs do
+		for obj in this.objs do
 		(
 			/* GET CONTROLELRS AND KEYS */ 
-			this._setControllersForObject(obj)(transforms)(mods)
+			this._setControllersForObject(obj) --(transforms)(mods)
 			
 			/* DELETE KEYS */ 
 			--for i = ControllersKeys.count to 1 by -1 do
 			for ControllerKeys in ControllersKeys do
+			(
+				--format "ControllerKeys.keys: %\n" ControllerKeys.keys
 				/* DELETE KEYS BY INDEX IN REVERSE */ 
-				for k = ControllerKeys.keys.count to 1 by -1 do 
-					deleteKey ControllerKeys.ctrl ControllerKeys.keys[k]
+				for k = ControllerKeys.keys.count to 1 by -1 where ( key_time = ControllerKeys.keys[k] ) != undefined do
+					deleteKey ControllerKeys.ctrl k
+			)
 		)
+	),
+	
+	/** Copy keys
+	 */
+	function copyKeys objs: transforms: mods: time: increment: =
+	(
+		format "\n"; print "KeyFrameManager_v.copyKeys()"
+		
+		this.setParameters objs:objs transforms:transforms mods:mods time:time
+		--format "this.time: %\n" this.time
+		if increment == unsupplied then
+		(
+			increment = if classOf this.time == Point2 then
+							this.time.y - this.time.x + 1
+						else
+							1
+		)
+		
+		
+		for obj in this.objs do
+		(
+			/* GET CONTROLELRS AND KEYS */ 
+			this._setControllersForObject(obj) --(transforms)(mods)
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+
+			/* DELETE KEYS */ 
+			--for i = ControllersKeys.count to 1 by -1 do
+			for ControllerKeys in ControllersKeys do
+			(
+				format "ControllerKeys.keys: %\n" ControllerKeys.keys
+				/* DELETE KEYS BY INDEX IN REVERSE */ 
+				for k = ControllerKeys.keys.count to 1 by -1 where ( key_time = ControllerKeys.keys[k] ) != undefined do
+				(
+					format "% > %\n" key_time (key_time + increment) 
+					with animate on at time (key_time + increment) 
+						ControllerKeys.ctrl.value = at time key_time ControllerKeys.ctrl.value  
+				)
+			)
+		)
+		
+	),
+	
+
+	private
+	
+	/** Set parameters
+	 */
+	function setParameters objs: transforms: mods: time: =
+	(
+		--format "\n"; print "KeyFrameManager_v.setParameters()"
+		if time != unsupplied then 
+			this.time = time
+		
+		
+		this.objs = if objs == unsupplied then selection as Array else objs
+		
+		if not ( transforms == unsupplied and mods == unsupplied ) then
+		(
+			if transforms != unsupplied then 
+				this.transforms = transforms
+		
+			if time != unsupplied then 
+				this.time = time
+		)
+		else
+			this.transforms = this.mods = true
 	),
 	
 	
 	/** Set controllers for object
 	 */
-	function _setControllersForObject obj transforms mods =
+	function _setControllersForObject obj =
 	(
 		--format "\n"; print "KeyFrameManager_v._setControllersForObject()"
+		--format "TRANSFORMS: %\n" transforms
+		--format "MODS:       %\n" mods
+		
 		/** Get mods
 		 */
 		function _getMods mods max_index = for m = 1 to max_index where (_mod = getSubAnim mods m) != undefined collect _mod
@@ -98,22 +163,23 @@ struct KeyFrameManager_v
 			this._getKeysFromTransformations obj transform_track
 		
 		
-		/* DELETE MODS */ 
-		if isProperty obj #numSubs and obj.numSubs > 0 then
-		(
-			mods_all = obj[4] --  Modified_Object
-			
-			mods_to_delete = case mods of 
+		/* DELETE MODS */
+		if mods == true then
+			if isProperty obj #numSubs and obj.numSubs > 0 then
 			(
-				true:         _getMods mods_all mods_all.numSubs
+				mods_all = obj[4] --  Modified_Object
 				
-				#MODIFIERS:   _getMods mods_all (mods_all.numSubs - 1)
-				
-				#BASEOBJECT: #( getSubAnim mods_all mods_all.numSubs )
-		
-				default: #()
-			)
+				mods_to_delete = case mods of 
+				(
+					true:         _getMods mods_all mods_all.numSubs
+					
+					#MODIFIERS:   _getMods mods_all (mods_all.numSubs - 1)
+					
+					#BASEOBJECT: #( getSubAnim mods_all mods_all.numSubs )
 			
+					default: #()
+				)
+				
 			/*  */ 	
 			for _mod in mods_to_delete do
 				this._getKeysFromMod _mod
@@ -122,7 +188,7 @@ struct KeyFrameManager_v
 	
 	function _getKeysFromTransformations obj transform_track =
 	(
-		format "\n"; print "KeyFrameManager_v._getKeysFromTransformations()"
+		--format "\n"; print "KeyFrameManager_v._getKeysFromTransformations()"
 
 		ctrl =  case transform_track of
 				(
@@ -131,14 +197,14 @@ struct KeyFrameManager_v
 					#SCALE:    obj.scale.controller 
 				)
 				
-		this._searchForController ctrl
+		this._searchForControllerKeys ctrl
 	),
 	
 	/** Remove keys from mod
 	 */
 	function _getKeysFromMod _mod =
 	(
-		format "\n"; print "KeyFrameManager_v._getKeysFromMod()"
+		--format "\n"; print "KeyFrameManager_v._getKeysFromMod()"
 		/** Delete keys from properties
 		 */
 		function _getKeysFromProperties sub_anim =
@@ -150,7 +216,7 @@ struct KeyFrameManager_v
 				ctrl = getPropertyController sub_anim prop_names[i]
 				
 				if ctrl != undefined then
-					this._searchForController ctrl
+					this._searchForControllerKeys ctrl
 			)
 		)
 
@@ -175,9 +241,11 @@ struct KeyFrameManager_v
 		
 	),
 
-	private
-	
-	--/** Delete keys from properties
+
+
+
+
+--/** Delete keys from properties
 	-- */
 	--function _getKeysFromProperties sub_anim =
 	--(
@@ -188,20 +256,20 @@ struct KeyFrameManager_v
 	--		ctrl = getPropertyController sub_anim prop_names[i]
 	--		
 	--		if ctrl != undefined then
-	--			this._searchForController ctrl
+	--			this._searchForControllerKeys ctrl
 	--	)
 	--),
 
 	/** Delete keys from controller
 	 */
-	function _searchForController ctrl =
+	function _searchForControllerKeys ctrl =
 	(
-		format "\n"; print "KeyFrameManager_v._searchForController()"
+		--format "\n"; print "KeyFrameManager_v._searchForControllerKeys()"
 		--format "\n\n*********************************\n"
 		--format "ctrl: %\n" ctrl
-		format "isController ctrl: %\n" (isController ctrl)
-		format "classOf ctrl: %\n" ( classOf ctrl )
-		format "NUMKEYS CTRL: %\n" (numKeys CTRL)
+		--format "isController ctrl: %\n" (isController ctrl)
+		--format "classOf ctrl: %\n" ( classOf ctrl )
+		--format "NUMKEYS CTRL: %\n" (numKeys CTRL)
 		--format "ctrl.numSubs: %\n" ctrl.numSubs
 		
 		/*------------------------------------------------------------------------------
@@ -216,7 +284,7 @@ struct KeyFrameManager_v
 					/* GET CONTROLLER OF SUBANIM */ 
 					if (sub_ctrl = getPropertyController ctrl sub_anim_ctrl.name) != undefined then
 						/* DELETE KEYS OF SUBANIM */ 
-						this._searchForController sub_ctrl
+						this._searchForControllerKeys sub_ctrl
 		)
 		
 		/*------------------------------------------------------------------------------
@@ -228,39 +296,57 @@ struct KeyFrameManager_v
 	),
 	
 
-	/** Delete keys
+	
+	/** GET KEYS OF CONTROLLER
+	  * 
+	  * fill this.ControllersKeys
 	 */
 	function _getKeys ctrl num_keys =
 	(
-		format "\n"; print "KeyFrameManager_v._getKeys()"
-		format "time: %\n" time
+		--format "\n"; print "KeyFrameManager_v._getKeys()"
+		--format "time: %\n" time
+		
+		/** Is key match time
+		 */
+		function isKeyMatchTime key_time =
+		(
+			--format "\n"; print "KeyFrameManager_v.isKeyMatchTime()"
+			/*------------------------------------------------------------------------------
+				BY CURRENT TIME
+			--------------------------------------------------------------------------------*/
+			if classOf this.time != Point2 then
+				case this.time of
+				(
+					#LEFT:  key_time < currentTime
+					#RIGHT: key_time > currentTime
+					
+					#CURRENT: key_time == currentTime
+					
+					default: true -- all keys
+				)
+			else
+			/*------------------------------------------------------------------------------
+				IS KEY IN TIME RANGE
+			--------------------------------------------------------------------------------*/
+				key_time >= time.x and key_time <= time.y
+			
+		)
+		
+		
 		--format "currentTime: %\n" currentTime
 		ControllerKeys = ControllerKeys_v(ctrl)
 
-		/* GET KEYS */ 
+		/*------------------------------------------------------------------------------
+			FOR EACH KEY OF CONTROLLER
+		--------------------------------------------------------------------------------*/
 		for k = 1 to num_keys do
-		(
-			key_time = getKeyTime ctrl k
-			
-			format "key: % key_time: %\n" k key_time
-			
-			key_match_time = case time of
-			(
-				#LEFT:  key_time < currentTime
-				#RIGHT: key_time > currentTime
-				
-				#CURRENT: key_time == currentTime
-				
-				default: true
-			)
-			
 			/* GET KEY IF MATCH TIME */ 
-			if key_match_time then
+			if isKeyMatchTime(getKeyTime ctrl k) then
+				/* IF KEY IS SELECTED OR NOT */ 
 				if not only_selected or ( only_selected and isKeySelected ctrl k ) then
-					appendIfUnique ControllerKeys.keys k
-				
-		)
+					ControllerKeys.keys[k] = (getKeyTime ctrl k).frame as integer
 
+		
 		if ControllerKeys.keys.count > 0 then
 			append ControllersKeys ControllerKeys
 	),

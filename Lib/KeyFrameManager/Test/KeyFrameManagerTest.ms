@@ -72,14 +72,15 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 	DELETE KEYS
 --------------------------------------------------------------------------------*/
 
-
-
-
-/* TRANSFROM AND PROPERTIES OF SELECTION */ 
+/* ALL KEYS OF SELECTION */ 
 --KeyFrameManager.removeKeys()
 
-/* DELETE ALL KEYS FROM OBJECTS */ 
---KeyFrameManager.removeKeys objs: selection[1]
+/* TRIM RIGHT */ 
+KeyFrameManager.removeKeys time:#RIGHT
+
+
+/* ALL KEYS FROM OBJECTS IN TIME RANGE */ 
+--KeyFrameManager.removeKeys objs: selection[1] time:[ 10, 50 ]
 
 	
 /* TRANSFORMS all */
@@ -100,6 +101,21 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 --KeyFrameManager.removeKeys mods:#MODIFIERS
  
 /* BASEOBJECT */
-KeyFrameManager.removeKeys mods:#BASEOBJECT
+--KeyFrameManager.removeKeys mods:#BASEOBJECT
+
+
+/*------------------------------------------------------------------------------
+	COPY KEYS
+--------------------------------------------------------------------------------*/
+sliderTime = 0
+KeyFrameManager.copyKeys time:#CURRENT
+KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF time == undefined 
+
+/* Copy keys in range 1-10 to 11-20 */ 
+KeyFrameManager.copyKeys time:[ 1, 10 ] transforms:true mods:false -- default increment is length ofrange + 1
+
+/* COPY POSITION KEYS ABOUT 30 FRAMES FORWARD */ 
+KeyFrameManager.copyKeys time:[ 0, 10 ] increment:30 transforms:#POSITION
+
 
 

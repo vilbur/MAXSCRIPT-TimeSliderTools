@@ -146,7 +146,7 @@ function timeSliderToolsDialog =
 	--------Dialog.create()
 	Dialog.create height:dialog_height lockWidth:true lockHeight:true
 	
-	Dialog.register()
+	--Dialog.register()
 )
 
 timeSliderToolsDialog()
