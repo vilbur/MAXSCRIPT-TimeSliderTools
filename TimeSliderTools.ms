@@ -1,11 +1,17 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
+filein( getFilenamePath(getSourceFileName()) + "/Lib/COLOR_NAMES/COLOR_NAMES.ms" )	--"./Lib/COLOR_NAMES/COLOR_NAMES.ms"
+
+filein( getFilenamePath(getSourceFileName()) + "/Lib/LHrigWrapper/LHrigWrapper.ms" )	--"./Lib/LHrigWrapper/LHrigWrapper.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/Dialog/Dialog.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/Dialog/Dialog.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/KeyFrameManager/KeyFrameManager.ms" )	--"./Lib/KeyFrameManager/KeyFrameManager.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/frameButtonRcMenu/frameButtonRcMenu.ms" )	--"./Lib/frameButtonRcMenu/frameButtonRcMenu.ms"
 
+
+global DIALOG_time_slider_tools
 
 /* 
 	Struct: TimeSliderTools_v
@@ -17,7 +23,7 @@ struct TimeSliderTools_v
 	_rollout,
 	
 	/* properties */
-	green_color = color 1 135 73, -- coor active frame button 
+	green_color = COLOR_NAMES[#DARKGREEN], -- coor active frame button 
 	
 	/** On timer tick
 	 */
@@ -36,7 +42,17 @@ struct TimeSliderTools_v
 		else
 			if _rollout.slider_current_time.value != sliderTime.frame then
 				this.setFrame sliderTime.frame
-			
+		
+		/*
+		   AUTO FILTER KEYS ON TIME SLIDER
+		  
+			https://help.autodesk.com/view/MAXDEV/2022/ENU/?guid=GUID-5120D063-E771-4700-98FF-60E4E578BE52
+		*/ 
+		trackbar.filter = if toolmode.commandmode == #ROTATE or toolmode.commandmode == #MOVE then
+			#currentTM
+			--#TMOnly 
+		else
+			#all
 		--format "_rollout: %\n" _rollout.status_bar
 		
 	),

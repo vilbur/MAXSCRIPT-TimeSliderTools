@@ -62,7 +62,7 @@ function timeSliderToolsDialog =
 	/*------------------------------------------------------------------------------
 		LEFT GROUPBOX 
 	--------------------------------------------------------------------------------*/ 
-	Play	= _Controls.control #CHECKBUTTON	"P L A Y"	groupbox:_left.id across:1 width:width_btn_big height:height_btn_big offset:[ 0, -16 ] color:green
+	Play	= _Controls.control #CHECKBUTTON	"P L A Y"	groupbox:_left.id across:1 width:width_btn_big height:height_btn_big offset:[ 0, -16 ] color:COLOR_NAMES[#DARKGREEN]
 	FPS_label	= _Controls.control #LABEL	"FPS"	groupbox:_left.id across:2 align:#LEFT  offset:[ 0, 10 ] 
 	FPS_ddl	= _Controls.control #DROPDOWN	"[FPS]"	groupbox:_left.id across:2 align:#RIGHT offset:[ 6, 8 ]  width:48  offset:[ 0, 8 ] items:#( "24", "12", "6", "4", "2", "1" ) value:4 
 	
@@ -128,7 +128,7 @@ function timeSliderToolsDialog =
 	------------------------------------------------------------------------------*/
 	for i = 0 to frame_range do
 	(
-		_Frame_btn = _Controls.control #CHECKBUTTON ( i as string ) id:("btn_frame_"+i as string ) width:width_button height:width_button pos:[ pos_x_button += width_button , pos_y ] highlightColor:(if i == 0 then orange )
+		_Frame_btn = _Controls.control #CHECKBUTTON ( i as string ) id:("btn_frame_"+i as string ) width:width_button height:width_button pos:[ pos_x_button += width_button , pos_y ] highlightColor:(if i == 0 then orange else COLOR_NAMES[#DARKGREEN] )
 		
 		
 		--_Frame_btn.Event #CHANGED ("TimeTools.setFrame( "+i as string +")( EventFired.control )") --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )

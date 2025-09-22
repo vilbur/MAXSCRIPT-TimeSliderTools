@@ -23,6 +23,8 @@ struct KeyFrameManager_v
 
 	/* private */
 	/* dependency */
+	LHrigWrapper = LHrigWrapper_v(),
+	
 	/* reference */
 	/* inhered */
 	
@@ -62,39 +64,63 @@ struct KeyFrameManager_v
 	 */
 	function copyKeys objs: transforms: mods: time: increment: =
 	(
-		--format "\n"; print "KeyFrameManager_v.copyKeys()"
+		format "\n"; print "KeyFrameManager_v.copyKeys()"
 		
 		this.setParameters objs:objs transforms:transforms mods:mods time:time
-		--format "this.time: %\n" this.time
+
 		if increment == unsupplied then
-		(
-			increment = if classOf this.time == Point2 then
-							this.time.y - this.time.x + 1
-						else
-							1
-		)
+			increment = if classOf this.time != Point2 then 1 else this.time.y - this.time.x + 1
 		
 		
 		for obj in this.objs do
 		(
 			/* GET CONTROLELRS AND KEYS */ 
 			this._setControllersForObject(obj) --(transforms)(mods)
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-
-			/* DELETE KEYS */ 
-			--for i = ControllersKeys.count to 1 by -1 do
+			
+			new_keys = #()
+		
+			/* FOR EACH CONTROLLER */ 
 			for ControllerKeys in ControllersKeys do
 			(
 				--format "ControllerKeys.keys: %\n" ControllerKeys.keys
 				/* DELETE KEYS BY INDEX IN REVERSE */ 
-				for k = ControllerKeys.keys.count to 1 by -1 where ( key_time = ControllerKeys.keys[k] ) != undefined do
+				for key_index = ControllerKeys.keys.count to 1 by -1 where ( key_time = ControllerKeys.keys[key_index] ) != undefined do
 				(
-					--format "% > %\n" key_time (key_time + increment) 
-					with animate on at time (key_time + increment) 
-						ControllerKeys.ctrl.value = at time key_time ControllerKeys.ctrl.value  
+					format "ControllerKeys.ctr: %\n" ControllerKeys.ctrl
+					
+					new_time = ( key_time + increment ) as integer
+					format "new_time: %\n" new_time
+					
+					/* COPY KEY */ 
+					with animate on at time new_time
+						ControllerKeys.ctrl.value = at time key_time ControllerKeys.ctrl.value
+					
+					
+					if matchPattern ( ControllerKeys.ctrl as string ) pattern:("*Position*") then
+						appendIfUnique new_keys new_time
+					
+					--if findItem new_keys new_time == 0 then
+					--	new_keys[key_index] = new_time
+					
 				)
 			)
+			
+			--if LHrigWrapper.isRigController(obj.name) then
+			--(
+			--	LHrigWrapper.objs_keys[obj.name] = new_keys
+			--	
+			--	LHrigWrapper.setControllerToFlip (obj.name)
+			--	
+			--)
+			--	
+			format "%: NEW_KEYS: %\n" obj.name new_keys
+			
 		)
+		
+		--format "LHrigWrapper.objs_keys: %\n" LHrigWrapper.objs_keys
+		--format "controllers_to_flip: %\n" LHrigWrapper.controllers_to_flip
+		--
+		--LHrigWrapper.mirrorControllerTransfroms()
 		
 	),
 	
@@ -125,6 +151,7 @@ struct KeyFrameManager_v
 	),
 	
 	
+
 	/** Set controllers for object
 	 */
 	function _setControllersForObject obj =
@@ -156,11 +183,29 @@ struct KeyFrameManager_v
 			
 		)
 		
-		ControllersKeys	= #()
+		/*
+		*/ 
+		function _getKeysFromTransformations obj transform_track =
+		(
+			--format "\n"; print "KeyFrameManager_v._getKeysFromTransformations()"
+	
+			ctrl =  case transform_track of
+					(
+						#POSITION: obj.position.controller 
+						#ROTATION: obj.rotation.controller 
+						#SCALE:    obj.scale.controller 
+					)
+					
+			this._searchForControllerKeys ctrl
+		)
 		
-		/* DELETE TRANSFORMS */ 
+		this.ControllersKeys	= #()
+		
+		/* TRANSFORMS */ 
 		for transform_track in ( _getTransformTracks transforms ) do
-			this._getKeysFromTransformations obj transform_track
+			_getKeysFromTransformations obj transform_track
+		
+		
 		
 		
 		/* DELETE MODS */
@@ -186,19 +231,7 @@ struct KeyFrameManager_v
 		)
 	),
 	
-	function _getKeysFromTransformations obj transform_track =
-	(
-		--format "\n"; print "KeyFrameManager_v._getKeysFromTransformations()"
 
-		ctrl =  case transform_track of
-				(
-					#POSITION: obj.position.controller 
-					#ROTATION: obj.rotation.controller 
-					#SCALE:    obj.scale.controller 
-				)
-				
-		this._searchForControllerKeys ctrl
-	),
 	
 	/** Remove keys from mod
 	 */
@@ -222,14 +255,14 @@ struct KeyFrameManager_v
 
 		/*------------------------------------------------------------------------------
 
-			DELETE KEYS OF PROPERTIES
+			GET KEYS OF PROPERTIES
 			
 		--------------------------------------------------------------------------------*/
 		_getKeysFromProperties (_mod)
 		
 		/*------------------------------------------------------------------------------
 		  
-			DELETE KEYS OF CUSTOM ATTRIBUTES
+			GET KEYS OF CUSTOM ATTRIBUTES
 			
 		--------------------------------------------------------------------------------*/
 		try( -- prevent error with deleted scene node
@@ -241,24 +274,6 @@ struct KeyFrameManager_v
 		
 	),
 
-
-
-
-
---/** Delete keys from properties
-	-- */
-	--function _getKeysFromProperties sub_anim =
-	--(
-	--	--format "\n"; print "KeyFrameManager_v._getKeysFromProperties()"
-	--				
-	--	for i = 1 to ( prop_names = getPropNames sub_anim ).count do 
-	--	(
-	--		ctrl = getPropertyController sub_anim prop_names[i]
-	--		
-	--		if ctrl != undefined then
-	--			this._searchForControllerKeys ctrl
-	--	)
-	--),
 
 	/** Delete keys from controller
 	 */
@@ -288,7 +303,7 @@ struct KeyFrameManager_v
 		)
 		
 		/*------------------------------------------------------------------------------
-			DELETE KEYS FROM CONTROLLER
+			GET KEYS FROM CONTROLLER
 		--------------------------------------------------------------------------------*/
 		else
 			this._getKeys ctrl num_keys

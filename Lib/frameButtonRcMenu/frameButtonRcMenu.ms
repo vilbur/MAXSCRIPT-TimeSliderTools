@@ -6,8 +6,8 @@ function frameButtonRcMenu frame =
 	--format "DIALOG_time_slider_tools.DL_phase.selection: %\n" DIALOG_time_slider_tools.DL_phase.selection
 	phase_length = DIALOG_time_slider_tools.DL_phase.items[DIALOG_time_slider_tools.DL_phase.selection] as integer
 	
-	pahse_range = [ currentTime, currentTime + phase_length ] 
-	format "PAHSE_RANGE: %\n" pahse_range
+	phase_range = [ currentTime, currentTime + phase_length - 1 ] 
+	format "PAHSE_RANGE: %\n" phase_range
 	time_delete = if keyboard.controlPressed then "#RIGHT" else "#CURRENT"
 
 	Menu = RcMenu_v name:"MenuName"
@@ -24,7 +24,7 @@ function frameButtonRcMenu frame =
 	transfroms = Menu.menu "DELETE TRANSFORMS"
 
 	removeKeys_cmd = "(KeyFrameManager_v( "+time_delete+" )).removeKeys "
-	copyKeys_cmd   = "(KeyFrameManager_v( "+pahse_range as string +" )).copyKeys "
+	copyKeys_cmd   = "(KeyFrameManager_v( "+phase_range as string +" )).copyKeys "
 	
 	/* TRANSFORMS all */
 	transfroms.item	"DELETE ALL TRANSFORMS CTRL: Trim Right"	( removeKeys_cmd + "transforms:true" )
@@ -50,7 +50,7 @@ function frameButtonRcMenu frame =
 	
 	Menu.separator()
 	
-	Menu.item	("COPY PHASE " + pahse_range as string + " TO: " + ((pahse_range.y + 1) as integer )  as string )	( copyKeys_cmd + "()" )
+	Menu.item	("COPY KEYS " + phase_range.x as string + " - " + phase_range.y as string + " TO: " + ((phase_range.y + 1) as integer )  as string )	( copyKeys_cmd + " transforms:true" )
 
 	
 	Menu.separator()
