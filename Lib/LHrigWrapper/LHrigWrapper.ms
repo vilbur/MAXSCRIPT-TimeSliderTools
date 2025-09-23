@@ -1,4 +1,4 @@
-filein( getFilenamePath(getSourceFileName()) + "/../RigFlipper/RigFlipper.ms" )	--"./../RigFlipper/RigFlipper.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../TransformFlipper/TransformFlipper.ms" )	--"./../TransformFlipper/TransformFlipper.ms"
 
 /**
  */
@@ -15,7 +15,7 @@ struct LHrigWrapper_v
 
 	--controllers_to_flip = Dictionary #STRING,
 	controllers_to_flip = Dictionary #STRING,
-	RigFlipper = RigFlipper_v(),
+	TransformFlipper = TransformFlipper_v(),
 
 
 	/* private */
@@ -82,7 +82,7 @@ struct LHrigWrapper_v
 			--rig_controllers = execute ("$'*_Setup_Ctrl_*'") as Array
 			rig_controllers = execute ("$'"+ctrl_name+"*'") as Array
 			
-	--RigFlipper.processIKKeys obj_A times_A obj_B times_B
+	--TransformFlipper.processIKKeys obj_A times_A obj_B times_B
 
 	
 	
@@ -93,7 +93,7 @@ struct LHrigWrapper_v
 			obj_A = rig_controllers[1]
 			obj_B = rig_controllers[2]
 			
-			RigFlipper.mirrorTrasformsAtTimes obj_A objs_keys[obj_A.name] obj_B objs_keys[obj_B.name]
+			TransformFlipper.mirrorTrasformsAtTimes obj_A objs_keys[obj_A.name] obj_B objs_keys[obj_B.name]
 			
 			
 		)

@@ -1,6 +1,6 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
-filein( getFilenamePath(getSourceFileName()) + "/../RigFlipper.ms" )	--"./../RigFlipper.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../TransformFlipper.ms" )	--"./../TransformFlipper.ms"
 
 
 
@@ -64,11 +64,11 @@ times_all = for i = amin ( times_A + times_B ) to amax ( times_A + times_B ) col
 animationRange = Interval 0 10
 
 /*  */ 
-RigFlipper = RigFlipper_v()
+TransformFlipper = TransformFlipper_v()
 
---RigFlipper.mirrorTrasformsAtTimes obj_A times_A obj_B times_B
-RigFlipper.mirrorTrasformsAtTimes obj_A times_all obj_B times_all
+--TransformFlipper.mirrorTrasformsAtTimes obj_A times_A obj_B times_B
+TransformFlipper.mirrorTrasformsAtTimes obj_A times_all obj_B times_all
 
---RigFlipper.mirrorTrasformsAtTimes selection[1] times_A selection[2] times_8
---RigFlipper.mirrorTrasformsAtTimes selection[1] times_all selection[2] times_all
+--TransformFlipper.mirrorTrasformsAtTimes selection[1] times_A selection[2] times_8
+--TransformFlipper.mirrorTrasformsAtTimes selection[1] times_all selection[2] times_all
 

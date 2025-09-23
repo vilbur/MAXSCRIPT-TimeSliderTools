@@ -1,6 +1,6 @@
 /** Rig flipper
  */
-struct RigFlipper_v
+struct TransformFlipper_v
 (
 	/* construct */
 	
@@ -22,7 +22,7 @@ struct RigFlipper_v
 	 */
 	function _getKeyIndex ctrl _time key_index =
 	(
-		--format "\n"; print "RigFlipper_v._getKeyIndex()"
+		--format "\n"; print "TransformFlipper_v._getKeyIndex()"
 		--format "ctrl: %\n" ctrl
 		--format "numKeys ctrl: %\n" (numKeys ctrl)
 		--format "ctrl.numSubs: %\n" ctrl.numSubs
@@ -68,7 +68,7 @@ struct RigFlipper_v
 	*/
 	function mirrorTrasformsAtTimes obj_A times_A obj_B times_B =
 	(
-		format "\n"; print "RigFlipper_v.mirrorTrasformsAtTimes()"
+		format "\n"; print "TransformFlipper_v.mirrorTrasformsAtTimes()"
 
 		format "obj_A: %\n" obj_A
 		format "obj_B: %\n" obj_B
@@ -159,7 +159,7 @@ struct RigFlipper_v
 	 */
 	function _getController obj type =
 	(
-		--format "\n"; print "RigFlipper_v._getController()"
+		--format "\n"; print "TransformFlipper_v._getController()"
 		case type of
 		(
 			#POSITION: obj.position.controller
@@ -187,7 +187,7 @@ struct RigFlipper_v
 	 */
 	function isTransformLocked obj type =
 	(
-		--format "\n"; print "RigFlipper_v.isTransformLocked()"
+		--format "\n"; print "TransformFlipper_v.isTransformLocked()"
 		for i in ((getTransformLockFlags obj) * lock_flags[type] ) collect #( #X, #Y, #Z, #X, #Y, #Z, #X, #Y, #Z )[i]
 	),
 	
@@ -199,7 +199,7 @@ struct RigFlipper_v
 	function flipIKControllers obj1 obj2 _time =
 	(
 		-- Store the properties of the first object
-			--format "\n"; print "RigFlipper_v.flipIKControllers()"
+			--format "\n"; print "TransformFlipper_v.flipIKControllers()"
 		_time = _time as time
 		with animate on
 		at time currentTime
@@ -229,7 +229,7 @@ struct RigFlipper_v
 	*/
 	function swapLocalRotation objA objB _time =
 	(
-		--format "\n"; print "RigFlipper_v.swapLocalRotation()"
+		--format "\n"; print "TransformFlipper_v.swapLocalRotation()"
 		_time = _time as time
 	
 		with animate on
@@ -298,7 +298,7 @@ struct RigFlipper_v
 	 */
 	on create do
 	(
-		--format "\n"; print "RigFlipper.onCreate()"
+		--format "\n"; print "TransformFlipper.onCreate()"
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)
