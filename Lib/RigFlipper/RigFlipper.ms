@@ -110,6 +110,7 @@ struct RigFlipper_v
 					
 					--format "\n===========================================\n"
 					
+					
 					key_a = 0
 					key_b = 0
 					
@@ -117,8 +118,8 @@ struct RigFlipper_v
 					
 					--format "\n===========================================\n"
 					key_b = this._getKeyIndex ctrl_b ( _time as time ) key_b
-						--format "key_a: %\n" key_a
-						--format "key_b: %\n" key_b
+						format "key_a: %\n" key_a
+						format "key_b: %\n" key_b
 						
 					if key_a != undefined and key_b != undefined then
 					(
