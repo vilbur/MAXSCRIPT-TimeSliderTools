@@ -15,6 +15,7 @@ function createTestObject times =
 	obj = Teapot()	--pos:pos --wirecolor:wirecolor
 	
 	addModifier obj ( Bend() )
+	addModifier obj ( Poly_Select() )
 	
 	animate on
 	(
@@ -26,6 +27,9 @@ function createTestObject times =
 			
 			at time _time
 			(
+				
+				if val > 0 then
+					obj.radius = val
 				
 				obj.position.y += val
 	
@@ -48,14 +52,22 @@ obj = createTestObject #( 0, 1 ,3 , 5 )
 /*  */ 
 ObjectControllerKeys = ObjectControllerKeys_v(obj)
 
-format "\nRESULT OF TEST:\n"
 
-format "ObjectControllerKeys.tramsforms: %\n" ObjectControllerKeys.tramsforms
-format "ObjectControllerKeys.properties: %\n" ObjectControllerKeys.properties
+format "\nTRANSFORM KEYS:\n"
 
---ObjectControllerKeys.mirrorTrasformsAtTimes obj_A times_A obj_B times_B
---ObjectControllerKeys.mirrorTrasformsAtTimes obj_A times_all obj_B times_all
+for transform_name in ObjectControllerKeys.keys_transforms.keys do 
+	format "%: %\n" transform_name ObjectControllerKeys.keys_transforms[transform_name]
 
---ObjectControllerKeys.mirrorTrasformsAtTimes selection[1] times_A selection[2] times_8
---ObjectControllerKeys.mirrorTrasformsAtTimes selection[1] times_all selection[2] times_all
+
+
+format "\nPROPERTY KEYS:\n"
+for i = 1 to ObjectControllerKeys.keys_mods.count
+	where ( keys_mod = ObjectControllerKeys.keys_mods[i]) != undefined  do 
+		for prop_name in keys_mod.keys do
+			format "%: %\n" prop_name keys_mod[prop_name]
+		
+
+--format "ObjectControllerKeys.keys_transforms: %\n" ObjectControllerKeys.keys_transforms
+--format "ObjectControllerKeys.properties: %\n" ObjectControllerKeys.properties
+
 

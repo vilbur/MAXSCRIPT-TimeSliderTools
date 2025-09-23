@@ -9,10 +9,10 @@ struct ObjectControllerKeys_v
 	
 	/* required */
 	
-	/* properties */
-	tramsforms	= Dictionary #( #POSITION, undefined ) #( #ROTATION, undefined ) #( #SCALE, undefined ),
+	/* keys_mods */
+	keys_transforms	= Dictionary #( #POSITION, undefined ) #( #ROTATION, undefined ) #( #SCALE, undefined ),
 	
-	properties = #(),
+	keys_mods = #(),
 	
 	
 	/* private */
@@ -24,10 +24,10 @@ struct ObjectControllerKeys_v
 	 */
 	function serachForKeysInControllers =
 	(
-		format "\n"; print "ObjectControllerKeys_v.serachForKeysInControllers()"
+		--format "\n"; print "ObjectControllerKeys_v.serachForKeysInControllers()"
 		this._setTransformKeys()
 		
-		this._setModsProperties()
+		this.setKeytsOfModsProperties()
 	),
 
 	private
@@ -36,11 +36,11 @@ struct ObjectControllerKeys_v
 	 */
 	function _setTransformKeys =
 	(
-		format "\n"; print "ObjectControllerKeys_v._setTransformKeys()"
+		--format "\n"; print "ObjectControllerKeys_v._setTransformKeys()"
 		
-		for transform_track in tramsforms.keys do 
+		for transform_track in keys_transforms.keys do 
 		(
-			format "transform_track: %\n" transform_track
+			--format "transform_track: %\n" transform_track
 			controller = case transform_track of
 			(
 				#POSITION: obj.position.controller 
@@ -48,50 +48,47 @@ struct ObjectControllerKeys_v
 				#SCALE:    obj.scale.controller 
 			)
 			
-			tramsforms[transform_track] = ControllerKeys_v(controller) keys:(this._searchForControllerKeys controller)
-			
-			
+			keys_transforms[transform_track] = ControllerKeys_v(controller) keys:(this._searchForControllerKeys controller)
 		)
 	),
 	
-	/** Set mods properties
+	/** Set mods keys_mods
 	 */
-	function _setModsProperties =
+	function setKeytsOfModsProperties =
 	(
-		format "\n"; print "ObjectControllerKeys_v._setModsProperties()"
+		--format "\n"; print "ObjectControllerKeys_v.setKeytsOfModsProperties()"
 		
 		mods_all = obj[4] --  Modified_Object
 		
 		mods = for m = 1 to mods_all.numSubs where (_mod = getSubAnim mods_all m) != undefined collect _mod
-format "mods: %\n" mods
-		/*  */ 	
-		for _mod in mods do
-			this._getKeysFromMod _mod
-		
+
+		/*  */
+		for m = 1 to mods.count do
+			if ( keys = this._getKeysFromMod mods[m]).keys.count > 0 then
+				keys_mods[m] = keys
 	),
 	
 	/** Remove keys from mod
 	 */
 	function _getKeysFromMod _mod =
 	(
-		format "\n\n*********************************\n"
-		format "\n"; print "KeyFrameManager_v._getKeysFromMod()"
-		format "_mod: %\n" _mod
+		--format "\n\n*********************************\n"
+		--format "\n"; print "KeyFrameManager_v._getKeysFromMod()"
+		--format "_mod: %\n" _mod
 		
-		mod_keys	= Dictionary #NAME -- KEY:#prop_name VALUE:ControllerKey_v
 		
-		/** Delete keys from properties
+		/** Delete keys from keys_mods
 		 */
 		function _getKeysFromProperties sub_anim &mod_keys =
 		(
-			format "\n\n\n"; print "KeyFrameManager_v._getKeysFromProperties()"
-			format "PROP_NAMES: %\n" ( getPropNames sub_anim )
+			--format "\n\n\n"; print "KeyFrameManager_v._getKeysFromProperties()"
+			--format "PROP_NAMES: %\n" ( getPropNames sub_anim )
 			/* FOR EACH PROPERTY OF MOD */ 
 			for i = 1 to ( prop_names = getPropNames sub_anim ).count \
 				/* IF PROPERTY HAS CONTROLLER */ 
 				where (ctrl = getPropertyController sub_anim prop_names[i]) != undefined do
 				(
-					prop_name = [prop_names[i]]
+					prop_name = prop_names[i]
 					/* GET KEYS FROM CONTROLLER */ 
 					keys = this._searchForControllerKeys ctrl
 					
@@ -103,39 +100,35 @@ format "mods: %\n" mods
 			mod_keys --return
 		)
 		
-		/*------------------------------------------------------------------------------
 		
+		mod_keys	= Dictionary #NAME -- KEY:#prop_name VALUE:ControllerKey_v
+		
+		/*------------------------------------------------------------------------------
 			GET KEYS OF PROPERTIES
-			
 		--------------------------------------------------------------------------------*/
 		_getKeysFromProperties (_mod)(mod_keys)
 		
 		/*------------------------------------------------------------------------------
-		  
 			GET KEYS OF CUSTOM ATTRIBUTES
-			
 		--------------------------------------------------------------------------------*/
 		try( -- prevent error with deleted scene node
 			
-			--for cust_attributes in _mod.custAttributes do
-				--_getKeysFromProperties (cust_attributes)(mod_keys)
+			for cust_attributes in _mod.custAttributes do
+				_getKeysFromProperties (cust_attributes)(mod_keys)
 			
 		)catch()
 		
-		format "MOD_KEYS: %\n" mod_keys
+		--format "MOD_KEYS: %\n" mod_keys
+		mod_keys --return
 	),
 	
 	/** Delete keys from controller
 	 */
 	function _searchForControllerKeys ctrl =
 	(
-		format "\n"; print "KeyFrameManager_v._searchForControllerKeys()"
-		format "ctrl: %\n" ctrl
-		--format "isController ctrl: %\n" (isController ctrl)
-		--format "classOf ctrl: %\n" ( classOf ctrl )
-		--format "NUMKEYS CTRL: %\n" (numKeys CTRL)
-		--format "ctrl.numSubs: %\n" ctrl.numSubs
-		
+		--format "\n"; print "KeyFrameManager_v._searchForControllerKeys()"
+		--format "ctrl: %\n" ctrl
+
 		keys = #()
 		
 		/*------------------------------------------------------------------------------
@@ -169,13 +162,7 @@ format "mods: %\n" mods
 	(
 		--format "\n"; print "ObjectControllerKeys_v._getKeysFromController()"
 		for k = 1 to num_keys collect (getKeyTime ctrl k).frame as integer
-		
-		--keys = for k = 1 to num_keys collect (getKeyTime ctrl k).frame as integer
-		
-		--if classOf keys == Array then keys else #()
-		
 	),
-	
 
 	/**
 	 */
@@ -183,7 +170,7 @@ format "mods: %\n" mods
 	(
 		--format "\n"; print "ObjectControllerKeys.onCreate()"
 		this.serachForKeysInControllers()
-		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
+		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct keys_mods necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)
 
