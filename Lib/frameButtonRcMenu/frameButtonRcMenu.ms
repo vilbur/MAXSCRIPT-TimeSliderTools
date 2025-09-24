@@ -20,11 +20,18 @@ function frameButtonRcMenu frame =
 	--------------------------------------------------------------------------------*/
 	removeKeys_cmd = "(KeyFrameManager_v( "+time_delete+" )).removeKeys "
 	copyKeys_cmd   = "(KeyFrameManager_v( "+phase_range as string +" )).copyKeys "
+	mirrorKeys_cmd   = "(KeyFrameManager_v( "+phase_range as string +" )).mirrorKeys "
+
+	/*------------------------------------------------------------------------------
+		HELPERS
+	--------------------------------------------------------------------------------*/
+	copy_keys_label = " KEYS " + getIntString (phase_range.x) + " - " + getIntString (phase_range.y)  + " TO: " + getIntString (phase_range.y + 1) + " - " + getIntString (phase_range.y + phase_length+ 1 )
 	
 	/*------------------------------------------------------------------------------
 		MENU
 	--------------------------------------------------------------------------------*/
 	Menu = RcMenu_v name:"MenuName"
+	Menu.item	( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
 	
 	Menu.item	"REMOVE CURRENT KEY"	"(KeyFrameManager_v( #CURRENT )).removeKeys()"
 	
@@ -59,11 +66,10 @@ function frameButtonRcMenu frame =
 	--transfroms.item "REMOVE BASEOBJECT KEYS" "KeyFrameManager.removeKeys mods:#BASEOBJECT"
 	--
 	--Menu.addItem transfroms+ " - " + getIntString (phase_range.y)
-	copy_keys_label = "COPY KEYS " + getIntString (phase_range.x) + " - " + getIntString (phase_range.y)  + " TO: " + getIntString (phase_range.y + 1) + " - " + getIntString (phase_range.y + phase_length+ 1 )
 	
 	Menu.separator()
 	
-	Menu.item	( copy_keys_label ) ( copyKeys_cmd + " transforms:true" )
+	Menu.item	( "COPY" + copy_keys_label ) ( copyKeys_cmd + " transforms:true" )
 
 	--Menu.separator()
 	
