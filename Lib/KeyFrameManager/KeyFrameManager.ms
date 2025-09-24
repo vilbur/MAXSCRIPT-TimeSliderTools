@@ -1,3 +1,5 @@
+
+
 filein( getFilenamePath(getSourceFileName()) + "/../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms" )	--"./../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../ObjectControllerKeys/ObjectControllerKeys.ms" )	--"./../ObjectControllerKeys/ObjectControllerKeys.ms"
@@ -13,6 +15,7 @@ struct KeyFrameManager_v
 	objs,
 	transforms,
 	mods,
+	--phase_length,
 
 	only_selected = false,
 	
@@ -43,7 +46,75 @@ struct KeyFrameManager_v
 		--format "objs: %\n" objs
 		this.setParameters objs:objs transforms:transforms mods:mods time:time
 		
+		this.processTransforms #DELETE
+
+
+		--
+		----format "\nPROPERTY KEYS:\n"
+		----for i = 1 to ObjectControllerKeys.keys_mods.count
+		----	where ( keys_mod = ObjectControllerKeys.keys_mods[i]) != undefined  do 
+		----		for prop_name in keys_mod.keys do
+		----			format "%: %\n" prop_name keys_mod[prop_name]
+		----		
+		--	
+		--	/* GET CONTROLELRS AND KEYS */ 
+		--	--this._setControllersForObject(obj) --(transforms)(mods)
+		--	--
+		--	--/* DELETE KEYS */ 
+		--	----for i = ControllersKeys.count to 1 by -1 do
+		--	--for ControllerKeys in ControllersKeys do
+		--	--(
+		--	--	--format "ControllerKeys.keys: %\n" ControllerKeys.keys
+		--	--	/* DELETE KEYS BY INDEX IN REVERSE */ 
+		--	--	for k = ControllerKeys.keys.count to 1 by -1 where ( key_time = ControllerKeys.keys[k] ) != undefined do
+		--	--		deleteKey ControllerKeys.ctrl k
+		--	--)
+		--)
+	),
+	
+	/** Copy keys
+	 */
+	function copyKeys objs: transforms: mods: time: =
+	(
+		clearListener(); print("Cleared in:\n"+getSourceFileName())
+		format "\n"; print "KeyFrameManager_v.copyKeys()"
+
+		if phase_length == unsupplied then
+			phase_length = if classOf this.time != Point2 then 1 else this.time.y - this.time.x + 1
 		
+		
+		this.setParameters objs:objs transforms:transforms mods:mods time:time
+		
+		this.processTransforms #COPY
+		
+		
+		--	/* FOR EACH CONTROLLER */ 
+
+		--	
+		--	--if LHrigWrapper.isRigController(obj.name) then
+		--	--(
+		--	--	LHrigWrapper.objs_keys[obj.name] = new_keys
+		--	--	
+		--	--	LHrigWrapper.setControllerToFlip (obj.name)
+		--	--	
+		--	--)
+	
+		
+		--format "LHrigWrapper.objs_keys: %\n" LHrigWrapper.objs_keys
+		--format "controllers_to_flip: %\n" LHrigWrapper.controllers_to_flip
+		--
+		--LHrigWrapper.mirrorControllerTransfroms()
+		
+	),
+	
+
+	private
+	
+	/** Process transforms
+	 */
+	function processTransforms callback =
+	(
+		--format "\n"; print "KeyFrameManager_v.processTransforms()"
 		for obj in this.objs do
 		(
 			ObjectControllerKeys = ObjectControllerKeys_v(obj)
@@ -55,11 +126,20 @@ struct KeyFrameManager_v
 					format "transform_name: %\n" transform_name
 					ControllerKeys = ObjectControllerKeys.keys_transforms[transform_name]
 
+					ctrl = ControllerKeys.ctrl
+					
 					keys = for key_time in ControllerKeys.keys collect if this.isKeyMatchTime key_time then key_time
 					
 					for key_index = keys.count to 1 by -1 where ( key_time = keys[key_index] ) != undefined do
-						deleteKey ControllerKeys.ctrl key_index
+					(
+						case callback of
+						(
+							#DELETE: deleteKey ctrl key_index
 
+							#COPY:   this._copyKey ctrl key_time
+						)
+						
+					)
 				)
 			)
 		
@@ -83,79 +163,41 @@ struct KeyFrameManager_v
 			--		deleteKey ControllerKeys.ctrl k
 			--)
 		)
+		
 	),
 	
-	/** Copy keys
+	/** Copy key
 	 */
-	function copyKeys objs: transforms: mods: time: increment: =
+	function _copyKey ctrl key_time =
 	(
-		clearListener(); print("Cleared in:\n"+getSourceFileName())
-		format "\n"; print "KeyFrameManager_v.copyKeys()"
+		format "\n"; print "KeyFrameManager_v._copyKey()"
 		
-		this.setParameters objs:objs transforms:transforms mods:mods time:time
-
-		if increment == unsupplied then
-			increment = if classOf this.time != Point2 then 1 else this.time.y - this.time.x + 1
+		phase_length = time[2] - time[1] + 1
+		--format "phase_length: %\n" phase_length
+		new_time = ( key_time + phase_length ) as integer
 		
+		format "_copyKey % -> %\n" key_time new_time
 		
-		for obj in this.objs do
-		(
-			ObjectControllerKeys = ObjectControllerKeys_v(obj)
-
-			
-			/* FOR EACH CONTROLLER */ 
-			for transform_name in ObjectControllerKeys.keys_transforms.keys do 
-			(
-				ControllerKeys = ObjectControllerKeys.keys_transforms[transform_name]
-				format "ControllerKeys: %\n" ControllerKeys.keys
-				
-				/* KEYS MATCHING TIME */ 
-				keys = for key_time in ControllerKeys.keys collect if this.isKeyMatchTime key_time then key_time
-				format "keys: %\n" keys
-
-				/* DELETE KEYS BY INDEX IN REVERSE */ 
-				for key_index = keys.count to 1 by -1 where ( key_time = keys[key_index] ) != undefined do
-				(
-					format "ControllerKeys.ctr: %\n" ControllerKeys.ctrl
-					format "key_time: %\n" key_time
-					new_time = ( key_time + increment ) as integer
-					format "new_time: %\n" new_time
-					
-					/* COPY KEY */ 
-					with animate on at time new_time
-						ControllerKeys.ctrl.value = at time key_time ControllerKeys.ctrl.value
-					
-					
-					if matchPattern ( ControllerKeys.ctrl as string ) pattern:("*Position*") then
-						appendIfUnique new_keys new_time
-					
-					--if findItem new_keys new_time == 0 then
-						--new_keys[key_index] = new_time
-					
-				)
-			)
-			
-			--if LHrigWrapper.isRigController(obj.name) then
-			--(
-			--	LHrigWrapper.objs_keys[obj.name] = new_keys
-			--	
-			--	LHrigWrapper.setControllerToFlip (obj.name)
-			--	
-			--)
-			--	
-			format "%: NEW_KEYS: %\n" obj.name new_keys
-			
-		)
+		/* COPY KEY */ 
+		with animate on at time new_time
+			ctrl.value = at time key_time ctrl.value
 		
-		--format "LHrigWrapper.objs_keys: %\n" LHrigWrapper.objs_keys
-		--format "controllers_to_flip: %\n" LHrigWrapper.controllers_to_flip
 		--
-		--LHrigWrapper.mirrorControllerTransfroms()
-		
-	),
-	
+		--if matchPattern ( ctrl as string ) pattern:("*Position*") then
+		--	appendIfUnique new_keys new_time
+		--
+			--if findItem new_keys new_time == 0 then
+				--new_keys[key_index] = new_time
 
-	private
+	),
+	--/** Delete keys
+	-- */
+	--function _deleteKey =
+	--(
+	--	--format "\n"; print "KeyFrameManager_v._deleteKey()"
+	--	
+	--	
+	--),
 	
 	/** Is key match time
 	 */
@@ -188,12 +230,13 @@ struct KeyFrameManager_v
 	function setParameters objs: transforms: mods: time: =
 	(
 		--format "\n"; print "KeyFrameManager_v.setParameters()"
+		this.objs = if objs == unsupplied then selection as Array else objs
+		
 		if time != unsupplied then 
 			this.time = time
 		
 		
-		this.objs = if objs == unsupplied then selection as Array else objs
-		
+		/* SET TRANSFORMS NAD MODS TO TRUE if both are undefined */ 
 		if not ( transforms == unsupplied and mods == unsupplied ) then
 		(
 			if transforms != unsupplied then 
@@ -204,6 +247,11 @@ struct KeyFrameManager_v
 		)
 		else
 			this.transforms = this.mods = true
+
+			
+		/* PHASE LENGTH */ 	
+		--if phase_length != unsupplied then  
+			--this.phase_length = phase_length
 	),
 	
 	

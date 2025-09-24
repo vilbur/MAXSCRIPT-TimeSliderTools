@@ -32,7 +32,7 @@ function timeSliderToolsDialog =
 	dialog_height = 80
 	
 	--id = #DIALOG_time_slider_tools
-	
+	 
 	/* DIALOG */
 	Dialog 	    = Dialog_v ("Time Slider Tools") width:(dialog_width + 0 ) ini:(getSourceFileName())
 	--Dialog 	    = Dialog_v ("Test") --ini:(getSourceFileName())

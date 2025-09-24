@@ -15,6 +15,15 @@ function frameButtonRcMenu frame =
 	format "PAHSE_RANGE: %\n" phase_range
 	time_delete = if keyboard.controlPressed then "#RIGHT" else "#CURRENT"
 
+	/*------------------------------------------------------------------------------
+		COMMANDS
+	--------------------------------------------------------------------------------*/
+	removeKeys_cmd = "(KeyFrameManager_v( "+time_delete+" )).removeKeys "
+	copyKeys_cmd   = "(KeyFrameManager_v( "+phase_range as string +" )).copyKeys "
+	
+	/*------------------------------------------------------------------------------
+		MENU
+	--------------------------------------------------------------------------------*/
 	Menu = RcMenu_v name:"MenuName"
 	
 	Menu.item	"REMOVE CURRENT KEY"	"(KeyFrameManager_v( #CURRENT )).removeKeys()"
@@ -25,12 +34,11 @@ function frameButtonRcMenu frame =
 	
 	Menu.separator()
 	
-	/* SUBMENU TRANSFORMS */
+	/*------------------------------------------------------------------------------
+		SUBMENU TRANSFORMS
+	--------------------------------------------------------------------------------*/
 	transfroms = Menu.menu "DELETE TRANSFORMS"
 
-	removeKeys_cmd = "(KeyFrameManager_v( "+time_delete+" )).removeKeys "
-	copyKeys_cmd   = "(KeyFrameManager_v( "+phase_range as string +" )).copyKeys "
-	
 	/* TRANSFORMS all */
 	transfroms.item	"DELETE ALL TRANSFORMS CTRL: Trim Right"	( removeKeys_cmd + "transforms:true" )
 	
