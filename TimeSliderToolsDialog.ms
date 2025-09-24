@@ -53,11 +53,15 @@ function timeSliderToolsDialog =
 	_Timer.Event #TICK ("if TimeTools != undefined then TimeTools.onTimerTick(is_playing_now)")
 
 	bar   = _Controls.control #imgTag "" id:#status_bar color:red width:dialog_width height:1 across:1 pos:[0,0] visible:false --align:#CENTER
+	
+	
 	/*------------------------------------------------------------------------------
 		GROUPBOX 
 	------------------------------------------------------------------------------*/
 	_left   = _Controls.control #GroupBox "" id:#FRAMES_CONTROLS	width:width_groupbox pos:[ 0, 1 ] across:3
 	_right  = _Controls.control #GroupBox "" id:#PHASE_CONTROLS	width:width_groupbox pos:[ dialog_width - width_groupbox, 1 ]
+	
+	
 	
 	/*------------------------------------------------------------------------------
 		LEFT GROUPBOX 
@@ -77,14 +81,15 @@ function timeSliderToolsDialog =
 	--------------------------------------------------------------------------------*/
 	_Switch	= _Controls.control #BUTTON "S W I T C H"	groupbox:_right.id across:1 width:width_btn_big height:height_btn_big offset:[ 0, -16 ] 
 	_Phase_label	= _Controls.control #LABEL "PHASE"	groupbox:_right.id across:2 align:#LEFT  offset:[-6, 10 ] tooltip:"Number of frames in phase"
-	_Phase_ddl	= _Controls.control #DROPDOWN "[Phase]"	groupbox:_right.id across:2 align:#RIGHT offset:[ 6, 8 ]  width:44  offset:[ 0, 8 ] items:( for i = 1 to 10 collect i as string ) value:2 height:11
+	_Phase_dropdown	= _Controls.control #DROPDOWN "[Phase]"	groupbox:_right.id across:2 align:#RIGHT offset:[ 6, 8 ]  width:44  offset:[ 0, 8 ] items:( for i = 1 to 10 collect i as string ) value:2 height:11
 	
 	--_Phase.Event #CHANGED (Dialog.id as string +".clock.interval = EventFired.val as integer" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 	_Switch.Event #PRESSED ("TimeTools.jumpToPhase(-1)" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 	_Switch.Event #RIGHTCLICK ("TimeTools.jumpToPhase(1)" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 	
-	_Phase_ddl.Event #SELECTED  ("format \"EventFired: %\n\" EventFired " ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
+	_Phase_dropdown.Event #SELECTED ("TimeTools.updateButtons(sliderTime.frame)" )  --("format \"EventFired: %\n\" EventFired " ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 
+	
 	/*------------------------------------------------------------------------------
 		ORIGIN OF CONTROLS 
 	--------------------------------------------------------------------------------*/
@@ -95,11 +100,13 @@ function timeSliderToolsDialog =
 	
 	pos_x_button =  pos_x_origin - ( width_button / 2 )
 	
+	
+	
 	/*------------------------------------------------------------------------------
 		SLIDER & CONTROLS 
 	--------------------------------------------------------------------------------*/
 	_Srart  = _Controls.control #BUTTON "0"	id:#btn_range_start	 width:width_btn_small	height:32	pos:[ pos_x, pos_y + 4 ]	tooltip:"Set Animation range START"
-	_Slider = _Controls.control #SLIDER ""	id:#slider_current_time	 width:width_slider	type:#integer	pos:[ pos_x += width_button - align_slider_to_buttons , pos_y ]  range:[0, frame_range, 0] ticks:frame_range
+	_Slider = _Controls.control #SLIDER ""	id:#slider_current_time	 width:width_slider	type:#INTEGER	pos:[ pos_x += width_button - align_slider_to_buttons , pos_y ]  range:[0, frame_range, 0] ticks:frame_range
 	_End    = _Controls.control #BUTTON "1"	id:#btn_range_end	 width:width_btn_small	height:32 Start:32	pos:[ pos_x += width_slider - align_slider_to_buttons,  pos_y + 4 ] tooltip:"Set Animation range END\n\nCTRL: Set RANGE END by last button"
 	
 	/* EVENTS */ 
@@ -122,6 +129,8 @@ function timeSliderToolsDialog =
 	
 	/* SHIFT BUTTON DOWN */ 
 	pos_y += width_button
+	
+	
 	
 	/*------------------------------------------------------------------------------
 		FRAME BUTTONS

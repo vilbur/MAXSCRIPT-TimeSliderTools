@@ -2,6 +2,11 @@
  */
 function frameButtonRcMenu frame =
 (
+	/** Get int string
+	 */
+	function getIntString num = (num as integer )  as string
+
+	
 	format "\n"; print ".frameButtonRcMenu()"
 	--format "DIALOG_time_slider_tools.DL_phase.selection: %\n" DIALOG_time_slider_tools.DL_phase.selection
 	phase_length = DIALOG_time_slider_tools.DL_phase.items[DIALOG_time_slider_tools.DL_phase.selection] as integer
@@ -45,17 +50,16 @@ function frameButtonRcMenu frame =
 	--/* BASEOBJECT */
 	--transfroms.item "REMOVE BASEOBJECT KEYS" "KeyFrameManager.removeKeys mods:#BASEOBJECT"
 	--
-	--Menu.addItem transfroms
-
+	--Menu.addItem transfroms+ " - " + getIntString (phase_range.y)
+	copy_keys_label = "COPY KEYS " + getIntString (phase_range.x) + " - " + getIntString (phase_range.y)  + " TO: " + getIntString (phase_range.y + 1) + " - " + getIntString (phase_range.y + phase_length+ 1 )
 	
 	Menu.separator()
 	
-	Menu.item	("COPY KEYS " + phase_range.x as string + " - " + phase_range.y as string + " TO: " + ((phase_range.y + 1) as integer )  as string )	( copyKeys_cmd + " transforms:true" )
+	Menu.item	( copy_keys_label ) ( copyKeys_cmd + " transforms:true" )
 
+	--Menu.separator()
 	
-	Menu.separator()
-	
-	submenu = Menu.menu "COPY KEYS"
+	--submenu = Menu.menu "COPY KEYS"
 
 	/* SUBMENU TRANSFORMS */
 --format "PHASE_LENGTH: %\n" phase_length

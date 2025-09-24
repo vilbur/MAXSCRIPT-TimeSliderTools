@@ -1,4 +1,4 @@
-filein( getFilenamePath(getSourceFileName()) + "/ControllerKeys/ControllerKeys.ms" )	--"./ControllerKeys/ControllerKeys.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/ControllerKeys/ControllerKeys.ms" )	--"./ControllerKeys/ControllerKeys.ms"
 
 /** Object controller keys
  */
@@ -10,7 +10,7 @@ struct ObjectControllerKeys_v
 	/* required */
 	
 	/* keys_mods */
-	keys_transforms	= Dictionary #( #POSITION, undefined ) #( #ROTATION, undefined ) #( #SCALE, undefined ),
+	keys_transforms	= Dictionary #NAME, -- #POSITION, #ROTATION, #SCALE
 	
 	keys_mods = #(),
 	
@@ -38,17 +38,24 @@ struct ObjectControllerKeys_v
 	(
 		--format "\n"; print "ObjectControllerKeys_v._setTransformKeys()"
 		
-		for transform_track in keys_transforms.keys do 
+		for transform_track in #( #POSITION, #ROTATION, #SCALE ) do 
 		(
 			--format "transform_track: %\n" transform_track
+			--format "\n*********************************\n"
+
 			controller = case transform_track of
 			(
 				#POSITION: obj.position.controller 
 				#ROTATION: obj.rotation.controller 
 				#SCALE:    obj.scale.controller 
 			)
+			ControllerKeys = this._searchForControllerKeys controller
+			--format "ControllerKeys: %\n" ControllerKeys
 			
-			keys_transforms[transform_track] = ControllerKeys_v(controller) keys:(this._searchForControllerKeys controller)
+			/* GET KEYS FOR EAH CONTROLLER */ 
+			if ( ControllerKeys = this._searchForControllerKeys controller) != undefined then
+				keys_transforms[transform_track] = ControllerKeys
+
 		)
 	),
 	
@@ -67,6 +74,9 @@ struct ObjectControllerKeys_v
 			if ( keys = this._getKeysFromMod mods[m]).keys.count > 0 then
 				keys_mods[m] = keys
 	),
+	
+	
+	
 	
 	/** Remove keys from mod
 	 */
@@ -90,10 +100,10 @@ struct ObjectControllerKeys_v
 				(
 					prop_name = prop_names[i]
 					/* GET KEYS FROM CONTROLLER */ 
-					keys = this._searchForControllerKeys ctrl
+					ControllerKeys = this._searchForControllerKeys ctrl
 					
-					if keys.count > 0 then
-						mod_keys[prop_name] = ControllerKeys_v ctrl keys
+					if ControllerKeys != undefined then 
+						mod_keys[prop_name] = ControllerKeys
 					
 				)
 				
@@ -122,38 +132,42 @@ struct ObjectControllerKeys_v
 		mod_keys --return
 	),
 	
+	
 	/** Delete keys from controller
 	 */
 	function _searchForControllerKeys ctrl =
 	(
 		--format "\n"; print "KeyFrameManager_v._searchForControllerKeys()"
-		--format "ctrl: %\n" ctrl
+		--format "ctrl: % isController: %\n" ctrl ( isController ctrl )
 
-		keys = #()
+		--keys = #()
+		local ControllerKeys
+		
+		num_keys = numKeys ctrl
+		--format "num_keys: %\n" num_keys
 		
 		/*------------------------------------------------------------------------------
 			SEARCH FOR KEYS IN SUBANIMS
 		--------------------------------------------------------------------------------*/
-		if ( num_keys = numKeys ctrl ) == -1 then
+		if num_keys== -1 then
 		(
 			/* LOOP SUBANIMS */ 
-			for i = 1 to ctrl.numSubs do
+			for i = 1  to ctrl.numSubs do
 				/* GET SUBANIM */ 
 				if (sub_anim_ctrl = getSubAnim ctrl i) != undefined then
 					/* GET CONTROLLER OF SUBANIM */ 
-					if (sub_ctrl = getPropertyController ctrl sub_anim_ctrl.name) != undefined then
+					if (sub_ctrl = getPropertyController ctrl sub_anim_ctrl.name) != undefined and numKeys sub_ctrl > 0 then
 						/* DELETE KEYS OF SUBANIM */ 
-						keys = this._searchForControllerKeys sub_ctrl
+						ControllerKeys = this._searchForControllerKeys sub_ctrl
 		)
-		
 		/*------------------------------------------------------------------------------
 			GET KEYS FROM CONTROLLER
 		--------------------------------------------------------------------------------*/
-		else
-			keys = this._getKeysFromController ctrl num_keys
+		else if num_keys > 0 then
+			ControllerKeys = this._getKeysFromController ctrl num_keys
 		
-		
-		keys --return
+		--format "KEYS: %\n" keys
+		ControllerKeys --return
 	),
 	
 	/** Get keys from controller
@@ -161,7 +175,9 @@ struct ObjectControllerKeys_v
 	function _getKeysFromController ctrl num_keys =
 	(
 		--format "\n"; print "ObjectControllerKeys_v._getKeysFromController()"
-		for k = 1 to num_keys collect (getKeyTime ctrl k).frame as integer
+		keys =  for k = 1 to num_keys collect (getKeyTime ctrl k).frame as integer
+		
+		ControllerKeys_v ctrl keys --return
 	),
 
 	/**

@@ -1,5 +1,7 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
+global DIALOG_time_slider_tools
+
 filein( getFilenamePath(getSourceFileName()) + "/Lib/COLOR_NAMES/COLOR_NAMES.ms" )	--"./Lib/COLOR_NAMES/COLOR_NAMES.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/LHrigWrapper/LHrigWrapper.ms" )	--"./Lib/LHrigWrapper/LHrigWrapper.ms"
@@ -11,7 +13,6 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/KeyFrameManager/KeyFrameMan
 filein( getFilenamePath(getSourceFileName()) + "/Lib/frameButtonRcMenu/frameButtonRcMenu.ms" )	--"./Lib/frameButtonRcMenu/frameButtonRcMenu.ms"
 
 
-global DIALOG_time_slider_tools
 
 /* 
 	Struct: TimeSliderTools_v
@@ -23,26 +24,32 @@ struct TimeSliderTools_v
 	_rollout,
 	
 	/* properties */
+	
+	/* private */
 	green_color = COLOR_NAMES[#DARKGREEN], -- coor active frame button 
 	
 	/** On timer tick
 	 */
 	function onTimerTick is_playing_now =
 	(
-		--format "\n"; print "TimeSliderTools_v.onTimerTick()"
+		--format "\n\n"; print "TimeSliderTools_v.onTimerTick()"
+		--format "sliderTime.frame:          %\n" sliderTime.frame
+		--format "slider_current_time.value: %\n" _rollout.slider_current_time.value
+		--format "TEST: %\n" ( _rollout.slider_current_time.value != sliderTime.frame )
 		--_rollout.status_bar.visible = true
 		--format "TEST: %\n" (_rollout.slider_current_time.value != sliderTime )
 		--format "_rollout.status_bar.visible: % ANIMATIONMODE: %\n" _rollout.status_bar.visible animButtonState 
 		_rollout.status_bar.visible = animButtonState
 		
-		
-		if is_playing_now then
-			this.setNextFrame()
-		
-		else
-			if _rollout.slider_current_time.value != sliderTime.frame then
+		/* UPDATE CURRENT FRAME */ 
+		if not is_playing_now then
+		(
+			if this._sliderValue() != sliderTime.frame then
 				this.setFrame sliderTime.frame
-		
+			
+		)
+		else /* SET NEXT FRAME OF PALYING ANIMATION */ 
+			this.setNextFrame()
 		/*
 		   AUTO FILTER KEYS ON TIME SLIDER
 		  
@@ -86,6 +93,9 @@ struct TimeSliderTools_v
 	/* Is in range */
 	function isInRange frame =
 	(
+		--format "\n"; print "TimeSliderTools_v.isInRange()"
+		--format "frame: %\n" frame
+
 		frame >= animationRange.start.frame and frame <= animationRange.end.frame
 	),
 	
@@ -93,21 +103,13 @@ struct TimeSliderTools_v
 	/* set frame */ 
 	function setFrame frame =
 	(
-		--format "\n"; print "TimeSliderTools_v.setFrame()"
+		format "\n"; print "TimeSliderTools_v.setFrame()"
 		--format "frame: %\n" frame
-		
-		/** Get frame button color
-		 */
-		function getFrameButtonColor frame =  if animButtonState then red else ( if frame > 0 then green_color else orange )
-		
+
 		frame = frame as integer
-		
+		format "FRAME: %\n" FRAME
 		if not this.isInRange(frame) then
 			return false
-		
-		buttons = this.getFrameButtons()
-		--if btn_current_frame == undefined then
-		btn_current_frame = buttons[frame]
 		
 		sliderTime = frame
 		
@@ -116,26 +118,8 @@ struct TimeSliderTools_v
 		--------------------------------------------------------------------------------*/
 		
 		/* ENABLE CURRENT FRAME BUTTON */ 
-		--btn_current_frame = getFrameButton frame
-		--btn_current_frame = getFrameButton frame
-		
-		if btn_current_frame != undefined then
-		(
-			btn_current_frame.state   = true
-			
-			btn_current_frame.visible = true
-			
-			btn_current_frame.highlightColor = getFrameButtonColor frame
-			
-		)
+		this.updateButtons(frame)
 
-		/* DISBALE OTHER FRAME BUTTONS */ 
-		for key in sort buttons.keys where key != frame do
-		(
-			buttons[key].state = false
-			
-			buttons[key].highlightColor =  getFrameButtonColor frame
-		)
 		
 		/* SLIDER */ 
 		_rollout.slider_current_time.value = frame
@@ -147,12 +131,42 @@ struct TimeSliderTools_v
 	(
 		-- originally changed button visibility, now only logic kept
 		
-		buttons = this.getFrameButtons()
+		buttons = this._getFrameButtons()
 		
 		for frame_of_button in sort buttons.keys where frame_of_button != frame do
 			buttons[frame_of_button].visible = this.isInRange frame_of_button
 	),
 	
+	/** Update buttons
+	 */
+	function updateButtons frame =
+	(
+		format "\n"; print "TimeSliderTools_v.updateButtons()"
+		
+		/** Get frame button color
+		 */
+		function getFrameButtonColor frame =  if animButtonState then red else ( if frame > 0 then green_color else orange )
+		
+
+		phase_lenght = this._getPhaseLenght()
+		
+		buttons = this._getFrameButtons()
+		
+		
+		/* DISBALE OTHER FRAME BUTTONS */ 
+		for key in sort buttons.keys do
+		(
+			is_current_frame_button = key == frame
+			
+			buttons[key].state = is_current_frame_button
+			
+			buttons[key].highlightColor =  getFrameButtonColor frame
+		)
+		
+		/* WRAP TEXT OF BUTTONS IN PHASE TO "[ ]" */ 
+		for key in sort buttons.keys do
+			buttons[key].text = if key > frame and key < frame + phase_lenght then  "[ "+ key as string +" ]" else key as string
+	),
 	
 	/* Go to frame
 	 * 
@@ -164,7 +178,7 @@ struct TimeSliderTools_v
 		--format "EventFired: %\n" EventFired
 		--direction = if EventFired.type == #rightClick  then -1 else 1
 		
-		frames_increment = _rollout.DL_phase.items[ _rollout.DL_phase.selected as integer ] as integer
+		frames_increment = this._getPhaseLenght()
 		
 		next_frame = sliderTime.frame + (frames_increment * direction )
 		
@@ -204,7 +218,7 @@ struct TimeSliderTools_v
 		(
 			local last_frame_button
 			
-			buttons = this.getFrameButtons()
+			buttons = this._getFrameButtons()
 			--format "buttons: %\n" buttons
 			for i = buttons.keys.count - 1 to 0 by -1  do
 			--format "buttons[i]: %\n" buttons[i].visible
@@ -249,9 +263,9 @@ struct TimeSliderTools_v
 
 	/** Get frame buttons
 	 */
-	function getFrameButtons =
+	function _getFrameButtons =
 	(
-		--format "\n"; print ".getFrameButtons()"
+		--format "\n"; print "._getFrameButtons()"
 		buttons	=  Dictionary #INTEGER
 		--format "_rollout.controls: %\n" _rollout.controls
 		--for ctrl in _rollout.controls do
@@ -265,14 +279,34 @@ struct TimeSliderTools_v
 		buttons --return
 	),
 	
+	/*------------------------------------------------------------------------------
+		GET\SET UI VALUES
+	--------------------------------------------------------------------------------*/
+	
+	/** Get slider value
+	 */
+	function _sliderValue =
+	(
+		--format "\n"; print "TimeSliderTools_v._sliderValue()"
+		_rollout.slider_current_time.value
+	),
+	
+	/** Get phse lenght
+	 */
+	function _getPhaseLenght =
+	(
+		--format "\n"; print "TimeSliderTools_v._getPhaseLenght()"
+		_rollout.DL_phase.items[ _rollout.DL_phase.selected as integer ] as integer
+	),
 	
 	on create do
 	(
+		--format "\n"; print "TimeSliderTools_v.onCreate()"
 		this.setAnimRange animationRange.start animationRange.end
 		
-		this.showHideButtonsInRange currentTime
+		this.showHideButtonsInRange currentTime.frame
 		
-		this.setFrame currentTime
+		this.setFrame currentTime.frame
 	)
 )
 

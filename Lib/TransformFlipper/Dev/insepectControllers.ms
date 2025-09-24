@@ -95,9 +95,9 @@ function _searchForControllerKeys ctrl level =
 times_A = #( 0, 10 ,30 , 40, 50 )
 
 
-obj = createTestObject [ -50, 0, 50 ] times_A
+--obj = createTestObject [ -50, 0, 50 ] times_A
 
---obj	= selection[1]
+obj	= selection[1]
 
 key_index = _searchForControllerKeys obj.position.controller 0
 						
