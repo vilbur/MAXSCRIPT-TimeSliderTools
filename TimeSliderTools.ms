@@ -103,11 +103,11 @@ struct TimeSliderTools_v
 	/* set frame */ 
 	function setFrame frame =
 	(
-		format "\n"; print "TimeSliderTools_v.setFrame()"
+		--format "\n"; print "TimeSliderTools_v.setFrame()"
 		--format "frame: %\n" frame
 
 		frame = frame as integer
-		format "FRAME: %\n" FRAME
+		--format "FRAME: %\n" FRAME
 		if not this.isInRange(frame) then
 			return false
 		
@@ -141,7 +141,7 @@ struct TimeSliderTools_v
 	 */
 	function updateButtons frame =
 	(
-		format "\n"; print "TimeSliderTools_v.updateButtons()"
+		--format "\n"; print "TimeSliderTools_v.updateButtons()"
 		
 		/** Get frame button color
 		 */

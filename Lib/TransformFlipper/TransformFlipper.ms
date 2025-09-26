@@ -89,53 +89,46 @@ struct TransformFlipper_v
 		
 		for _time in all_times do
 		(
-			format "\n--------------------\n"
-			
+			format "\n\n===========================================\n"
+
 			format "_time: %\n" _time
 			--with animate on
 			--at time _time
 			(
 				sliderTime = _time
 				
-				for controller_type in controller_types do
+				--for controller_type in controller_types do
+				for controller_type in #( #POSITION ) do
 				(
-					--format "--------------------\n"
-					--format "controller_type: %\n" controller_type
-					
-					ctrl_a = this._getController obj_A controller_type
-			
-					
-					ctrl_b = this._getController obj_B controller_type
-					
-					
+					format "CONTROLLER_TYPE: %\n" controller_type
 					--format "\n===========================================\n"
-					
-					
+					format "sliderTime: %\n" sliderTime
 					key_a = 0
 					key_b = 0
 					
+					ctrl_a = this._getController obj_A controller_type
+					format "ctrl_a: %\n" ctrl_a
+					ctrl_b = this._getController obj_B controller_type
 					key_a = this._getKeyIndex ctrl_a ( _time as time ) key_a
 					
 					--format "\n===========================================\n"
 					key_b = this._getKeyIndex ctrl_b ( _time as time ) key_b
-						format "key_a: %\n" key_a
-						format "key_b: %\n" key_b
+					format "key_a key index: %\n" key_a
+					format "key_b key index: %\n" key_b
 						
 					if key_a != undefined and key_b != undefined then
 					(
-				
 						hasA = key_a > 0
 						hasB = key_b > 0
 	
 						if hasA and hasB then
 						(
-							
-							if lock_position_A.count > 0 then
-								this.swapLocalRotation obj_A obj_B _time
-							else
-								this.flipIKControllers obj_A obj_B _time
-							
+							this.flipIKControllers obj_A obj_B _time
 
+							--if lock_position_A.count > 0 then
+							--	this.swapLocalRotation obj_A obj_B _time
+							--else
+							--	this.flipIKControllers obj_A obj_B _time
 						)
 						--else if hasA and not hasB then
 						--(
@@ -196,62 +189,60 @@ struct TransformFlipper_v
 	Swap IK goal positions of two nodes.
 	Works if nodes are IK effectors (like foot controls).
 	*/
-	function flipIKControllers obj1 obj2 _time =
+	function flipIKControllers obj_A obj_B _time =
 	(
-		-- Store the properties of the first object
-			--format "\n"; print "TransformFlipper_v.flipIKControllers()"
+		format "\n---------------------------------------"
+		format "\n"; print "TransformFlipper_v.flipIKControllers()"
 		_time = _time as time
 		with animate on
-		at time currentTime
+		at time _time
 		(
 		  --at time tStart obj.pos.z=loadheight+liftHeight
 		  --at time tEnd obj.pos.z=loadheight
 
 			--format "_time: %\n" _time
-			tempPos = obj1.pos
-			tempRot = obj1.rotation
+			temp_pos = obj_A.pos
+			temp_rot = obj_A.rotation
 		
 			-- Apply the second object's properties to the first, inverting the X-axis for position
-			obj1.pos = [-obj2.pos.x, obj2.pos.y, obj2.pos.z]
-			obj1.rotation = obj2.rotation
+			obj_A.pos = [-obj_B.pos.x, obj_B.pos.y, obj_B.pos.z]
+			obj_A.rotation = obj_B.rotation
 		
 			-- Apply the stored properties to the second object, inverting the X-axis for position
-			obj2.pos = [-tempPos.x, tempPos.y, tempPos.z]
-			obj2.rotation = tempRot
-			
+			obj_B.pos = [-temp_pos.x, temp_pos.y, temp_pos.z]
+			obj_B.rotation = temp_rot
 		)
-	
 	),
 
 	
 	/*
 	Swap local rotation between two objects
 	*/
-	function swapLocalRotation objA objB _time =
+	function swapLocalRotation obj_A obj_B _time =
 	(
-		--format "\n"; print "TransformFlipper_v.swapLocalRotation()"
+		format "\n"; print "TransformFlipper_v.swapLocalRotation()"
 		_time = _time as time
 	
 		with animate on
-		at time currentTime 		
+		at time _time 		
 		(
-			 parentA = objA.parent
-			 parentB = objB.parent
+			 parentA = obj_A.parent
+			 parentB = obj_B.parent
 			
 			-- compute local rotations
-			 localRotA = if parentA != undefined then (inverse parentA.rotation * objA.rotation) else objA.rotation
-			 localRotB = if parentB != undefined then (inverse parentB.rotation * objB.rotation) else objB.rotation
+			 localRotA = if parentA != undefined then (inverse parentA.rotation * obj_A.rotation) else obj_A.rotation
+			 localRotB = if parentB != undefined then (inverse parentB.rotation * obj_B.rotation) else obj_B.rotation
 			
 			-- swap them
 			if parentA != undefined then
-				objA.rotation = parentA.rotation * localRotB
+				obj_A.rotation = parentA.rotation * localRotB
 			else
-				objA.rotation = localRotB
+				obj_A.rotation = localRotB
 			
 			if parentB != undefined then
-				objB.rotation = parentB.rotation * localRotA
+				obj_B.rotation = parentB.rotation * localRotA
 			else
-				objB.rotation = localRotA
+				obj_B.rotation = localRotA
 		)
 		-- return
 	),

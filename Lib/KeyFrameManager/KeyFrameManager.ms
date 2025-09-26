@@ -1,4 +1,4 @@
-
+filein( getFilenamePath(getSourceFileName()) + "/../LHrigWrapper/LHrigWrapper.ms" )	--"./../LHrigWrapper/LHrigWrapper.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms" )	--"./../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms"
 
@@ -90,32 +90,18 @@ struct KeyFrameManager_v
 		format "\n"; print "KeyFrameManager_v.mirrorKeys()"
 		this.setParameters objs:objs transforms:transforms mods:mods time:time
 		
-		--phase_length = this._getPhaseLenght()
+		current_time = this.time[1]
 		
 		LHrigWrapper = LHrigWrapper_v key_times:( for i = this.time[1] to this.time[2] collect i as integer )
-		--this.processTransforms #MIRROR
 		
-		format "phase_length: %\n" phase_length
-		
-		current_time = currentTime.frame as integer
-		
+		/* ADD OBJECT  TO FLIPPER */ 
 		for obj in this.objs do
-		(
-			format "obj: %\n" obj
-			/* FOR EACH CONTROLLER */ 
-			
-			if LHrigWrapper.isRigController(obj.name) then
-				LHrigWrapper.addControllerToFlip (obj)
+			LHrigWrapper.addControllerToFlip (obj)
 	
-		
-			--format "LHrigWrapper.objs_keys: %\n" LHrigWrapper.objs_keys
-			--format "controllers_to_flip: %\n" LHrigWrapper.controllers_to_flip
-			--
-			
-		)
-		
+		/* MIRROR TRANSFORMS */ 
 		LHrigWrapper.mirrorControllerTransfroms()
 		
+		sliderTime = current_time
 	),
 	
 
@@ -235,27 +221,29 @@ struct KeyFrameManager_v
 	(
 		format "\n"; print "KeyFrameManager_v.setParameters()"
 		format "time: %\n" time
+		
+		/* OBJECTS */ 
 		this.objs = if objs == unsupplied then selection as Array else objs
 		
+		/* TIME */ 
 		if time != unsupplied then 
 			this.time = time
 		
-		
-		/* SET TRANSFORMS NAD MODS TO TRUE if both are undefined */ 
+		/* TRANSFORMS AND MODS */ 
 		if not ( transforms == unsupplied and mods == unsupplied ) then
 		(
+			/* TRANSFORMS */ 
 			if transforms != unsupplied then 
 				this.transforms = transforms
 		
-			if time != unsupplied then 
-				this.time = time
+			/* MODS */ 
+			if mods != unsupplied then 
+				this.mods = mods
 		)
-		else
+		else /* SET TRANSFORMS AND MODS TO TRUE if both are undefined */ 
 			this.transforms = this.mods = true
 	),
 	
-	
-
 	/**
 	 */
 	on create do

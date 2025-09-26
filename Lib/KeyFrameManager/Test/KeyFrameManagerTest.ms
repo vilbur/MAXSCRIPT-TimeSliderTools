@@ -1,6 +1,5 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
-
 filein( getFilenamePath(getSourceFileName()) + "/../KeyFrameManager.ms" )	--"./../KeyFrameManager.ms"
 
 /** Create test object
@@ -44,12 +43,17 @@ function createTestObject =
 
 
 
-	--obj	= selection[1]
+/*------------------------------------------------------------------------------
+	SETUP SCENE
+--------------------------------------------------------------------------------*/
 
-	obj = createTestObject()
+--obj	= selection[1]
+
+--obj = createTestObject()
+
+--sliderTime = 10
 
 
-sliderTime = 10
 
 /*------------------------------------------------------------------------------
 	NEW ISNTANCE
@@ -76,7 +80,7 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 --KeyFrameManager.removeKeys()
 
 /* TRIM RIGHT */ 
-KeyFrameManager.removeKeys time:#RIGHT
+-- KeyFrameManager.removeKeys time:#RIGHT
 
 
 /* ALL KEYS FROM OBJECTS IN TIME RANGE */ 
@@ -106,15 +110,24 @@ KeyFrameManager.removeKeys time:#RIGHT
 
 /*------------------------------------------------------------------------------
 	COPY KEYS
+----------------------------------------------------------------------------------*/
+--sliderTime = 0
+--KeyFrameManager.copyKeys time:#CURRENT
+--
+--/* Copy keys in range 1-10 to 11-20 */ 
+--KeyFrameManager.copyKeys time:[ 1, 10 ] transforms:true mods:false -- default increment is length ofrange + 1
+--
+--/* COPY POSITION KEYS ABOUT 30 FRAMES FORWARD */ 
+--KeyFrameManager.copyKeys time:[ 0, 10 ] increment:30 transforms:#POSITION
+--
+--
+
+/*------------------------------------------------------------------------------
+	MIRROR
 --------------------------------------------------------------------------------*/
-sliderTime = 0
-KeyFrameManager.copyKeys time:#CURRENT
 
-/* Copy keys in range 1-10 to 11-20 */ 
-KeyFrameManager.copyKeys time:[ 1, 10 ] transforms:true mods:false -- default increment is length ofrange + 1
-
-/* COPY POSITION KEYS ABOUT 30 FRAMES FORWARD */ 
-KeyFrameManager.copyKeys time:[ 0, 10 ] increment:30 transforms:#POSITION
+sliderTime = start_frame = 3
 
 
-
+--KeyFrameManager.mirrorKeys time:[ start_frame, start_frame + 2 ]
+KeyFrameManager.mirrorKeys time:[ start_frame, start_frame  ]
