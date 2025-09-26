@@ -61,8 +61,8 @@ function _searchForControllerKeys ctrl level =
 	
 	level += 1
 
-	if ( num_keys = numKeys ctrl ) > -1 then
-		format "getKeyIndex ctrl 0: %\n" (getKeyIndex ctrl 0 )
+	--if ( num_keys = numKeys ctrl ) > -1 then
+		--format "getKeyIndex ctrl 0: %\n" (getKeyIndex ctrl 0 )
 	
 	
 	/*------------------------------------------------------------------------------
@@ -75,14 +75,12 @@ function _searchForControllerKeys ctrl level =
 			/* GET SUBANIM */ 
 			if (sub_anim_ctrl = getSubAnim ctrl i) != undefined then
 			(
-				--format "sub_anim_ctrl: %\n" sub_anim_ctrl
+				format "%sub_anim_ctrl: %\n" prefix sub_anim_ctrl
 				--format "sub_anim_ctrl.name: %\n" sub_anim_ctrl.name
 				/* GET CONTROLLER OF SUBANIM */ 
 				if (sub_ctrl = getPropertyController ctrl sub_anim_ctrl.name) != undefined then
 				(
-					--format "sub_ctrl: %\n" sub_ctrl
-				 
-				 
+					format "%sub_ctrl: %\n" prefix sub_ctrl
 					/* DELETE KEYS OF SUBANIM */ 
 					_searchForControllerKeys sub_ctrl level
 				)

@@ -129,5 +129,5 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 sliderTime = start_frame = 3
 
 
---KeyFrameManager.mirrorKeys time:[ start_frame, start_frame + 2 ]
-KeyFrameManager.mirrorKeys time:[ start_frame, start_frame  ]
+KeyFrameManager.mirrorKeys time:[ start_frame, start_frame + 2 ]
+--KeyFrameManager.mirrorKeys time:[ start_frame, start_frame  ]

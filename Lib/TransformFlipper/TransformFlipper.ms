@@ -97,8 +97,8 @@ struct TransformFlipper_v
 			(
 				sliderTime = _time
 				
-				--for controller_type in controller_types do
-				for controller_type in #( #POSITION ) do
+				for controller_type in controller_types do
+				--for controller_type in #( #POSITION ) do
 				(
 					format "CONTROLLER_TYPE: %\n" controller_type
 					--format "\n===========================================\n"
@@ -123,7 +123,7 @@ struct TransformFlipper_v
 	
 						if hasA and hasB then
 						(
-							this.flipIKControllers obj_A obj_B _time
+							this.flipIKControllers obj_A obj_B _time controller_type
 
 							--if lock_position_A.count > 0 then
 							--	this.swapLocalRotation obj_A obj_B _time
@@ -189,7 +189,7 @@ struct TransformFlipper_v
 	Swap IK goal positions of two nodes.
 	Works if nodes are IK effectors (like foot controls).
 	*/
-	function flipIKControllers obj_A obj_B _time =
+	function flipIKControllers obj_A obj_B _time controller_type =
 	(
 		format "\n---------------------------------------"
 		format "\n"; print "TransformFlipper_v.flipIKControllers()"
@@ -198,19 +198,20 @@ struct TransformFlipper_v
 		at time _time
 		(
 		  --at time tStart obj.pos.z=loadheight+liftHeight
-		  --at time tEnd obj.pos.z=loadheight
+		--at time tEnd obj.pos.z=loadheight
+			if controller_type == #POSITION then
+			(
+				temp_pos = obj_A.pos
+				obj_A.pos = [-obj_B.pos.x, obj_B.pos.y, obj_B.pos.z]
+				obj_B.pos = [-temp_pos.x, temp_pos.y, temp_pos.z]
+			)
+			else
+			(
+				temp_rot = obj_A.rotation
+				obj_A.rotation = obj_B.rotation
+				obj_B.rotation = temp_rot
+			)
 
-			--format "_time: %\n" _time
-			temp_pos = obj_A.pos
-			temp_rot = obj_A.rotation
-		
-			-- Apply the second object's properties to the first, inverting the X-axis for position
-			obj_A.pos = [-obj_B.pos.x, obj_B.pos.y, obj_B.pos.z]
-			obj_A.rotation = obj_B.rotation
-		
-			-- Apply the stored properties to the second object, inverting the X-axis for position
-			obj_B.pos = [-temp_pos.x, temp_pos.y, temp_pos.z]
-			obj_B.rotation = temp_rot
 		)
 	),
 
