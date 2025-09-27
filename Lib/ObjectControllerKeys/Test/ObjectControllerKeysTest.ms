@@ -49,6 +49,7 @@ function createTestObject times =
 --obj = createTestObject #( 0, 1 ,3 , 5 )  
 
 obj	= selection[1]
+
 /*  */ 
 ObjectControllerKeys = ObjectControllerKeys_v(obj)
 
