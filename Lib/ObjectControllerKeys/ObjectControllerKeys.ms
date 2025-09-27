@@ -27,7 +27,7 @@ struct ObjectControllerKeys_v
 		--format "\n"; print "ObjectControllerKeys_v.serachForKeysInControllers()"
 		this._setTransformKeys()
 		
-		--this.setKeytsOfModsProperties()
+		this.setKeytsOfModsProperties()
 	),
 
 	private
@@ -38,8 +38,7 @@ struct ObjectControllerKeys_v
 	(
 		--format "\n"; print "ObjectControllerKeys_v._setTransformKeys()"
 		
-		--for transform_track in #( #POSITION, #ROTATION, #SCALE ) do 
-		for transform_track in #( #POSITION ) do 
+		for transform_track in #( #POSITION, #ROTATION, #SCALE ) do 
 		(
 			--format "\n*********************************\n"
 			--format "transform_track: %\n" transform_track
@@ -71,9 +70,12 @@ struct ObjectControllerKeys_v
 
 		/*  */
 		for m = 1 to mods.count do
-			if ( keys = this._getKeysFromMod mods[m]).keys.count > 0 then
-				keys_mods[m] = keys
+			keys_mods[m] = this._getKeysFromMod mods[m]
+			
+			--if ( keys = this._getKeysFromMod mods[m]).keys.count > 0 then
+				--keys_mods[m] = keys
 	),
+	
 	
 	/** Remove keys from mod
 	 */
@@ -97,16 +99,14 @@ struct ObjectControllerKeys_v
 				(
 					prop_name = prop_names[i]
 					/* GET KEYS FROM CONTROLLER */ 
-					ControllerKeys = this._searchForControllerKeys ctrl
-					
-					if ControllerKeys != undefined then 
-						mod_keys[prop_name] = ControllerKeys
-					
+					controllers_keys = this._searchForControllerKeys ctrl
+
+					if controllers_keys.count > 0 then
+						mod_keys[prop_name] = controllers_keys[1]
 				)
 				
 			mod_keys --return
 		)
-		
 		
 		mod_keys	= Dictionary #NAME -- KEY:#prop_name VALUE:ControllerKey_v
 		
@@ -126,7 +126,9 @@ struct ObjectControllerKeys_v
 		)catch()
 		
 		--format "MOD_KEYS: %\n" mod_keys
-		mod_keys --return
+		
+		if mod_keys.count > 0 then
+			mod_keys --return
 	),
 	
 	

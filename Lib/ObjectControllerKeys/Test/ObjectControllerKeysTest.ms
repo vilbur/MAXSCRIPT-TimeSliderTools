@@ -56,16 +56,25 @@ ObjectControllerKeys = ObjectControllerKeys_v(obj)
 
 format "\nTRANSFORM KEYS:\n"
 
-for transform_name in ObjectControllerKeys.keys_transforms.keys do 
-	format "%: %\n" transform_name ObjectControllerKeys.keys_transforms[transform_name]
+for transform_name in ObjectControllerKeys.keys_transforms.keys do
+(
+	format "\ntransform_name: %\n" transform_name
+	for ControllerKeys in ObjectControllerKeys.keys_transforms[transform_name] do
+		format "%: %\n" ControllerKeys.ctrl ControllerKeys.keys
+)
 
 
 
 format "\nPROPERTY KEYS:\n"
-for i = 1 to ObjectControllerKeys.keys_mods.count
-	where ( keys_mod = ObjectControllerKeys.keys_mods[i]) != undefined  do 
+for mod_index = 1 to ObjectControllerKeys.keys_mods.count
+	where ( keys_mod = ObjectControllerKeys.keys_mods[mod_index]) != undefined  do
+	(
+		format "\nmod_index: %\n" mod_index
+		
 		for prop_name in keys_mod.keys do
-			format "%: %\n" prop_name keys_mod[prop_name]
+			format "%: 	%\n" prop_name keys_mod[prop_name]
+	)
+		
 		
 
 --format "ObjectControllerKeys.keys_transforms: %\n" ObjectControllerKeys.keys_transforms

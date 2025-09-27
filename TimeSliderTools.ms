@@ -12,7 +12,7 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/KeyFrameManager/KeyFrameMan
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/frameButtonRcMenu/frameButtonRcMenu.ms" )	--"./Lib/frameButtonRcMenu/frameButtonRcMenu.ms"
 
-
+filein( getFilenamePath(getSourceFileName()) + "/Lib/walkCycleAnimator/walkCycleAnimator.ms" )	--"./Lib/walkCycleAnimator/walkCycleAnimator.ms"
 
 /* 
 	Struct: TimeSliderTools_v
@@ -69,10 +69,8 @@ struct TimeSliderTools_v
 	function setInterval val =
 	(
 		--format "\n"; print "TimeSliderTools_v.setInterval()"
-		--format "val: %\n" val
 		--format "EventFired: %\n" EventFired
-		
-		fps = _rollout.DL_fps.items[val] as integer
+		fps = EventFired.Control.selected as integer
 
 		_rollout.clock.interval = 1000 / fps
 	),
@@ -296,7 +294,7 @@ struct TimeSliderTools_v
 	function _getPhaseLenght =
 	(
 		--format "\n"; print "TimeSliderTools_v._getPhaseLenght()"
-		_rollout.DL_phase.items[ _rollout.DL_phase.selected as integer ] as integer
+		_rollout.DL_phase.selected as integer
 	),
 	
 	on create do

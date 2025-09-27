@@ -13,8 +13,8 @@ struct KeyFrameManager_v
 	/* required */
 	/* properties */
 	objs,
-	transforms,
-	mods,
+	transforms, -- #( #POSITION, #ROTATION, #SCALE )| @()
+	properties,
 
 	current_time,
 	
@@ -39,20 +39,22 @@ struct KeyFrameManager_v
 	  * @param Array objs if undefined then use current selection
 	  * 
 	  * @param boolean|name|Array transforms	true|false|#POSITION|#ROTATION|#SCALE|#( #POSITION, #ROTATION, #SCALE )
-	  * @param boolean|name|Array mods	true|false|#MODIFIERS|#BASEOBJECT|#( #MODIFIERS, #BASEOBJECT )
+	  * @param boolean|name|Array properties	true|false|#MODIFIERS|#BASEOBJECT|#( #MODIFIERS, #BASEOBJECT )
 	 */
-	function removeKeys objs: transforms: mods: time: =
+	function removeKeys objs: transforms: properties: time: =
 	(
 		--format "\n"; print "KeyFrameManager_v.removeKeys()"
+		--format "TRANSFORMS: %\n" transforms
+		--format "properties: %\n" properties
 
-		this.setParameters objs:objs transforms:transforms mods:mods time:time
-		
-		this.processTransforms #DELETE
+		this.setParameters objs:objs transforms:transforms properties:properties time:time
+		--format "this.properties: %\n" this.properties
+		this.executeCallback #DELETE
 	),
 	
 	/** Copy keys
 	 */
-	function copyKeys objs: transforms: mods: time: =
+	function copyKeys objs: transforms: properties: time: =
 	(
 		clearListener(); print("Cleared in:\n"+getSourceFileName())
 		--format "\n"; print "KeyFrameManager_v.copyKeys()"
@@ -60,9 +62,9 @@ struct KeyFrameManager_v
 		if phase_length == unsupplied then
 			phase_length = if classOf this.time != Point2 then 1 else this.time.y - this.time.x + 1
 		
-		this.setParameters objs:objs transforms:transforms mods:mods time:time
+		this.setParameters objs:objs transforms:transforms properties:properties time:time
 		
-		this.processTransforms #COPY
+		this.executeCallback #COPY
 		
 		
 		--	/* FOR EACH CONTROLLER */ 
@@ -85,10 +87,10 @@ struct KeyFrameManager_v
 	
 	/** Mirror keys
 	 */
-	function mirrorKeys objs: transforms: mods: time: =
+	function mirrorKeys objs: transforms: properties: time: =
 	(
 		--format "\n"; print "KeyFrameManager_v.mirrorKeys()"
-		this.setParameters objs:objs transforms:transforms mods:mods time:time
+		this.setParameters objs:objs transforms:transforms properties:properties time:time
 		
 		current_time = this.time[1]
 		
@@ -109,38 +111,43 @@ struct KeyFrameManager_v
 	
 	/** Process transforms
 	 */
-	function processTransforms callback =
+	function executeCallback callback =
 	(
-		--format "\n"; print "KeyFrameManager_v.processTransforms()"
+		--format "\n"; print "KeyFrameManager_v.executeCallback()"
+		--format "callback: %\n" callback
 		--format "this.transforms: %\n" this.transforms
-		--format "this.mods: %\n" this.mods
+		--format "this.properties: %\n" this.properties
 		
 		for obj in this.objs do
 		(
+			--format "OBJ: %\n" obj.name
+			
 			ObjectControllerKeys = ObjectControllerKeys_v(obj)
-			--format "ObjectControllerKeys.keys_transforms.keys: %\n" ObjectControllerKeys.keys_transforms.keys
+			--format "ObjectControllerKeys: %\n" ObjectControllerKeys.keys_transforms.keys
 			
 			/*------------------------------------------------------------------------------
 				TRANSFORMS KEYS
 			--------------------------------------------------------------------------------*/
-			if this.transforms then
-				for transform_type in ObjectControllerKeys.keys_transforms.keys do
-					for ControllerKeys in ObjectControllerKeys.keys_transforms[transform_type] do 
-						this._processControllerKeys ControllerKeys callback
-		
+			--if this.transforms then
+			for transform_type in ObjectControllerKeys.keys_transforms.keys where findItem this.transforms transform_type > 0 do
+			(
+				--format "%\n" transform_type
+			
+				for ControllerKeys in ObjectControllerKeys.keys_transforms[transform_type] do
+					
+					this._processControllerKeys ControllerKeys callback
+			)
 			/*------------------------------------------------------------------------------
 				MODS KEYS
-			--------------------------------------------------------------------------------*/
-			--if this.mods then
-				for i = 1 to ObjectControllerKeys.keys_mods.count do
-				(
-					ModifierPropertyKeys = ObjectControllerKeys.keys_mods[i]
-					
-					for prop_name in ModifierPropertyKeys.keys do
-						this._processControllerKeys ModifierPropertyKeys[prop_name] callback
-		
-				)
+			------------------------------------------------------------------------------*/
+			if this.properties then
+				for mod_index = 1 to ObjectControllerKeys.keys_mods.count
+					where ( ControllersKeys = ObjectControllerKeys.keys_mods[mod_index]) != undefined  do
+						for prop_name in ControllersKeys.keys do
+							this._processControllerKeys ControllersKeys[prop_name] callback
+
 		)
+		
 	),
 	
 	/** Process controller keys
@@ -148,7 +155,8 @@ struct KeyFrameManager_v
 	function _processControllerKeys ControllerKeys callback =
 	(
 		--format "\n"; print "KeyFrameManager_v._processControllerKeys()"
-		--format "CALLBACK: %\n" callback
+		--format "% CALLBACK: %\n" ControllerKeys.ctrl callback
+		--format "ControllerKeys.keys: %\n" ControllerKeys.keys
 		/** Copy key
 		 */
 		function _copyKey ctrl key_time =
@@ -167,16 +175,15 @@ struct KeyFrameManager_v
 		)
 		
 		
+		
 		ctrl = ControllerKeys.ctrl
 		--format "ctrl: %\n" ctrl
 		
 		--keys = for key_time in ControllerKeys.keys collect if this.isKeyMatchTime key_time then key_time
 		keys = for key_time in ControllerKeys.keys where this.isKeyMatchTime key_time collect key_time
 		
-		--format "keys: %\n" keys
+		
 		--for key_index = keys.count to 1 by -1 where ( key_time = keys[key_index] ) != undefined do
-		for i = keys.count to 1 by -1 do 
-			--format "key_index: %\n" (getKeyIndex ctrl keys[i])
 		
 		for i = keys.count to 1 by -1 where ( key_index = getKeyIndex ctrl keys[i] ) > 0 do
 		(
@@ -192,6 +199,11 @@ struct KeyFrameManager_v
 			)
 			
 		)
+		
+		/* MESSAGE */ 
+		if keys.count > 0 then
+			FORMAT "% KEYS: %\n" ctrl keys
+		
 	),
 	
 	/** Get phase lenght
@@ -231,9 +243,10 @@ struct KeyFrameManager_v
 		
 	/** Set parameters
 	 */
-	function setParameters objs: transforms: mods: time: =
+	function setParameters objs: transforms: properties: time: =
 	(
 		--format "\n"; print "KeyFrameManager_v.setParameters()"
+		--format "properties: %\n" properties
 		--format "time: %\n" time
 		
 		/* OBJECTS */ 
@@ -244,18 +257,33 @@ struct KeyFrameManager_v
 			this.time = time
 		
 		/* TRANSFORMS AND MODS */ 
-		if not ( transforms == unsupplied and mods == unsupplied ) then
+		if not ( transforms == unsupplied and properties == unsupplied ) then
 		(
 			/* TRANSFORMS */ 
 			if transforms != unsupplied then 
 				this.transforms = transforms
 		
 			/* MODS */ 
-			if mods != unsupplied then 
-				this.mods = mods
+			if properties != unsupplied then 
+				this.properties = properties
 		)
 		else /* SET TRANSFORMS AND MODS TO TRUE if both are undefined */ 
-			this.transforms = this.mods = true
+			this.transforms = this.properties = true
+		
+		--format "this.transforms: %\n" this.transforms
+
+		/* get array #( #POSITION, #ROTATION, #SCALE ) */ 
+		if classOf this.transforms == BooleanClass then
+		(
+			/* GET ALL OR NO TRANSFORM TRACKS */ 
+			this.transforms = if this.transforms then transform_tracks_all else #()
+			--format "this.TRANSFORMS: %\n" this.transforms
+		)
+		else if classOf this.transforms != Array then
+			this.transforms = #( this.transforms )
+		
+		if this.properties == undefined then
+			this.properties = false
 	),
 	
 	/**

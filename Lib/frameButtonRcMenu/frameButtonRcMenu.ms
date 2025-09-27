@@ -6,7 +6,7 @@ function frameButtonRcMenu frame =
 	 */
 	function getIntString num = (num as integer )  as string
 
-	
+	transform_tracks = #( "POSITION", "ROTATION", "SCALE" ) 
 	format "\n"; print ".frameButtonRcMenu()"
 	--format "DIALOG_time_slider_tools.DL_phase.selection: %\n" DIALOG_time_slider_tools.DL_phase.selection
 	phase_length = DIALOG_time_slider_tools.DL_phase.items[DIALOG_time_slider_tools.DL_phase.selection] as integer
@@ -14,6 +14,7 @@ function frameButtonRcMenu frame =
 	phase_range = [ currentTime, currentTime + phase_length - 1 ] 
 	format "PAHSE_RANGE: %\n" phase_range
 	time_delete = if keyboard.controlPressed then "#RIGHT" else "#CURRENT"
+	KeyFrameManager_side   = "(KeyFrameManager_v( if keyboard.controlPressed then \"#LEFT\" else \"#RIGHT\"))"
 
 	/*------------------------------------------------------------------------------
 		COMMANDS
@@ -31,45 +32,80 @@ function frameButtonRcMenu frame =
 		MENU
 	--------------------------------------------------------------------------------*/
 	Menu = RcMenu_v name:"MenuName"
-	Menu.item	( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
 	
 	Menu.item	"REMOVE CURRENT KEY"	"(KeyFrameManager_v( #CURRENT )).removeKeys()"
 	
 	Menu.separator()
 	
-	Menu.item	"TRIM KEYS TO RIGHT"	"(KeyFrameManager_v( #RIGHT )).removeKeys()"
 	
-	Menu.separator()
+	
 	
 	/*------------------------------------------------------------------------------
-		SUBMENU TRANSFORMS
+		TRIM
 	--------------------------------------------------------------------------------*/
-	transfroms = Menu.menu "DELETE TRANSFORMS"
+	Menu.item	"TRIM keys to • Ctrl: Trim LEFT"	(KeyFrameManager_side+".removeKeys()")
+	
+	menu_trim = Menu.menu ("TRIM • Ctrl: Trim LEFT") --flat:false
+	
+	menu_trim.item "TRIM ALL TRANSFORMS" ( KeyFrameManager_side + "transforms:true" )
+	
+	for transform_track in transform_tracks do
+		menu_trim.item ("Trim " + transform_track ) ( KeyFrameManager_side+".removeKeys TRANSFORMS:" + transform_track)
 
-	/* TRANSFORMS all */
-	transfroms.item	"DELETE ALL TRANSFORMS CTRL: Trim Right"	( removeKeys_cmd + "transforms:true" )
-	
-	/* TRANSFORMS each */
-	transfroms.item "POSITION" ( removeKeys_cmd + "transforms:#POSITION" )
-	transfroms.item "ROTATION" ( removeKeys_cmd + "transforms:#ROTATION" )
-	transfroms.item "SCALE"    ( removeKeys_cmd + "transforms:#SCALE" )
-	
-	--transfroms.separator()
-	--
-	--/* PROPERTIES all modifiers and baseobject */
-	--transfroms.item "REMOVE ALL MODIFIERS & BASEOBJECT KEYS" "KeyFrameManager.removeKeys mods:true"
-	--
-	--/* MODIFIERS */
-	--transfroms.item "REMOVE MODIFIERS KEYS" "KeyFrameManager.removeKeys mods:#MODIFIERS"
-	--
-	--/* BASEOBJECT */
-	--transfroms.item "REMOVE BASEOBJECT KEYS" "KeyFrameManager.removeKeys mods:#BASEOBJECT"
-	--
-	--Menu.addItem transfroms+ " - " + getIntString (phase_range.y)
+		menu_trim.separator()
+		
+		menu_trim.item ("Trim Properties" ) ( KeyFrameManager_side+".removeKeys()")
 	
 	Menu.separator()
 	
-	Menu.item	( "COPY" + copy_keys_label ) ( copyKeys_cmd + " transforms:true" )
+	
+	
+	/*------------------------------------------------------------------------------
+		DELETE TRANSFORMS
+	--------------------------------------------------------------------------------*/
+	
+	
+	del_menu = Menu.menu "Delete TRANSFORMS"
+
+	/* TRANSFORMS all */
+	del_menu.item "Delete ALL TRANSFORMS" ( removeKeys_cmd + "transforms:true" )
+	
+	
+	/* TRANSFORMS each */
+	for transform_track in transform_tracks do 
+		del_menu.item ("Delete "+transform_track) ( removeKeys_cmd + "transforms:#" + transform_track )
+	
+	
+	
+	/*------------------------------------------------------------------------------
+		DELETE PROPERTIES
+	--------------------------------------------------------------------------------*/
+
+	/* PROPERTIES all */
+	Menu.item "Delete ALL PROPERTIES" ( removeKeys_cmd + "properties:true" )
+	
+	
+	
+	--del_menu.separator()
+	--
+	--/* PROPERTIES all modifiers and baseobject */
+	--del_menu.item "REMOVE ALL MODIFIERS & BASEOBJECT KEYS" "KeyFrameManager.removeKeys properties:true"
+	--
+	--/* MODIFIERS */
+	--del_menu.item "REMOVE MODIFIERS KEYS" "KeyFrameManager.removeKeys properties:#MODIFIERS"
+	--
+	--/* BASEOBJECT */
+	--del_menu.item "REMOVE BASEOBJECT KEYS" "KeyFrameManager.removeKeys properties:#BASEOBJECT"
+	--
+	--Menu.addItem del_menu+ " - " + getIntString (phase_range.y)
+	
+	Menu.separator()
+	
+	Menu.item ( "COPY" + copy_keys_label ) ( copyKeys_cmd + " transforms:true" )
+	
+	Menu.separator()
+	
+	Menu.item ( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
 
 	--Menu.separator()
 	

@@ -98,14 +98,14 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 
 
 /* PROPERTIES all modifiers and baseobject */
---KeyFrameManager.removeKeys mods:true
+--KeyFrameManager.removeKeys properties:true
 
 
 /* MODIFIERS */
---KeyFrameManager.removeKeys mods:#MODIFIERS
+--KeyFrameManager.removeKeys properties:#MODIFIERS
  
 /* BASEOBJECT */
---KeyFrameManager.removeKeys mods:#BASEOBJECT
+--KeyFrameManager.removeKeys properties:#BASEOBJECT
 
 
 /*------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ KeyFrameManager 	= KeyFrameManager_v() --time:#RIGHT -- DELETE CURRENT TIME IF t
 --KeyFrameManager.copyKeys time:#CURRENT
 --
 --/* Copy keys in range 1-10 to 11-20 */ 
---KeyFrameManager.copyKeys time:[ 1, 10 ] transforms:true mods:false -- default increment is length ofrange + 1
+--KeyFrameManager.copyKeys time:[ 1, 10 ] transforms:true properties:false -- default increment is length ofrange + 1
 --
 --/* COPY POSITION KEYS ABOUT 30 FRAMES FORWARD */ 
 --KeyFrameManager.copyKeys time:[ 0, 10 ] increment:30 transforms:#POSITION

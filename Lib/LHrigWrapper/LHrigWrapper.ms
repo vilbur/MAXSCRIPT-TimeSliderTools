@@ -48,6 +48,37 @@ struct LHrigWrapper_v
 
 	),
 	
+	/** Search for rigs in scene
+	 */
+	function searchForRigsInScene =
+	(
+		--format "\n"; print "LHrigWrapper_v.searchForRigsInScene()"
+		
+		rig_masters = execute ("$'*_Setup_Ctrl_MasterWalk_G'") as Array
+		
+		
+		rig_names = for rig_master in rig_masters collect (filterString rig_master.name "_")[1]
+		
+		--format "rig_masters: %\n" rig_masters
+		
+		--#( "Boy" ) --return
+		rig_names --return
+	),
+	
+	/** Get control object
+	  
+		@param string rig_name E.G.: "boy"
+		@param string ctrl_name E.G.: "IKFoot"
+	  
+	   @return array of objects E.G.: #( $boy_Setup_Ctrl_IKFoot_R_O_1LRV, $boy_Setup_Ctrl_IKFoot_L_O_1LLV)
+	   
+	 */
+	function getControlObject rig_name ctrl_name =
+	(
+		--format "\n"; print "LHrigWrapper_v.getControlObject()"
+		execute ("$'"+rig_name+"_Setup_Ctrl_"+ctrl_name+"*'") as Array
+	),
+	
 	/** Mirror or flip transfroms of controllers
 	  * 
 	  * 
