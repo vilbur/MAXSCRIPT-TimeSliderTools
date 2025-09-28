@@ -1,4 +1,8 @@
 /** Frame button rc menu
+  
+  AnimLayerManager.setLayerActiveNodes 1 $
+
+  
  */
 function frameButtonRcMenu frame =
 (
@@ -14,7 +18,7 @@ function frameButtonRcMenu frame =
 	phase_range = [ currentTime, currentTime + phase_length - 1 ] 
 	format "PAHSE_RANGE: %\n" phase_range
 	time_delete = if keyboard.controlPressed then "#RIGHT" else "#CURRENT"
-	KeyFrameManager_side   = "(KeyFrameManager_v( if keyboard.controlPressed then \"#LEFT\" else \"#RIGHT\"))"
+	KeyFrameManager_side   = "(KeyFrameManager_v( if keyboard.controlPressed then #LEFT else #RIGHT ))"
 
 	/*------------------------------------------------------------------------------
 		COMMANDS
@@ -33,81 +37,77 @@ function frameButtonRcMenu frame =
 	--------------------------------------------------------------------------------*/
 	Menu = RcMenu_v name:"MenuName"
 	
-	Menu.item	"REMOVE CURRENT KEY"	"(KeyFrameManager_v( #CURRENT )).removeKeys()"
-	
-	Menu.separator()
-	
-	
-	
-	
-	/*------------------------------------------------------------------------------
-		TRIM
-	--------------------------------------------------------------------------------*/
-	Menu.item	"TRIM keys to • Ctrl: Trim LEFT"	(KeyFrameManager_side+".removeKeys()")
-	
-	menu_trim = Menu.menu ("TRIM • Ctrl: Trim LEFT") --flat:false
-	
-	menu_trim.item "TRIM ALL TRANSFORMS" ( KeyFrameManager_side + "transforms:true" )
-	
-	for transform_track in transform_tracks do
-		menu_trim.item ("Trim " + transform_track ) ( KeyFrameManager_side+".removeKeys TRANSFORMS:" + transform_track)
-
-		menu_trim.separator()
+	if selection.count > 0 then
+	(
+		Menu.item	"Delete CURRENT KEY"	"(KeyFrameManager_v( #CURRENT )).removeKeys()"
 		
-		menu_trim.item ("Trim Properties" ) ( KeyFrameManager_side+".removeKeys()")
+		/*------------------------------------------------------------------------------
+			TRIM
+		--------------------------------------------------------------------------------*/
+		Menu.item	"TRIM keys RIGHT • Ctrl: LEFT"	(KeyFrameManager_side+".removeKeys()")
+		
+		menu_trim = Menu.menu ("TRIM KEYS") --flat:false
+		
+		menu_trim.item "TRIM ALL TRANSFORMS" ( KeyFrameManager_side + "transforms:true" )
+		
+		for transform_track in transform_tracks do
+			menu_trim.item ("Trim " + transform_track ) ( KeyFrameManager_side+".removeKeys TRANSFORMS:" + transform_track)
 	
-	Menu.separator()
+			menu_trim.separator()
+			
+			menu_trim.item ("Trim Properties" ) ( KeyFrameManager_side+".removeKeys()")
+		
+		Menu.separator()
+		
+		
+		
+		/*------------------------------------------------------------------------------
+			DELETE TRANSFORMS
+		--------------------------------------------------------------------------------*/
+		
+		
+		del_menu = Menu.menu "Delete TRANSFORMS"
+	
+		/* TRANSFORMS all */
+		del_menu.item "Delete ALL TRANSFORMS" ( removeKeys_cmd + "transforms:true" )
+		
+		
+		/* TRANSFORMS each */
+		for transform_track in transform_tracks do 
+			del_menu.item ("Delete "+transform_track) ( removeKeys_cmd + "transforms:#" + transform_track )
+		
+		
+		
+		/*------------------------------------------------------------------------------
+			DELETE PROPERTIES
+		--------------------------------------------------------------------------------*/
+	
+		/* PROPERTIES all */
+		Menu.item "Delete ALL PROPERTIES" ( removeKeys_cmd + "properties:true" )
+		
+	
+		Menu.separator()
+	
+		/*------------------------------------------------------------------------------
+			COPY KEYS
+		--------------------------------------------------------------------------------*/
+		
+		Menu.item ( "COPY" + copy_keys_label ) ( copyKeys_cmd + " transforms:true" )
+		
+		Menu.separator()
+		
+		
+		/*------------------------------------------------------------------------------
+			MIRROR
+		--------------------------------------------------------------------------------*/
+		Menu.item ( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
+		
+	)
+	else	
+		Menu.item "Delete aLL keys from scene" "(KeyFrameManager_v( #CURRENT )).removeAllKeysFromScene()"
 	
 	
-	
-	/*------------------------------------------------------------------------------
-		DELETE TRANSFORMS
-	--------------------------------------------------------------------------------*/
-	
-	
-	del_menu = Menu.menu "Delete TRANSFORMS"
 
-	/* TRANSFORMS all */
-	del_menu.item "Delete ALL TRANSFORMS" ( removeKeys_cmd + "transforms:true" )
-	
-	
-	/* TRANSFORMS each */
-	for transform_track in transform_tracks do 
-		del_menu.item ("Delete "+transform_track) ( removeKeys_cmd + "transforms:#" + transform_track )
-	
-	
-	
-	/*------------------------------------------------------------------------------
-		DELETE PROPERTIES
-	--------------------------------------------------------------------------------*/
-
-	/* PROPERTIES all */
-	Menu.item "Delete ALL PROPERTIES" ( removeKeys_cmd + "properties:true" )
-	
-	
-	
-	--del_menu.separator()
-	--
-	--/* PROPERTIES all modifiers and baseobject */
-	--del_menu.item "REMOVE ALL MODIFIERS & BASEOBJECT KEYS" "KeyFrameManager.removeKeys properties:true"
-	--
-	--/* MODIFIERS */
-	--del_menu.item "REMOVE MODIFIERS KEYS" "KeyFrameManager.removeKeys properties:#MODIFIERS"
-	--
-	--/* BASEOBJECT */
-	--del_menu.item "REMOVE BASEOBJECT KEYS" "KeyFrameManager.removeKeys properties:#BASEOBJECT"
-	--
-	--Menu.addItem del_menu+ " - " + getIntString (phase_range.y)
-	
-	Menu.separator()
-	
-	Menu.item ( "COPY" + copy_keys_label ) ( copyKeys_cmd + " transforms:true" )
-	
-	Menu.separator()
-	
-	Menu.item ( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
-
-	--Menu.separator()
 	
 	--submenu = Menu.menu "COPY KEYS"
 

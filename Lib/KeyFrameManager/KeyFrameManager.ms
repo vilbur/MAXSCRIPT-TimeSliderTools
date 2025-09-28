@@ -49,6 +49,7 @@ struct KeyFrameManager_v
 
 		this.setParameters objs:objs transforms:transforms properties:properties time:time
 		--format "this.properties: %\n" this.properties
+		format "this.time: %\n" this.time
 		this.executeCallback #DELETE
 	),
 	
@@ -106,6 +107,33 @@ struct KeyFrameManager_v
 		sliderTime = current_time
 	),
 	
+	/** Remove all keys from scene
+	 */
+	function removeAllKeysFromScene =
+	(
+		--format "\n"; print "KeyFrameManager_v.removeAllKeysFromScene()"
+		 
+		function filterCallbackFunction theAnimatable theParent theSubAnimIndex theGrandParent theNode = 
+		(       
+			if isController theAnimatable do deleteKeys theAnimatable #allKeys
+			true
+		)
+		
+		if queryBox ("DELETE ALL KEYS FROM SCENE ?") title:"DELETE ALL KEYS" then
+			with redraw off
+			(   
+				trackbar.filter = #all
+				local filtind = maxops.trackbar.registerFilter filterCallbackFunction undefined "." 1 active:on
+				disableRefMsgs()
+				local sel = getCurrentSelection()
+				select objects
+				maxops.trackbar.redraw forceRedraw:on
+				maxops.trackbar.unregisterfilter filtind        
+				select sel
+				enableRefMsgs()
+				--ok
+			)
+	),
 
 	private
 	
@@ -181,9 +209,7 @@ struct KeyFrameManager_v
 		
 		--keys = for key_time in ControllerKeys.keys collect if this.isKeyMatchTime key_time then key_time
 		keys = for key_time in ControllerKeys.keys where this.isKeyMatchTime key_time collect key_time
-		
-		
-		--for key_index = keys.count to 1 by -1 where ( key_time = keys[key_index] ) != undefined do
+		--format "keys: %\n" keys
 		
 		for i = keys.count to 1 by -1 where ( key_index = getKeyIndex ctrl keys[i] ) > 0 do
 		(
@@ -201,8 +227,8 @@ struct KeyFrameManager_v
 		)
 		
 		/* MESSAGE */ 
-		if keys.count > 0 then
-			FORMAT "% KEYS: %\n" ctrl keys
+		--if keys.count > 0 then
+			--FORMAT "% KEYS: %\n" ctrl keys
 		
 	),
 	

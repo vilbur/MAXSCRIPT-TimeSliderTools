@@ -107,7 +107,7 @@ function timeSliderToolsDialog =
 
 
 	--_walk.Event #PRESSED ("(WalkCycleAnimator_v()).animateWalkOnRig("+Dialog.id as string +".DL_rig.selected )" ) --params:#("EventFired.control.selected")	--tooltip:("Set Frame " + i as string )
-	_walk.Event #PRESSED ("(WalkCycleAnimator_v()).animateWalkOnRig "+ dialog_id +".DL_rig.selected " + dialog_id +".SPIN_steps_count.value " +dialog_id +".SPIN_step.value " + dialog_id +".DL_phase.selected" ) 
+	_walk.Event #PRESSED ("(WalkCycleAnimator_v()).animateWalkOnRig "+ dialog_id +".DL_rig.selected " + dialog_id +".SPIN_steps_count.value " + dialog_id +".DL_phase.selected step_length:" +dialog_id +".SPIN_step.value" ) 
 	--_walk.Event #PRESSED ("(WalkCycleAnimator_v()).animateWalkOnRig("+Dialog.id as string +".DL_rig.selected )" ) params:#( dialog_id +".SPIN_steps_count.value", dialog_id +".SPIN_step.value", dialog_id +".DL_phase.selected" )	
 	--_walk.Event #PRESSED ("(WalkCycleAnimator_v()).animateWalkOnRig" ) params:# ( dialog_id +".DL_rig.selected", dialog_id +".SPIN_steps_count.value", dialog_id +".SPIN_step.value", dialog_id +".DL_phase.selected" )	--tooltip:("Set Frame " + i as string )
 
