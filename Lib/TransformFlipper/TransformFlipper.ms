@@ -77,11 +77,12 @@ struct TransformFlipper_v
 
 		lock_position_A = this.isTransformLocked obj_A #POSITION
 		lock_rotation_A = this.isTransformLocked obj_A #ROTATION
-		--format "lock_position_A: %\n" lock_position_A
-		--format "lock_rotation_A: %\n" lock_rotation_A
+		format "lock_position_A: %\n" lock_position_A
+		format "lock_rotation_A: %\n" lock_rotation_A
 		lock_position_B = this.isTransformLocked obj_B #POSITION
 		lock_rotation_B = this.isTransformLocked obj_B #ROTATION
-
+		format "lock_position_B: %\n" lock_position_B
+		format "lock_rotation_B: %\n" lock_rotation_B
 		
 		all_times = sort(makeUniqueArray (times_A + times_B))
 		--format "all_times: %\n" all_times
@@ -109,39 +110,46 @@ struct TransformFlipper_v
 					ctrl_a = this._getController obj_A controller_type
 					format "ctrl_a: %\n" ctrl_a
 					ctrl_b = this._getController obj_B controller_type
-					key_a = this._getKeyIndex ctrl_a ( _time as time ) key_a
 					
-					--format "\n===========================================\n"
+					key_a = this._getKeyIndex ctrl_a ( _time as time ) key_a
 					key_b = this._getKeyIndex ctrl_b ( _time as time ) key_b
 					format "key_a key index: %\n" key_a
 					format "key_b key index: %\n" key_b
-						
-					if key_a != undefined and key_b != undefined then
+					
+					if lock_position_A.count == 0 then
 					(
-						hasA = key_a > 0
-						hasB = key_b > 0
-	
-						if hasA and hasB then
+						if key_a != undefined and key_b != undefined then
 						(
-							this.flipIKControllers obj_A obj_B _time controller_type
-
-							--if lock_position_A.count > 0 then
-							--	this.swapLocalRotation obj_A obj_B _time
-							--else
-							--	this.flipIKControllers obj_A obj_B _time
+							hasA = key_a > 0
+							hasB = key_b > 0
+		
+							if hasA and hasB then
+							(
+								this.flipIKControllers obj_A obj_B _time controller_type
+	
+								--if lock_position_A.count > 0 then
+								--	this.swapLocalRotation obj_A obj_B _time
+								--else
+								--	this.flipIKControllers obj_A obj_B _time
+							)
+							--else if hasA and not hasB then
+							--(
+							--	--for controller_type in #( #position, #rotation, #scale ) do
+							--		this.swapLocalTransforms obj_A obj_B _time controller_type
+							--)
+							--else if hasB and not hasA then
+							--(
+							--	--for controller_type in #( #position, #rotation, #scale ) do
+							--		this.swapLocalTransforms obj_B obj_A _time controller_type
+							--)
 						)
-						--else if hasA and not hasB then
-						--(
-						--	--for controller_type in #( #position, #rotation, #scale ) do
-						--		this.swapLocalTransforms obj_A obj_B _time controller_type
-						--)
-						--else if hasB and not hasA then
-						--(
-						--	--for controller_type in #( #position, #rotation, #scale ) do
-						--		this.swapLocalTransforms obj_B obj_A _time controller_type
-						--)
 						
 					)
+					else
+						this.swapLocalRotation obj_A obj_B _time
+
+					
+					
 					
 				)
 			)
@@ -227,14 +235,18 @@ struct TransformFlipper_v
 		with animate on
 		at time _time 		
 		(
-			 parentA = obj_A.parent
-			 parentB = obj_B.parent
+			parentA = obj_A.parent
+			parentB = obj_B.parent
 			
-			-- compute local rotations
-			 localRotA = if parentA != undefined then (inverse parentA.rotation * obj_A.rotation) else obj_A.rotation
-			 localRotB = if parentB != undefined then (inverse parentB.rotation * obj_B.rotation) else obj_B.rotation
+			/* KEEP POS */ 
+			pos_A = obj_A.pos
+			pos_B = obj_B.pos
+			 
+			/* compute local rotations */ 
+			localRotA = if parentA != undefined then (inverse parentA.rotation * obj_A.rotation) else obj_A.rotation
+			localRotB = if parentB != undefined then (inverse parentB.rotation * obj_B.rotation) else obj_B.rotation
 			
-			-- swap them
+			/* swap them */ 
 			if parentA != undefined then
 				obj_A.rotation = parentA.rotation * localRotB
 			else
@@ -244,6 +256,11 @@ struct TransformFlipper_v
 				obj_B.rotation = parentB.rotation * localRotA
 			else
 				obj_B.rotation = localRotA
+			
+			/* RESORE POS */ 
+			obj_A.pos = pos_A
+			obj_B.pos = pos_B
+				
 		)
 		-- return
 	),

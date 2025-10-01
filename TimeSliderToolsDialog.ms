@@ -78,10 +78,10 @@ function timeSliderToolsDialog =
 	FPS_ddl.Event #SELECTED  ("TimeTools.setInterval" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 	--FPS_ddl.Event #ENTERED ("format \"VAL: %\n\"" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 
-	
 	/*------------------------------------------------------------------------------
 		SWITCH GROUPBOX
 	--------------------------------------------------------------------------------*/
+(	
 	_Switch	= _Controls.control #BUTTON "S W I T C H"	groupbox:gb_phase.id across:1 width:width_btn_big height:height_btn_big offset:[ 0, -16 ] 
 	_Phase_label	= _Controls.control #LABEL "PHASE"	groupbox:gb_phase.id across:2 align:#LEFT  offset:[-6, 10 ] tooltip:"Number of frames in phase"
 	_Phase_ddl	= _Controls.control #DROPDOWN "[Phase]"	groupbox:gb_phase.id across:2 align:#RIGHT offset:[ 6, 8 ]  width:44   items:( for i = 1 to 10 collect i as string ) value:2 height:11
@@ -91,12 +91,12 @@ function timeSliderToolsDialog =
 	_Switch.Event #RIGHTCLICK ("TimeTools.jumpToPhase(1)" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 	
 	_Phase_ddl.Event #SELECTED ("TimeTools.updateButtons(sliderTime.frame)" )  --("format \"EventFired: %\n\" EventFired " ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
-
-	
+)
 	/*------------------------------------------------------------------------------
 		ANIMATOR GROUPBOX
 	--------------------------------------------------------------------------------*/
-	rigs_in_scene = (LHrigWrapper_v()).searchForRigsInScene()
+(	
+	rigs_in_scene = (LHrigWrapper_v()).getNamesOfRigsInScene()
 	--format "rigs_in_scene: %\n" rigs_in_scene
 	_rig_label	= _Controls.control #LABEL    "RIG"	groupbox:gb_anim.id across:2 align:#LEFT  offset:[-4, -6 ] tooltip:""
 	_rig_ddl	= _Controls.control #DROPDOWN "[RIG]"	groupbox:gb_anim.id across:2 align:#RIGHT offset:[ 12, -12 ] width:64 items:rigs_in_scene height:(rigs_in_scene.count +1)
@@ -116,7 +116,7 @@ function timeSliderToolsDialog =
 	--_Switch.Event #RIGHTCLICK ("TimeTools.jumpToPhase(1)" ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
 	--
 	--_Phase_ddl.Event #SELECTED ("TimeTools.updateButtons(sliderTime.frame)" )  --("format \"EventFired: %\n\" EventFired " ) --params:#("EventFired.control")	tooltip:("Set Frame " + i as string )
-
+)
 	
 	
 	

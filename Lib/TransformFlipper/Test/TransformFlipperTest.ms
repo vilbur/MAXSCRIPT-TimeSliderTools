@@ -51,7 +51,10 @@ times_A = #( 3,4,5 )
 --times_B = #( 20 )
 times_B = #()
 
+
 times_all = for i = amin ( times_A + times_B ) to amax ( times_A + times_B ) collect i
+
+current_time = #( currentTime.frame as integer )
 
 /* CREATE TEST OBJECTS */ 
 --delete objects
@@ -78,8 +81,11 @@ TransformFlipper = TransformFlipper_v()
 --TransformFlipper.mirrorTrasformsAtTimes obj_A times_A obj_B times_B
 --TransformFlipper.mirrorTrasformsAtTimes obj_A times_all obj_B times_all
 
-
-TransformFlipper.flipIKControllers obj_A obj_B 3
+			----with animate on
+TransformFlipper.swapLocalRotation obj_A obj_B currentTime.frame
+--TransformFlipper.flipIKControllers obj_A obj_B currentTime.frame #ROTATION
+--TransformFlipper.flipIKControllers obj_A obj_B currentTime.frame #POSITION 
+--TransformFlipper.mirrorTrasformsAtTimes (obj_A) (current_time) (obj_B) (current_time)
 
 --TransformFlipper.mirrorTrasformsAtTimes selection[1] times_A selection[2] times_8
 --TransformFlipper.mirrorTrasformsAtTimes selection[1] times_all selection[2] times_all

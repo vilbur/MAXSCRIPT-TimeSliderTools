@@ -100,13 +100,19 @@ function frameButtonRcMenu frame =
 		/*------------------------------------------------------------------------------
 			MIRROR
 		--------------------------------------------------------------------------------*/
+		Menu.item ( "MIRROR curretnt keys" ) ( "(KeyFrameManager_v( #CURRENT )).mirrorKeys transforms:true" )
 		Menu.item ( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
 		
 	)
-	else	
-		Menu.item "Delete aLL keys from scene" "(KeyFrameManager_v( #CURRENT )).removeAllKeysFromScene()"
+	else
+	(
+		Menu.item "DELETE all keys from scene" "(KeyFrameManager_v( #CURRENT )).removeAllKeysFromScene()"
+		
+		Menu.item "TRIM all keys from scene RIGHT • Ctrl: LEFT" ( "if queryBox ( \"TRIM keys from all objects in scene ?\") title:\"TRIM keys\" then "+KeyFrameManager_side+".removeKeys objs:( objects as Array )")
+	)
 	
 	
+		
 
 	
 	--submenu = Menu.menu "COPY KEYS"

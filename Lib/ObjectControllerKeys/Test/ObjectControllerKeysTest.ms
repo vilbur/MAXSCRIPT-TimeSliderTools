@@ -66,14 +66,14 @@ for transform_name in ObjectControllerKeys.keys_transforms.keys do
 
 
 format "\nPROPERTY KEYS:\n"
-for mod_index = 1 to ObjectControllerKeys.keys_mods.count
-	where ( keys_mod = ObjectControllerKeys.keys_mods[mod_index]) != undefined  do
-	(
-		format "\nmod_index: %\n" mod_index
-		
-		for prop_name in keys_mod.keys do
-			format "%: 	%\n" prop_name keys_mod[prop_name]
-	)
+for mod_index = 1 to ObjectControllerKeys.keys_mods.count do
+(
+	format "\nmod_index: %\n" mod_index
+	keys_of_mod = ObjectControllerKeys.keys_mods[mod_index]
+	
+	for prop_name in keys_of_mod.keys do
+		format "%: 	%\n" prop_name keys_of_mod[prop_name]
+)
 		
 		
 

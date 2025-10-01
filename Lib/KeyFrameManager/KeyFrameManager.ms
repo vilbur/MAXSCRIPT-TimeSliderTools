@@ -1,6 +1,6 @@
 filein( getFilenamePath(getSourceFileName()) + "/../LHrigWrapper/LHrigWrapper.ms" )	--"./../LHrigWrapper/LHrigWrapper.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms" )	--"./../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms" )	--"./../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../ObjectControllerKeys/ObjectControllerKeys.ms" )	--"./../ObjectControllerKeys/ObjectControllerKeys.ms"
 /** Key frame manager
@@ -57,8 +57,8 @@ struct KeyFrameManager_v
 	 */
 	function copyKeys objs: transforms: properties: time: =
 	(
-		clearListener(); print("Cleared in:\n"+getSourceFileName())
-		--format "\n"; print "KeyFrameManager_v.copyKeys()"
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		format "\n"; print "KeyFrameManager_v.copyKeys()"
 
 		if phase_length == unsupplied then
 			phase_length = if classOf this.time != Point2 then 1 else this.time.y - this.time.x + 1
@@ -93,9 +93,15 @@ struct KeyFrameManager_v
 		--format "\n"; print "KeyFrameManager_v.mirrorKeys()"
 		this.setParameters objs:objs transforms:transforms properties:properties time:time
 		
-		current_time = this.time[1]
+		current_time = currentTime
 		
-		LHrigWrapper = LHrigWrapper_v key_times:( for i = this.time[1] to this.time[2] collect i as integer )
+		key_times = if classOf this.time == Point2 then
+			for i = this.time[1] to this.time[2] collect i as integer
+		else
+			#( currentTime.frame as integer )
+		
+		LHrigWrapper = LHrigWrapper_v key_times:key_times
+		
 		
 		/* ADD OBJECT  TO FLIPPER */ 
 		for obj in this.objs do
@@ -182,8 +188,8 @@ struct KeyFrameManager_v
 	 */
 	function _processControllerKeys ControllerKeys callback =
 	(
-		--format "\n"; print "KeyFrameManager_v._processControllerKeys()"
-		--format "% CALLBACK: %\n" ControllerKeys.ctrl callback
+		format "\n"; print "KeyFrameManager_v._processControllerKeys()"
+		format "% CALLBACK: %\n" ControllerKeys.ctrl callback
 		--format "ControllerKeys.keys: %\n" ControllerKeys.keys
 		/** Copy key
 		 */
@@ -209,7 +215,7 @@ struct KeyFrameManager_v
 		
 		--keys = for key_time in ControllerKeys.keys collect if this.isKeyMatchTime key_time then key_time
 		keys = for key_time in ControllerKeys.keys where this.isKeyMatchTime key_time collect key_time
-		--format "keys: %\n" keys
+		format "keys: %\n" keys
 		
 		for i = keys.count to 1 by -1 where ( key_index = getKeyIndex ctrl keys[i] ) > 0 do
 		(
@@ -219,7 +225,7 @@ struct KeyFrameManager_v
 			(
 				#DELETE: deleteKey ctrl key_index
 
-				#COPY:   _copyKey ctrl key_time
+				#COPY:   _copyKey ctrl keys[i]
 				
 				--#MIRROR:   _mirrorKey ctrl key_time
 			)

@@ -18,8 +18,96 @@ struct LHrigWrapper_v
 	--objs = Dictionary #STRING,
 	objs = #(),
 	
+	rx = ( dotNetClass "System.Text.RegularExpressions.RegEx" ),
+	
 	TransformFlipper = TransformFlipper_v(),
 
+	/** Load rig
+	 */
+	function loadRig master_control =
+	(
+		--format "\n"; print "LHrigWrapper_v.loadRig()"
+		
+		processed_objects = #()
+
+		
+		rig_controls	= Dictionary #STRING -- KEY: VALUE:
+		
+		rig_name = (filterString master_control.name "_")[1]	
+		
+		rig_objs = execute ("$'"+ rig_name +"_Setup_Ctrl_*'") as Array
+		
+		for rig_obj in rig_objs where findItem processed_objects rig_obj == 0 do
+		(
+			
+			
+			--basename = this.splitName rig_obj.name part:#NAME
+			split_name = this.splitName rig_obj.name
+			basename   = split_name[2]
+			side       = split_name[3]
+			
+			full_basename = rig_name +"_Setup_Ctrl_"+basename -- E.G.: "boy_Setup_Ctrl_IKFoot"
+			--format "\nbasename: %\n" basename
+			same_name_objs = execute ("$'"+ full_basename +"_*'") as Array
+			--format "same_name_objs.count: %\n" same_name_objs.count
+			processed_objects += same_name_objs
+			
+			if same_name_objs.count == 2 then
+			if side == "L" or side == "R" then
+			(
+				rig_controls[full_basename] = Dictionary #STRING
+				
+				for obj in same_name_objs do
+				(
+					side = this.splitName obj.name part:#SIDE
+					
+					rig_controls[full_basename][side] = #()
+					--format "side: %\n" side
+					--format "full_basename: %\n" full_basename
+					
+				)
+				
+			--format "\nbasename: %\n" basename
+			--format "same_name_objs.count: %\n" same_name_objs.count
+				
+			)
+			
+			--format "result: %\n" result
+		)
+		
+		
+		--format "rig_objs.count: %\n" rig_objs.count
+		--format "rig_controls: %\n" rig_controls
+
+
+		rig_controls --return
+	),
+	
+	/** Split name
+	 */
+	function splitName obj_name part: =
+	(
+		--format "\n"; print "LHrigWrapper_v.splitName()"
+		matches = rx.matches obj_name "(.*)_Setup_Ctrl_([^_]+)_([^_]+).*" -- ( dotNetClass "System.Text.RegularExpressions.RegexOptions" ).IgnoreCase 
+
+		/* RESULT: #(#("boy_Setup_Ctrl_IKFoot_R_O_1LRV", "IKFoot", "L")) */ 
+		result	= ( for matchIdx = 0 to matches.count-1 collect for groupIdx = 0 to matches.item[matchIdx].groups.count-1 collect ( matches.item[matchIdx].groups.item[groupIdx].value ))[1] --return
+		--format "result: %\n" result
+		deleteItem result 1
+		
+		case part of
+		(
+			#RIG:  result[1] 
+			#NAME: result[2] 
+			#SIDE: result[3]
+			
+			default: result
+		)
+	),
+	
+	/* STRUCT */
+	--mapped function getAllChildren _node &children = ( join children _node.children;	if _node.children.count > 0 then this.getAllChildren _node.children &children ),
+	
 
 	/* private */
 	/* dependency */
@@ -30,8 +118,8 @@ struct LHrigWrapper_v
 	 */
 	function isRigController obj_name =
 	(
-		format "\n"; print "LHrigWrapper_v.isRigController()"
-		format "isRigController: %\n" (matchPattern obj_name pattern:("*_Setup_Ctrl_*"))
+		--format "\n"; print "LHrigWrapper_v.isRigController()"
+		--format "isRigController: %\n" (matchPattern obj_name pattern:("*_Setup_Ctrl_*"))
 		matchPattern obj_name pattern:("*_Setup_Ctrl_*")
 	),
 	
@@ -39,9 +127,9 @@ struct LHrigWrapper_v
 	 */
 	function addControllerToFlip obj =
 	(
-		format "\n================================================\n"
-		format "\n"; print "LHrigWrapper_v.addControllerToFlip()"
-		format "obj.name: %\n" obj.name
+		--format "\n================================================\n"
+		--format "\n"; print "LHrigWrapper_v.addControllerToFlip()"
+		--format "obj.name: %\n" obj.name
 		
 		if this.isRigController(obj.name) then
 			append objs obj
@@ -53,8 +141,16 @@ struct LHrigWrapper_v
 	function searchForRigsInScene =
 	(
 		--format "\n"; print "LHrigWrapper_v.searchForRigsInScene()"
+
+		execute ("$'*_Setup_Ctrl_MasterControl_G'") as Array --return
+	),
+	/** Search for rigs in scene
+	 */
+	function getNamesOfRigsInScene =
+	(
+		--format "\n"; print "LHrigWrapper_v.searchForRigsInScene()"
 		
-		rig_masters = execute ("$'*_Setup_Ctrl_MasterWalk_G'") as Array
+		rig_masters = execute ("$'*_Setup_Ctrl_MasterControl_G'") as Array
 		
 		
 		rig_names = for rig_master in rig_masters collect (filterString rig_master.name "_")[1]
@@ -64,7 +160,6 @@ struct LHrigWrapper_v
 		--#( "Boy" ) --return
 		rig_names --return
 	),
-	
 	/** Get control object
 	  
 		@param string rig_name E.G.: "boy"
@@ -90,16 +185,16 @@ struct LHrigWrapper_v
 	 */
 	function mirrorControllerTransfroms =
 	(
-		format "\n\n"; print "LHrigWrapper_v.mirrorControllerTransfroms()"
-		format "KEY_TIMES: %\n" key_times
-		format "this.objs: %\n" this.objs
-		format "this.objs.count: %\n" this.objs.count
+		--format "\n\n"; print "LHrigWrapper_v.mirrorControllerTransfroms()"
+		--format "KEY_TIMES: %\n" key_times
+		--format "this.objs: %\n" this.objs
+		--format "this.objs.count: %\n" this.objs.count
 
 		
 		for i = this.objs.count to 1 by -1 where ( obj = objs[i] ) != undefined do 
 		(
-			format "\n------------------------------------------------------------\n\n"
-			format "obj: %\n" obj
+			--format "\n------------------------------------------------------------\n\n"
+			--format "obj: %\n" obj
 			
 			ObjectControllerKeys = ObjectControllerKeys_v(obj)
 			
@@ -110,12 +205,14 @@ struct LHrigWrapper_v
 			
 			if rig_controllers.count == 2 then
 			(
-				index_first	= findItem rig_controllers obj
+				--index_first	= findItem rig_controllers obj
+				
+				pair_obj = rig_controllers[ if findItem rig_controllers obj == 1 then 2 else 1 ]
 				
 				index_pair  = findItem objs pair_obj
 				
-				pair_obj = rig_controllers[ if index_first == 1 then 2 else 1 ]
-				
+				--format "index_pair: %\n" index_pair
+				--format "pair_obj: %\n" pair_obj
 				TransformFlipper.mirrorTrasformsAtTimes (obj) (key_times) (pair_obj) (key_times)
 
 	--		--if matchPattern ctrl_name pattern:("FK*") then
@@ -129,8 +226,6 @@ struct LHrigWrapper_v
 				/* AVOID MIRROR SAME PAIR AGAIN */ 
 				if index_pair > 0 then
 					this.objs[index_pair] = undefined
-					
-					
 				
 			)
 			

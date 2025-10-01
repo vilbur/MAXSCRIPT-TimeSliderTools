@@ -14,7 +14,15 @@ struct ControllerKeys_v
 	/* reference */
 	/* inhered */
 
-	
+	/** Filter keys
+	 */
+	function filterKeys time_interval =
+	(
+		--format "\n"; print "ControllerKeys_v.filterKeys()"
+		for key_time in keys
+			where key_time >= time_interval.start and key_time <= time_interval.end
+				collect key_time
+	),
 
 	private
 
