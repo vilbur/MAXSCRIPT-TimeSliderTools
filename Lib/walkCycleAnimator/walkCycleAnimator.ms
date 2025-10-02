@@ -32,12 +32,12 @@ struct WalkCycleAnimator_v
 		format "steps_count: %\n" steps_count
 		format "step_length: %\n" step_length
 		format "keys_per_step: %\n" keys_per_step
-		LHrigWrapper = LHrigWrapper_v()
+		RigWrapper = RigWrapper_v()
 		
-		master_ctrl = ( LHrigWrapper.getControlObject rig_name "MasterWalk" )[1]
+		master_ctrl = ( RigWrapper.getControlObject rig_name "MasterWalk" )[1]
 		
-		foot_left  = ( LHrigWrapper.getControlObject rig_name "IKFoot_L" )[1]
-		foot_right = ( LHrigWrapper.getControlObject rig_name "IKFoot_R" )[1]
+		foot_left  = ( RigWrapper.getControlObject rig_name "IKFoot_L" )[1]
+		foot_right = ( RigWrapper.getControlObject rig_name "IKFoot_R" )[1]
 		
 		
 		distance_of_feet = this._getDistanceOnYaxis foot_left foot_right

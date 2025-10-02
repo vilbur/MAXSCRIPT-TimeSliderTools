@@ -1,6 +1,6 @@
 /** Trasforms on time manager
  */
-struct TrasformsOnTimeManager_v
+struct PhaseCreator_v
 (
 	/* construct */
 	
@@ -27,7 +27,7 @@ struct TrasformsOnTimeManager_v
 	 */
 	function mirrorPhases rig_controls phase =
 	(
-		format "\n"; print "TrasformsOnTimeManager_v.mirrorPhases()"
+		format "\n"; print "PhaseCreator_v.mirrorPhases()"
 		
 		--interval 0
 		--phase = [ currentTime.frame as integer , currentTime.frame + 2 ]
@@ -39,8 +39,10 @@ struct TrasformsOnTimeManager_v
 		increment = ( phase.end - phase.start ) + 1
 		format "INCREMENT: %\n" increment
 		
-		for control_name in rig_controls.keys do
+		for control_name in rig_controls.keys do 
 		(
+			TransformFlipper 	= TransformFlipper_v()
+			
 			/* GET OBJECTS */ 
 			obj_left  = this.getObject control_name "L"
 			obj_right = this.getObject control_name "R"
@@ -52,24 +54,40 @@ struct TrasformsOnTimeManager_v
 			/* GET ONLY KEYS IN PHASE */ 
 			keys_transfroms_left  = ControllerKeys_left.getKeys  #TRANSFORMS phase
 			keys_transfroms_right = ControllerKeys_right.getKeys #TRANSFORMS phase
-			--format "keys_transfroms_left: %\n" keys_transfroms_left
-			--format "keys_transfroms_right: %\n" keys_transfroms_right
 
 			/* FLIP ORINATATION OF TRANSFROMS */
 			
 			/* SAVE FLIPPED TRANSFROMS TO SHIFTED KEYS ON OTHER SIDE OBJECT */ 
 			
-			if ( keys_transfroms_left.keys + keys_transfroms_right.keys ).count > 0 then
+			if ( keys_transfroms_left + keys_transfroms_right ).count > 0 then
 			(
-				for key_time = phase.start to phase.end do
-				(
-					shifted_key = key_time + increment
-					
-					--ControllerKeys_left.keys[shifted_key]  = flipTransforms obj_left obj_right
 				
+				
+				
+				for key_time = phase.start.frame as integer to phase.end.frame as integer do
+				(
+					format "key_time: %\n" key_time
+					key_time_shifted = key_time + increment
+					
+					/* IF SOURCE KEY EXISTS ON TIME */ 
+					if findItem keys_transfroms_left key_time then
+					(
+						rig_controls[control_name]["L"][key_time] = obj_left.transform
+						
+						
+					)
+					
+					
+					--ControllerKeys_left.keys[key_time_shifted]  = flipTransforms obj_left obj_right
 					
 					
 				)
+				--format "rig_controls[control_name]: %\n" rig_controls[control_name]
+				for side in rig_controls[control_name].keys do
+					--format "side: %\n" side
+					format "% % %\n" control_name side rig_controls[control_name][side]
+				
+				
 			
 			)
 			--format "ControllerKeys_left.keys: %\n" ControllerKeys_left.keys_transforms
@@ -79,14 +97,14 @@ struct TrasformsOnTimeManager_v
 	
 	private
 	
-	
+
 	
 	
 	/** Get object
 	 */
 	function getObject full_basename side =
 	(
-		--format "\n"; print "TrasformsOnTimeManager_v.getObject()"
+		--format "\n"; print "PhaseCreator_v.getObject()"
 		objs_by_name = execute ("$'"+ full_basename + "_" + side + "_*'") 
 		
 		objs_by_name[1] --return
@@ -96,6 +114,6 @@ struct TrasformsOnTimeManager_v
 	 */
 	on create do
 	(
-		--format "\n"; print "TrasformsOnTimeManager.onCreate()"
+		--format "\n"; print "PhaseCreator.onCreate()"
 	)
 )

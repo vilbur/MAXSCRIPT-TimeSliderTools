@@ -1,8 +1,8 @@
 filein( getFilenamePath(getSourceFileName()) + "/../TransformFlipper/TransformFlipper.ms" )	--"./../TransformFlipper/TransformFlipper.ms"
-
+filein( getFilenamePath(getSourceFileName()) + "/LeftRightControls/LeftRightControls.ms" )	--"./LeftRightControls/LeftRightControls.ms"
 /**
  */
-struct LHrigWrapper_v
+struct RigWrapper_v
 (
 	/* construct */
 	key_times, -- #( int ) -- times to flip
@@ -13,7 +13,7 @@ struct LHrigWrapper_v
 	/* properties */
 	control_mane_pattern = "(.*_Setup_Ctrl_([^_]+_)).*",
 	--objs_keys	= Dictionary #STRING, -- KEY:obj.name VALUE:#(key frames to procerss)
-
+	rig_controls,
 	--objs = Dictionary #STRING,
 	--objs = Dictionary #STRING,
 	objs = #(),
@@ -26,7 +26,8 @@ struct LHrigWrapper_v
 	 */
 	function loadRig master_control =
 	(
-		--format "\n"; print "LHrigWrapper_v.loadRig()"
+		--format "\n"; print "RigWrapper_v.loadRig()"
+
 		
 		processed_objects = #()
 
@@ -39,40 +40,27 @@ struct LHrigWrapper_v
 		
 		for rig_obj in rig_objs where findItem processed_objects rig_obj == 0 do
 		(
-			
-			
-			--basename = this.splitName rig_obj.name part:#NAME
+			/* ANALIZE OBJ NAME */ 
 			split_name = this.splitName rig_obj.name
 			basename   = split_name[2]
 			side       = split_name[3]
 			
+			
+			/* GET OBJ NMAE PATTERN */ 
 			full_basename = rig_name +"_Setup_Ctrl_"+basename -- E.G.: "boy_Setup_Ctrl_IKFoot"
-			--format "\nbasename: %\n" basename
+
+			
+			/* GET OBJECTS WITH SAME PATTERN OF NAME  */ 
 			same_name_objs = execute ("$'"+ full_basename +"_*'") as Array
-			--format "same_name_objs.count: %\n" same_name_objs.count
+			
+			
+			/* ADD CONTROL PAIR TO DICTIONARY */ 
+			if same_name_objs.count == 2 and (side == "L" or side == "R") then
+				rig_controls[full_basename] = (LeftRightControls_v()).addObjects(same_name_objs)(full_basename)
+
+			
+			/* AVOID PROCESSING OF SAME OBJECTS AGAIN  */ 
 			processed_objects += same_name_objs
-			
-			if same_name_objs.count == 2 then
-			if side == "L" or side == "R" then
-			(
-				rig_controls[full_basename] = Dictionary #STRING
-				
-				for obj in same_name_objs do
-				(
-					side = this.splitName obj.name part:#SIDE
-					
-					rig_controls[full_basename][side] = #()
-					--format "side: %\n" side
-					--format "full_basename: %\n" full_basename
-					
-				)
-				
-			--format "\nbasename: %\n" basename
-			--format "same_name_objs.count: %\n" same_name_objs.count
-				
-			)
-			
-			--format "result: %\n" result
 		)
 		
 		
@@ -83,11 +71,50 @@ struct LHrigWrapper_v
 		rig_controls --return
 	),
 	
+	/** Mirror sifted phases
+	  
+		GET TRANSFROMS ON KEY TIMES OF BOTH OBJECTS
+		FLIP ORINATATION OF TRANSFROMS
+		SAVE FLIPPED TRANSFROMS TO SHIFTED KEYS ON OTHER SIDE OBJECT	  
+		
+		@param dictionary rig_controls list of controls E.G.: rig_controls["boy_Setup_Ctrl_IKFoot"]["L|R"] = #()
+		
+		
+	 */
+	function mirrorPhases phase =
+	(
+		format "\n"; print "PhaseCreator_v.mirrorPhases()"
+		
+		--interval 0
+		--phase = [ currentTime.frame as integer , currentTime.frame + 2 ]
+		
+		KeyFrameManager = KeyFrameManager_v time:phase
+
+		all_ctrls = #()
+		
+		format "INCREMENT: %\n" increment
+		
+		for control_name in rig_controls.keys do 
+		(
+		--	TransformFlipper 	= TransformFlipper_v()
+			--format "\n"
+			LeftRightControls = rig_controls[control_name]
+			
+			
+			LeftRightControls.switchKeysOnTimes phase
+			
+
+		--	--format "ControllerKeys_left.keys: %\n" ControllerKeys_left.keys_transforms
+		--	--KeyFrameManager.copyKeys objs:(rig_controller) transforms:true
+		)
+	),
+
+
 	/** Split name
 	 */
 	function splitName obj_name part: =
 	(
-		--format "\n"; print "LHrigWrapper_v.splitName()"
+		--format "\n"; print "RigWrapper_v.splitName()"
 		matches = rx.matches obj_name "(.*)_Setup_Ctrl_([^_]+)_([^_]+).*" -- ( dotNetClass "System.Text.RegularExpressions.RegexOptions" ).IgnoreCase 
 
 		/* RESULT: #(#("boy_Setup_Ctrl_IKFoot_R_O_1LRV", "IKFoot", "L")) */ 
@@ -118,7 +145,7 @@ struct LHrigWrapper_v
 	 */
 	function isRigController obj_name =
 	(
-		--format "\n"; print "LHrigWrapper_v.isRigController()"
+		--format "\n"; print "RigWrapper_v.isRigController()"
 		--format "isRigController: %\n" (matchPattern obj_name pattern:("*_Setup_Ctrl_*"))
 		matchPattern obj_name pattern:("*_Setup_Ctrl_*")
 	),
@@ -128,7 +155,7 @@ struct LHrigWrapper_v
 	function addControllerToFlip obj =
 	(
 		--format "\n================================================\n"
-		--format "\n"; print "LHrigWrapper_v.addControllerToFlip()"
+		--format "\n"; print "RigWrapper_v.addControllerToFlip()"
 		--format "obj.name: %\n" obj.name
 		
 		if this.isRigController(obj.name) then
@@ -140,7 +167,7 @@ struct LHrigWrapper_v
 	 */
 	function searchForRigsInScene =
 	(
-		--format "\n"; print "LHrigWrapper_v.searchForRigsInScene()"
+		--format "\n"; print "RigWrapper_v.searchForRigsInScene()"
 
 		execute ("$'*_Setup_Ctrl_MasterControl_G'") as Array --return
 	),
@@ -148,7 +175,7 @@ struct LHrigWrapper_v
 	 */
 	function getNamesOfRigsInScene =
 	(
-		--format "\n"; print "LHrigWrapper_v.searchForRigsInScene()"
+		--format "\n"; print "RigWrapper_v.searchForRigsInScene()"
 		
 		rig_masters = execute ("$'*_Setup_Ctrl_MasterControl_G'") as Array
 		
@@ -170,7 +197,7 @@ struct LHrigWrapper_v
 	 */
 	function getControlObject rig_name ctrl_name =
 	(
-		--format "\n"; print "LHrigWrapper_v.getControlObject()"
+		--format "\n"; print "RigWrapper_v.getControlObject()"
 		execute ("$'"+rig_name+"_Setup_Ctrl_"+ctrl_name+"*'") as Array
 	),
 	
@@ -185,7 +212,7 @@ struct LHrigWrapper_v
 	 */
 	function mirrorControllerTransfroms =
 	(
-		--format "\n\n"; print "LHrigWrapper_v.mirrorControllerTransfroms()"
+		--format "\n\n"; print "RigWrapper_v.mirrorControllerTransfroms()"
 		--format "KEY_TIMES: %\n" key_times
 		--format "this.objs: %\n" this.objs
 		--format "this.objs.count: %\n" this.objs.count
@@ -236,7 +263,7 @@ struct LHrigWrapper_v
 	 */
 	function _getObjectsWithSamePatternOfName obj_name =
 	(
-		--format "\n"; print "LHrigWrapper_v._getObjectsWithSamePatternOfName()"
+		--format "\n"; print "RigWrapper_v._getObjectsWithSamePatternOfName()"
 		matches = ( dotNetClass "System.Text.RegularExpressions.RegEx" ).matches obj_name control_mane_pattern -- ( dotNetClass "System.Text.RegularExpressions.RegexOptions" ).IgnoreCase 
 
 		/* RESULT: #(#("boy_Setup_Ctrl_IKFoot_R_O_1LRV", "boy_Setup_Ctrl_IKFoot", "IKFoot")) */ 
@@ -304,6 +331,6 @@ struct LHrigWrapper_v
 	 */
 	on create do
 	(
-		--format "\n"; print "LHrigWrapper.onCreate()"
+		--format "\n"; print "RigWrapper.onCreate()"
 	)
 )

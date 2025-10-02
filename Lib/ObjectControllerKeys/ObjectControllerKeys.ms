@@ -46,18 +46,23 @@ struct ObjectControllerKeys_v
 		--	--default: 
 		--)
 		
-		if which == #TRANSFORMS then
+		if which != #PROPERTIES then
 		(
-			for transform_track in keys_transforms.keys do
+			keys_flat = #()
+			
+			transform_tracks = if which == #TRANSFORMS then keys_transforms.keys else #( which )
+			
+			for transform_track in transform_tracks do
 			(
 				--format "TRANSFORM_TRACK: %\n" transform_track
-				keys_of_track = #()
 				
 				for ControllerKeys in keys_transforms[transform_track] do
-					keys_of_track += ControllerKeys.filterKeys (time_interval)
+					keys_flat += ControllerKeys.filterKeys (time_interval)
 				
-				keys_filtered[transform_track] = sort( makeUniqueArray keys_of_track )
+				--keys_filtered[transform_track] = sort( makeUniqueArray keys_of_track )
 			)
+			
+			
 		)
 		else
 		(
@@ -69,7 +74,7 @@ struct ObjectControllerKeys_v
 		
 		
 		
-		keys_filtered --return
+		sort( makeUniqueArray keys_flat ) --return
 	),
 	
 	/** Has any keys

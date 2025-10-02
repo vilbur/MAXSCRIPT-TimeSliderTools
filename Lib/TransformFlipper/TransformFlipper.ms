@@ -3,20 +3,34 @@
 struct TransformFlipper_v
 (
 	/* construct */
-	
 
 	/* required */
-	
-
 	/* properties */
+	
+	obj_left ,
+	obj_right,
+	
+	ControllerKeys_left ,
+	ControllerKeys_right,
+	
+	keys_transfroms_left ,
+	keys_transfroms_right,
+
+	
+	/* private */
 	controller_types = #( #POSITION, #ROTATION ),
 	
 	lock_flags = Dictionary #( #POSITION, #{1..3} ) #( #ROTATION, #{4..6} ),
-
-	/* private */
 	/* dependency */
 	/* reference */
 	/* inhered */
+	
+	
+	
+	
+	
+	
+	
 	
 	/** 
 	 */

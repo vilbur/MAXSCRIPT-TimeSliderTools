@@ -1,4 +1,4 @@
-filein( getFilenamePath(getSourceFileName()) + "/../LHrigWrapper/LHrigWrapper.ms" )	--"./../LHrigWrapper/LHrigWrapper.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../RigWrapper/RigWrapper.ms" )	--"./../RigWrapper/RigWrapper.ms"
 
 --filein( getFilenamePath(getSourceFileName()) + "/../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms" )	--"./../ObjectControllerKeys/ControllerKeys/ControllerKeys.ms"
 
@@ -28,7 +28,7 @@ struct KeyFrameManager_v
 
 	/* private */
 	/* dependency */
-	LHrigWrapper,
+	RigWrapper,
 	
 	/* reference */
 	/* inhered */
@@ -70,19 +70,19 @@ struct KeyFrameManager_v
 		
 		--	/* FOR EACH CONTROLLER */ 
 		--	
-		--	--if LHrigWrapper.isRigController(obj.name) then
+		--	--if RigWrapper.isRigController(obj.name) then
 		--	--(
-		--	--	LHrigWrapper.objs_keys[obj.name] = new_keys
+		--	--	RigWrapper.objs_keys[obj.name] = new_keys
 		--	--	
-		--	--	LHrigWrapper.setControllerToFlip (obj.name)
+		--	--	RigWrapper.setControllerToFlip (obj.name)
 		--	--	
 		--	--)
 	
 		
-		--format "LHrigWrapper.objs_keys: %\n" LHrigWrapper.objs_keys
-		--format "controllers_to_flip: %\n" LHrigWrapper.controllers_to_flip
+		--format "RigWrapper.objs_keys: %\n" RigWrapper.objs_keys
+		--format "controllers_to_flip: %\n" RigWrapper.controllers_to_flip
 		--
-		--LHrigWrapper.mirrorControllerTransfroms()
+		--RigWrapper.mirrorControllerTransfroms()
 		
 	),
 	
@@ -100,15 +100,15 @@ struct KeyFrameManager_v
 		else
 			#( currentTime.frame as integer )
 		
-		LHrigWrapper = LHrigWrapper_v key_times:key_times
+		RigWrapper = RigWrapper_v key_times:key_times
 		
 		
 		/* ADD OBJECT  TO FLIPPER */ 
 		for obj in this.objs do
-			LHrigWrapper.addControllerToFlip (obj)
+			RigWrapper.addControllerToFlip (obj)
 	
 		/* MIRROR TRANSFORMS */ 
-		LHrigWrapper.mirrorControllerTransfroms()
+		RigWrapper.mirrorControllerTransfroms()
 		
 		sliderTime = current_time
 	),
