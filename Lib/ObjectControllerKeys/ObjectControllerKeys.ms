@@ -40,28 +40,16 @@ struct ObjectControllerKeys_v
 		
 		keys_filtered	= Dictionary #NAME
 
-		--case which of
-		--(
-		--	#TRANSFORMS: 
-		--	--default: 
-		--)
 		
 		if which != #PROPERTIES then
 		(
 			keys_flat = #()
 			
 			transform_tracks = if which == #TRANSFORMS then keys_transforms.keys else #( which )
-			
-			for transform_track in transform_tracks do
-			(
-				--format "TRANSFORM_TRACK: %\n" transform_track
-				
+
+			for transform_track in transform_tracks where keys_transforms[transform_track] != undefined do
 				for ControllerKeys in keys_transforms[transform_track] do
 					keys_flat += ControllerKeys.filterKeys (time_interval)
-				
-				--keys_filtered[transform_track] = sort( makeUniqueArray keys_of_track )
-			)
-			
 			
 		)
 		else
@@ -72,9 +60,49 @@ struct ObjectControllerKeys_v
 			format "UNSUPORTED VALUE OF parameter which: %\n" which
 		)
 		
-		
-		
 		sort( makeUniqueArray keys_flat ) --return
+	),
+	
+	/** Delete keys
+	 */
+	function removeKeys which keys =
+	(
+		format "\n"; print "ObjectControllerKeys_v.removeKeys()"
+		format "keys: %\n" keys
+		
+		if which != #PROPERTIES then
+		(
+			keys_flat = #()
+			
+			transform_tracks = if which == #TRANSFORMS then keys_transforms.keys else #( which )
+			format "transform_tracks: %\n" transform_tracks
+			for transform_track in transform_tracks where keys_transforms[transform_track] != undefined do
+				for ControllerKeys in keys_transforms[transform_track] do
+				(
+					format "ControllerKeys.keys: %\n" ControllerKeys.keys
+						format "ControllerKeys.ctrl: %\n" ControllerKeys.ctrl
+					
+					for key in ControllerKeys.keys where findItem keys key > 0 do
+						deleteKey ControllerKeys.ctrl (getKeyIndex ControllerKeys.ctrl key)
+					--for key in ControllerKeys.keys do
+					--(
+					--	format "key: %\n" key
+					--	format "INDEX: %\n" (findItem keys key > 0)
+					----format "INDEX: %\n" (getKeyIndex ControllerKeys.ctrl key)
+					--)
+					
+				)
+
+		)
+		else
+		(
+			format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+			print "ObjectControllerKeys_v.getKeys()"
+			
+			format "UNSUPORTED VALUE OF parameter which: %\n" which
+		)
+		
+		
 	),
 	
 	/** Has any keys

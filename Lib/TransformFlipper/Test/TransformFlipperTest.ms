@@ -82,8 +82,8 @@ TransformFlipper = TransformFlipper_v()
 --TransformFlipper.mirrorTrasformsAtTimes obj_A times_all obj_B times_all
 
 			----with animate on
-TransformFlipper.swapLocalRotation obj_A obj_B currentTime.frame
---TransformFlipper.flipIKControllers obj_A obj_B currentTime.frame #ROTATION
+--TransformFlipper.swapLocalRotation obj_A obj_B currentTime.frame
+TransformFlipper.flipIKControllers obj_A obj_B currentTime.frame #ROTATION
 --TransformFlipper.flipIKControllers obj_A obj_B currentTime.frame #POSITION 
 --TransformFlipper.mirrorTrasformsAtTimes (obj_A) (current_time) (obj_B) (current_time)
 

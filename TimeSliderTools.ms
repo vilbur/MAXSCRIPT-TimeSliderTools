@@ -4,7 +4,7 @@ global DIALOG_time_slider_tools
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/COLOR_NAMES/COLOR_NAMES.ms" )	--"./Lib/COLOR_NAMES/COLOR_NAMES.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/LHrigWrapper/LHrigWrapper.ms" )	--"./Lib/LHrigWrapper/LHrigWrapper.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/RigWrapper/RigWrapper.ms" )	--"./Lib/RigWrapper/RigWrapper.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/Dialog/Dialog.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/Dialog/Dialog.ms"
 

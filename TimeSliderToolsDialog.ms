@@ -96,7 +96,7 @@ function timeSliderToolsDialog =
 		ANIMATOR GROUPBOX
 	--------------------------------------------------------------------------------*/
 (	
-	rigs_in_scene = (LHrigWrapper_v()).getNamesOfRigsInScene()
+	rigs_in_scene = (RigWrapper_v()).getNamesOfRigsInScene()
 	--format "rigs_in_scene: %\n" rigs_in_scene
 	_rig_label	= _Controls.control #LABEL    "RIG"	groupbox:gb_anim.id across:2 align:#LEFT  offset:[-4, -6 ] tooltip:""
 	_rig_ddl	= _Controls.control #DROPDOWN "[RIG]"	groupbox:gb_anim.id across:2 align:#RIGHT offset:[ 12, -12 ] width:64 items:rigs_in_scene height:(rigs_in_scene.count +1)

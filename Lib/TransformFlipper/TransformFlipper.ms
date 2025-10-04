@@ -6,15 +6,6 @@ struct TransformFlipper_v
 
 	/* required */
 	/* properties */
-	
-	obj_left ,
-	obj_right,
-	
-	ControllerKeys_left ,
-	ControllerKeys_right,
-	
-	keys_transfroms_left ,
-	keys_transfroms_right,
 
 	
 	/* private */
@@ -25,57 +16,6 @@ struct TransformFlipper_v
 	/* reference */
 	/* inhered */
 	
-	
-	
-	
-	
-	
-	
-	
-	/** 
-	 */
-	function _getKeyIndex ctrl _time key_index =
-	(
-		--format "\n"; print "TransformFlipper_v._getKeyIndex()"
-		--format "ctrl: %\n" ctrl
-		--format "numKeys ctrl: %\n" (numKeys ctrl)
-		--format "ctrl.numSubs: %\n" ctrl.numSubs
-		
-		if ctrl.numSubs > 0 then
-		(
-			for i = 1 to ctrl.numSubs do
-			(
-				/* GET SUBANIM */ 
-				if (sub_anim_ctrl = getSubAnim ctrl i) != undefined then
-				(
-					--format "sub_anim_ctrl: %\n" sub_anim_ctrl
-					--format "sub_anim_ctrl.name: %\n" sub_anim_ctrl.name
-					/* GET CONTROLLER OF SUBANIM */ 
-					if (sub_ctrl = getPropertyController ctrl sub_anim_ctrl.name) != undefined then
-					(
-						--format "sub_ctrl: %\n" sub_ctrl
-					 
-					 
-						/* DELETE KEYS OF SUBANIM */ 
-						key_index = this._getKeyIndex sub_ctrl _time key_index
-					)
-				)
-			)
-		)
-		
-		/*------------------------------------------------------------------------------
-			GET KEYS FROM CONTROLLER
-		--------------------------------------------------------------------------------*/
-		else
-		if numKeys ctrl > 0 then
-		(
-			--format "KEY_INDEX: %\n" (getKeyIndex ctrl _time)
-			key_index = getKeyIndex ctrl _time
-		)
-		
-		--format "key_index: %\n" key_index
-		key_index --return
-	),
 	
 	/* 
 	Process animation keys between two nodes
@@ -150,7 +90,7 @@ struct TransformFlipper_v
 							--(
 							--	--for controller_type in #( #position, #rotation, #scale ) do
 							--		this.swapLocalTransforms obj_A obj_B _time controller_type
-							--)
+							----)
 							--else if hasB and not hasA then
 							--(
 							--	--for controller_type in #( #position, #rotation, #scale ) do
@@ -182,18 +122,6 @@ struct TransformFlipper_v
 		)
 	),
 	
-	/* 
-	Check if controller has key on given time
-	*/
-	function hasKeyAtTime ctrl _time =
-	(
-		if ctrl != undefined then
-		(
-			for i = 1 to numKeys ctrl do
-				if (getKeyTime ctrl i) == _time then return true
-		)
-		false
-	),
 	
 	/** Is transform locked
 	  *
@@ -221,13 +149,13 @@ struct TransformFlipper_v
 		(
 		  --at time tStart obj.pos.z=loadheight+liftHeight
 		--at time tEnd obj.pos.z=loadheight
-			if controller_type == #POSITION then
+			--if controller_type == #POSITION then
 			(
 				temp_pos = obj_A.pos
 				obj_A.pos = [-obj_B.pos.x, obj_B.pos.y, obj_B.pos.z]
 				obj_B.pos = [-temp_pos.x, temp_pos.y, temp_pos.z]
 			)
-			else
+			--else
 			(
 				temp_rot = obj_A.rotation
 				obj_A.rotation = obj_B.rotation

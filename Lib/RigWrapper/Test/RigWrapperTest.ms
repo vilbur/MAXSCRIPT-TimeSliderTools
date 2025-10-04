@@ -11,5 +11,6 @@ PhaseCreator = PhaseCreator_v()
 
 RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
 
+undo "mirrorPhases" on
 
 RigWrapper.mirrorPhases ( Interval 1 3 )
