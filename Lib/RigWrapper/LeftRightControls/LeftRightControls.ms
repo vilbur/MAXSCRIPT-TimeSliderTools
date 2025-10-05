@@ -46,9 +46,14 @@ struct LeftRightControls_v
 
 	/** Copy keys on times
 	 */
-	function switchKeysOnTimes phase =
+	function switchKeysOnTimes phase increment:undefined =
 	(
 		--format "\n"; print "RigWrapper_v.switchKeysOnTimes()"
+		/** Is locked
+		 */
+		function isLocked flags = flags.count > 0
+		
+		increment = ( phase.end - phase.start ) + 1
 
 		/* GET ONLY KEYS IN PHASE */ 
 		keys_L  =  left.getKeys #TRANSFORMS phase
@@ -73,7 +78,6 @@ struct LeftRightControls_v
 		keys_rot_L  = left.getKeys #ROTATION phase
 		keys_rot_R = right.getKeys #ROTATION phase
 		
-		increment = ( phase.end - phase.start ) + 1
 
 		if keys_all.count == 0 then
 			return false
@@ -89,42 +93,61 @@ struct LeftRightControls_v
 			format "SOURCE_TIME: %\n" source_time
 			target_time = source_time + increment
 			
-			rot_key_L  = findItem keys_rot_L  source_time
+			rot_key_L = findItem keys_rot_L source_time
 			rot_key_R = findItem keys_rot_R source_time
 			
-			pos_key_L  = findItem keys_pos_L  source_time
+			pos_key_L = findItem keys_pos_L source_time
 			pos_key_R = findItem keys_pos_R source_time
 			
-			position_keys_has_both = pos_key_L and pos_key_R 
-			rotation_keys_has_both = rot_key_L and rot_key_R 
-			format "position_keys_has_both: %\n" position_keys_has_both
-			format "rotation_keys_has_both: %\n" rotation_keys_has_both
+			position_keys_exists = pos_key_L or pos_key_R 
+			rotation_keys_exists = rot_key_L or rot_key_R 
+			format "position_keys_exists: %\n" position_keys_exists
+			format "rotation_keys_exists: %\n" rotation_keys_exists
 			
-			this.flipIKControllers left.obj right.obj source_time target_time  #both
+			mode = case of
+			(
+				( position_keys_exists and not rotation_keys_exists ): #POSITION
+				( rotation_keys_exists and not position_keys_exists ): #ROTATION
+				
+				default: #BOTH
+			)
 			
 			
-			--if rotation_keys_has_both and position_keys_has_both then
-			--	this.swapLocalTransform left.obj right.obj source_time target_time mode:#both
+			left_to_right = rot_key_L or pos_key_L
+			right_to_left = rot_key_R or pos_key_R
 			--
-			--if not rotation_keys_has_both and position_keys_has_both then
-			--	this.swapLocalTransform left.obj right.obj source_time target_time mode:#position
-			--
-			--if rotation_keys_has_both and not position_keys_has_both then
-			--	this.swapLocalRotation source_time target_time
+			--format "lock_position_L: %\n" lock_position_L
+			--format "lock_position_R: %\n" lock_position_R
+			--format "lock_rotation_L: %\n" lock_rotation_L
+			--format "lock_rotation_R: %\n" lock_rotation_R
+			
+			is_pos_locked_L = isLocked lock_position_L
+			is_pos_locked_R = isLocked lock_position_R
+
+			is_rot_locked_L = isLocked lock_rotation_L
+			is_rot_locked_R = isLocked lock_rotation_R
 			
 			
+			format "is_pos_locked_L: %\n" is_pos_locked_L
+			format "is_pos_locked_R: %\n" is_pos_locked_R
+			format "is_rot_locked_L: %\n" is_rot_locked_L
+			format "is_rot_locked_R: %\n" is_rot_locked_R
+
+			if ( is_pos_locked_L and is_pos_locked_R ) then
+				this.swapLocalRotation source_time target_time mode left_to_right right_to_left
+			
+			else
+				this.flipIKControllers left.obj right.obj source_time target_time mode left_to_right right_to_left
 		)
-
-		--if rotation_keys_has_both and not position_keys_has_both then
-
-
 	),
 	
+	
 	private
+	
 
 	/* Swap local rotation between two objects, copy at one time, paste at another time
 	*/
-	function swapLocalRotation time_from time_to =
+	function swapLocalRotation time_from time_to mode left_to_right right_to_left =
 	(
 		format "\n"; print "TransformFlipper_v.swapLocalRotation()"
 		/* 
@@ -172,38 +195,37 @@ struct LeftRightControls_v
 		/* paste swapped rotations at target time */
 		with animate on
 		(
-			
 			at time time_to
 			(
-			
-				--obj_L_rotation = if parentA != undefined then parentA.rotation * localRotB else localRotB
-				--obj_R_rotation = if parentB != undefined then parentB.rotation * localRotA else localRotA
-				--
-				--setRotationKey obj_L obj_L_rotation time_to
-				--setRotationKey obj_R obj_R_rotation time_to
+				if left_to_right then
+				(
+					
+					if parentB != undefined then
+						obj_R.rotation = parentB.rotation * localRotA
+					else
+						obj_R.rotation = localRotA
+					
+		
+					obj_R.pos = pos_R
+				)
 				
-				if parentA != undefined then
-					obj_L.rotation = parentA.rotation * localRotB
-				else
-					obj_L.rotation = localRotB
-				
-				if parentB != undefined then
-					obj_R.rotation = parentB.rotation * localRotA
-				else
-					obj_R.rotation = localRotA
-				
-	
-				/* RESTORE POS */
-				obj_L.pos = pos_L
-				obj_R.pos = pos_R
+				if right_to_left then
+				(
+					if parentA != undefined then
+						obj_L.rotation = parentA.rotation * localRotB
+					else
+						obj_L.rotation = localRotB
+					
+					/* RESTORE POS */
+					obj_L.pos = pos_L
+					
+				)
 			)
 		)
 		
-				
+		/* remove position keys created on restore position */ 
 		left.removeKeys  #POSITION #( time_to.frame as integer )
 		right.removeKeys #POSITION #( time_to.frame as integer )
-		
-		-- return
 		
 	),
 
@@ -211,7 +233,7 @@ struct LeftRightControls_v
 	Swap IK goal positions of two nodes.
 	Works if nodes are IK effectors (like foot controls).
 	*/
-	function flipIKControllers obj_L obj_R time_from time_to controller_type =
+	function flipIKControllers obj_L obj_R time_from time_to mode left_to_right right_to_left =
 	(
 		format "\n---------------------------------------"
 		format "\n"; print "TransformFlipper_v.flipIKControllers()"
@@ -220,186 +242,195 @@ struct LeftRightControls_v
 	
 		at time time_from
 		(
-		  --at time tStart obj.pos.z=loadheight+liftHeight
-		--at time tEnd obj.pos.z=loadheight
-		
-				pos_L = obj_L.pos
-				pos_R = obj_R.pos
-		
-				rot_L = obj_L.rotation
-				rot_R = obj_R.rotation
-				
-				pos_flipped_L = [-obj_R.pos.x, obj_R.pos.y, obj_R.pos.z]
-				pos_flipped_R = [-obj_L.pos.x, obj_L.pos.y, obj_L.pos.z]
-
+			pos_L = obj_L.pos
+			pos_R = obj_R.pos
+	
+			rot_L = obj_L.rotation
+			rot_R = obj_R.rotation
+			
+			pos_flipped_L = [-obj_R.pos.x, obj_R.pos.y, obj_R.pos.z]
+			pos_flipped_R = [-obj_L.pos.x, obj_L.pos.y, obj_L.pos.z]
 		)
 		
-		with animate on
-		at time time_to
+		with animate on at time time_to
 		(
+			/* IF ROTATION OR BOTH */ 
+			if mode != #POSITION  then
+			(
+				obj_L.rotation = rot_R
+				obj_R.rotation = rot_L
+			)
 			
-			obj_L.rotation = rot_R
-			obj_R.rotation = rot_L
 			
-			obj_L.pos = pos_flipped_L
-			obj_R.pos = pos_flipped_R
-			
+			/* IF POSITION OR BOTH */ 
+			if mode != #ROTATION  then
+			(
+				obj_L.pos = pos_flipped_L
+				obj_R.pos = pos_flipped_R
+			)
 		)
 		
+		/* remove keys of unanimated transform -- little dirty, but it works */
+		if mode != #BOTH then
+		(
+			mode_to_delete = if mode == #POSITION  then #ROTATION else #POSITION
+	
+			left.removeKeys  mode_to_delete time_to.frame
+			
+			right.removeKeys mode_to_delete time_to.frame
+		)
 	),
 
 
-	/** Copy keys on times
-	 */
-	function _copyKeysOnTimes source_node target_node keys phase side =
-	(
-		--format "\n"; print "LeftRightControls_v._copyKeysOnTimes()"
-
-		--if keys.count > 0 then
-		(
-			format "\n-----------------------------------------------------------------\n"
-			format "\n"; print "LeftRightControls_v._copyKeysOnTimes()"
-			
-			format "source_node: %\n" source_node
-			format "target_node: %\n" target_node
-			ObjectControllerKeys = getProperty this side
-			
-			/* GET SOURCE KEYS */ 
-			keys_pos  =  ObjectControllerKeys.getKeys #POSITION phase
-			keys_rot  =  ObjectControllerKeys.getKeys #ROTATION phase
-			
-			/* TRANSFORM LOCKS */ 
-			lock_position = getProperty this ("lock_position_" + side)
-			lock_rotation = getProperty this ("lock_rotation_" + side)
-			format "keys_pos: %\n" keys_pos
-			format "keys_rot: %\n" keys_rot
-
-			/* SWAP POSITION OR ROTATION  */ 
-			mode_bylock = case of
-			(
-				( lock_position.count >  0 and lock_rotation.count == 0  ): #ROTATION
-				( lock_position.count == 0 and lock_rotation.count >  0  ): #POSITION
-
-				default: #BOTH
-			)
-			format "mode_bylock: %\n" mode_bylock
-			
-			for source_time in keys do 
-			(
-				format "source_time: %\n" source_time
-				/* TEST IF KEY ON TRACK EXISTS */ 
-				has_position = findItem keys_pos source_time > 0
-				has_rotation = findItem keys_rot source_time > 0
-				format "has_position: %\n" has_position
-				format "has_rotation: %\n" has_rotation
-				mode = case of
-				(
-					( mode_bylock == #POSITION and has_position ): #POSITION
-					( mode_bylock == #ROTATION and has_rotation ): #ROTATION
-					
-					( mode_bylock == #BOTH ): if has_position and has_rotation then #BOTH
-												else if has_position then #POSITION
-												else if has_rotation then #ROTATION
-					
-				)
-				format "MODE: %\n" mode
-
-				/* IF KEYS EXISTS */ 
-				if mode != undefined then 
-					this.copyTransformAtTime source_node target_node source_time (source_time + increment) mode:mode
-			)
-		)
-	),
-	
-	
-	
-	/* 
-	Function to copy transform data (position, rotation or both) 
-	from one object at given time and apply it to another object at different time 
-	*/
-	function copyTransformAtTime source_node target_node source_time target_time mode:#both =
-	(
-		format "\n"; print "LeftRightControls_v.copyTransformAtTime()"
-
-		/** Swap local rotation
-		 */
-		function swapLocalRotation obj_L obj_R source_time =
-		(
-			format "\n"; print "LeftRightControls_v.swapLocalRotation()"
-			
-			local rot_val
-			
-			at time source_time
-			(
-				parentA = obj_L.parent
-				parentB = obj_R.parent
-				
-				/* KEEP POS */ 
-				pos_L = obj_L.pos
-				pos_R = obj_R.pos
-				 
-				/* compute local rotations */ 
-				localRotA = if parentA != undefined then (inverse parentA.rotation * obj_L.rotation) else obj_L.rotation
-				localRotB = if parentB != undefined then (inverse parentB.rotation * obj_R.rotation) else obj_R.rotation
-				
-				/* swap them */ 
-				rot_val = if parentA != undefined then
-					parentA.rotation * localRotB
-				else
-					localRotB
-				
-				
-				--rot_val = inverse (parentA.rotation * localRotB)
-				
-
-			)
-			
-			rot_val --return
-		)
-		
-		/** Swap position
-		 */
-		function swapPosition obj_L obj_R source_time =
-		(
-			format "\n"; print "LeftRightControls_v.swapPosition()"
-			at time source_time
-				[-obj_L.pos.x, obj_L.pos.y, obj_L.pos.z]
-		)
-		
-		pos_target_node = target_node.pos
-		
-		if (isValidNode source_node and isValidNode target_node) then
-		(
-			
-			target_rot = swapLocalRotation source_node target_node source_time 
-			target_pos = swapPosition      source_node target_node source_time 
-			
-			
-			
-			--at time source_time
-			--(
-			--	src_pos = source_node.position
-			--	src_rot = source_node.rotation
-			--)
-			
-			at time target_time animate on
-			(
-				case mode of
-				(
-					#position: ( target_node.position = target_pos )
-					#rotation: ( target_node.rotation = target_rot )
-					--#rotation: ( target_node.rotation = target_rot; target_node.pos = pos_target_node )
-				
-					#both: 
-					(
-						target_node.rotation = target_rot
-						target_node.position = target_pos
-					)
-				)
-			)
-		)
-		-- return
-	),
+	--/** Copy keys on times
+	-- */
+	--function _copyKeysOnTimes source_node target_node keys phase side =
+	--(
+	--	--format "\n"; print "LeftRightControls_v._copyKeysOnTimes()"
+	--
+	--	--if keys.count > 0 then
+	--	(
+	--		format "\n-----------------------------------------------------------------\n"
+	--		format "\n"; print "LeftRightControls_v._copyKeysOnTimes()"
+	--		
+	--		format "source_node: %\n" source_node
+	--		format "target_node: %\n" target_node
+	--		ObjectControllerKeys = getProperty this side
+	--		
+	--		/* GET SOURCE KEYS */ 
+	--		keys_pos  =  ObjectControllerKeys.getKeys #POSITION phase
+	--		keys_rot  =  ObjectControllerKeys.getKeys #ROTATION phase
+	--		
+	--		/* TRANSFORM LOCKS */ 
+	--		lock_position = getProperty this ("lock_position_" + side)
+	--		lock_rotation = getProperty this ("lock_rotation_" + side)
+	--		format "keys_pos: %\n" keys_pos
+	--		format "keys_rot: %\n" keys_rot
+	--
+	--		/* SWAP POSITION OR ROTATION  */ 
+	--		mode_bylock = case of
+	--		(
+	--			( lock_position.count >  0 and lock_rotation.count == 0  ): #ROTATION
+	--			( lock_position.count == 0 and lock_rotation.count >  0  ): #POSITION
+	--
+	--			default: #BOTH
+	--		)
+	--		format "mode_bylock: %\n" mode_bylock
+	--		
+	--		for source_time in keys do 
+	--		(
+	--			format "source_time: %\n" source_time
+	--			/* TEST IF KEY ON TRACK EXISTS */ 
+	--			has_position = findItem keys_pos source_time > 0
+	--			has_rotation = findItem keys_rot source_time > 0
+	--			format "has_position: %\n" has_position
+	--			format "has_rotation: %\n" has_rotation
+	--			mode = case of
+	--			(
+	--				( mode_bylock == #POSITION and has_position ): #POSITION
+	--				( mode_bylock == #ROTATION and has_rotation ): #ROTATION
+	--				
+	--				( mode_bylock == #BOTH ): if has_position and has_rotation then #BOTH
+	--											else if has_position then #POSITION
+	--											else if has_rotation then #ROTATION
+	--				
+	--			)
+	--			format "MODE: %\n" mode
+	--
+	--			/* IF KEYS EXISTS */ 
+	--			if mode != undefined then 
+	--				this.copyTransformAtTime source_node target_node source_time (source_time + increment) mode:mode
+	--		)
+	--	)
+	--),
+	--
+	--/* 
+	--Function to copy transform data (position, rotation or both) 
+	--from one object at given time and apply it to another object at different time 
+	--*/
+	--function copyTransformAtTime source_node target_node source_time target_time mode:#both =
+	--(
+	--	format "\n"; print "LeftRightControls_v.copyTransformAtTime()"
+	--
+	--	/** Swap local rotation
+	--	 */
+	--	function swapLocalRotation obj_L obj_R source_time =
+	--	(
+	--		format "\n"; print "LeftRightControls_v.swapLocalRotation()"
+	--		
+	--		local rot_val
+	--		
+	--		at time source_time
+	--		(
+	--			parentA = obj_L.parent
+	--			parentB = obj_R.parent
+	--			
+	--			/* KEEP POS */ 
+	--			pos_L = obj_L.pos
+	--			pos_R = obj_R.pos
+	--			 
+	--			/* compute local rotations */ 
+	--			localRotA = if parentA != undefined then (inverse parentA.rotation * obj_L.rotation) else obj_L.rotation
+	--			localRotB = if parentB != undefined then (inverse parentB.rotation * obj_R.rotation) else obj_R.rotation
+	--			
+	--			/* swap them */ 
+	--			rot_val = if parentA != undefined then
+	--				parentA.rotation * localRotB
+	--			else
+	--				localRotB
+	--			
+	--			
+	--			--rot_val = inverse (parentA.rotation * localRotB)
+	--			
+	--
+	--		)
+	--		
+	--		rot_val --return
+	--	)
+	--	
+	--	/** Swap position
+	--	 */
+	--	function swapPosition obj_L obj_R source_time =
+	--	(
+	--		format "\n"; print "LeftRightControls_v.swapPosition()"
+	--		at time source_time
+	--			[-obj_L.pos.x, obj_L.pos.y, obj_L.pos.z]
+	--	)
+	--	
+	--	pos_target_node = target_node.pos
+	--	
+	--	if (isValidNode source_node and isValidNode target_node) then
+	--	(
+	--		
+	--		target_rot = swapLocalRotation source_node target_node source_time 
+	--		target_pos = swapPosition      source_node target_node source_time 
+	--		
+	--		
+	--		
+	--		--at time source_time
+	--		--(
+	--		--	src_pos = source_node.position
+	--		--	src_rot = source_node.rotation
+	--		--)
+	--		
+	--		at time target_time animate on
+	--		(
+	--			case mode of
+	--			(
+	--				#position: ( target_node.position = target_pos )
+	--				#rotation: ( target_node.rotation = target_rot )
+	--				--#rotation: ( target_node.rotation = target_rot; target_node.pos = pos_target_node )
+	--			
+	--				#both: 
+	--				(
+	--					target_node.rotation = target_rot
+	--					target_node.position = target_pos
+	--				)
+	--			)
+	--		)
+	--	)
+	--	-- return
+	--),
 	
 	/** Set transform locks
 	 */

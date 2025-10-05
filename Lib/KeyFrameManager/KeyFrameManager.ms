@@ -49,7 +49,7 @@ struct KeyFrameManager_v
 
 		this.setParameters objs:objs transforms:transforms properties:properties time:time
 		--format "this.properties: %\n" this.properties
-		format "this.time: %\n" this.time
+		--format "this.time: %\n" this.time
 		this.executeCallback #DELETE
 	),
 	
@@ -58,7 +58,7 @@ struct KeyFrameManager_v
 	function copyKeys objs: transforms: properties: time: =
 	(
 		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		format "\n"; print "KeyFrameManager_v.copyKeys()"
+		--format "\n"; print "KeyFrameManager_v.copyKeys()"
 
 		if phase_length == unsupplied then
 			phase_length = if classOf this.time != Point2 then 1 else this.time.y - this.time.x + 1
@@ -188,8 +188,8 @@ struct KeyFrameManager_v
 	 */
 	function _processControllerKeys ControllerKeys callback =
 	(
-		format "\n"; print "KeyFrameManager_v._processControllerKeys()"
-		format "% CALLBACK: %\n" ControllerKeys.ctrl callback
+		--format "\n"; print "KeyFrameManager_v._processControllerKeys()"
+		--format "% CALLBACK: %\n" ControllerKeys.ctrl callback
 		--format "ControllerKeys.keys: %\n" ControllerKeys.keys
 		/** Copy key
 		 */

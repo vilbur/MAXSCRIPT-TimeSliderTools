@@ -81,7 +81,7 @@ struct RigWrapper_v
 		
 		
 	 */
-	function mirrorPhases phase =
+	function mirrorPhase phase increment:undefined =
 	(
 		format "\n"; print "PhaseCreator_v.mirrorPhases()"
 		
@@ -101,7 +101,7 @@ struct RigWrapper_v
 			LeftRightControls = rig_controls[control_name]
 			
 			
-			LeftRightControls.switchKeysOnTimes phase
+			LeftRightControls.switchKeysOnTimes phase increment:increment
 			
 
 		--	--format "ControllerKeys_left.keys: %\n" ControllerKeys_left.keys_transforms

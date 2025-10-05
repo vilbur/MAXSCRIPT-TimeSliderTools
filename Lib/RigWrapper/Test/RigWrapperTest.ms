@@ -13,4 +13,4 @@ RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
 
 undo "mirrorPhases" on
 
-RigWrapper.mirrorPhases ( Interval 1 3 )
+RigWrapper.mirrorPhase ( Interval 1 3 )

@@ -70,6 +70,11 @@ struct ObjectControllerKeys_v
 		format "\n"; print "ObjectControllerKeys_v.removeKeys()"
 		format "keys: %\n" keys
 		
+		if classOf keys != Array then
+			keys = #( keys )
+		
+		keys = for key in keys collect key as integer
+		
 		if which != #PROPERTIES then
 		(
 			keys_flat = #()
