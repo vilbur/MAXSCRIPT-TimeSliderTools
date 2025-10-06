@@ -130,7 +130,7 @@ function timeSliderToolsDialog =
 	/* SHIFT BUTTON DOWN */ 
 	pos_y += width_button
 	
-	
+	 
 	
 	/*------------------------------------------------------------------------------
 		FRAME BUTTONS
@@ -142,7 +142,7 @@ function timeSliderToolsDialog =
 		_Frame_btn = _Controls.control #CHECKBUTTON ( i_str ) id:("btn_frame_"+ i_str ) width:width_button height:width_button pos:[ pos_x_button += width_button , pos_y ] highlightColor:(if i == 0 then orange else COLOR_NAMES[#DARKGREEN] )
 		
 		
-		_Frame_btn.Event #CHANGED ("if keyboard.controlPressed then TimeTools.selectObjectsWithFrame( "+i_str +") else TimeTools.setFrame( "+i_str +")" ) tooltip:("Go to frame Frame.\n\nCTRL: Select objects with key on frame " + i_str )
+		_Frame_btn.Event #CHANGED ("if keyboard.controlPressed then TimeTools.selectObjectsWithKey( "+i_str +") else TimeTools.setFrame( "+i_str +")" ) tooltip:("Go to frame Frame.\n\nCTRL: Select objects with key on frame " + i_str )
 		
 		_Frame_btn.Event #RIGHTCLICK ("frameButtonRcMenu( "+i_str +")" ) tooltip:( "Open menu" )
 

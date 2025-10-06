@@ -85,7 +85,10 @@ struct RigWrapper_v
 	(
 		format "\n"; print "PhaseCreator_v.mirrorPhases()"
 		
-		--interval 0
+		if increment == undefined or increment as Number == undefined then
+			increment = phase.end.frame - phase.start.frame + 1
+		
+		
 		--phase = [ currentTime.frame as integer , currentTime.frame + 2 ]
 		
 		KeyFrameManager = KeyFrameManager_v time:phase

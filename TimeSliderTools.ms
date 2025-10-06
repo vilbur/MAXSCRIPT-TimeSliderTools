@@ -64,6 +64,31 @@ struct TimeSliderTools_v
 		
 	),
 	
+	/* set frame */ 
+	function setFrame frame =
+	(
+		--format "\n"; print "TimeSliderTools_v.setFrame()"
+		--format "frame: %\n" frame
+
+		frame = frame as integer
+		--format "FRAME: %\n" FRAME
+		if not this.isInRange(frame) then
+			return false
+		
+		sliderTime = frame
+		
+		/*------------------------------------------------------------------------------
+			SYNC CONTROLS 
+		--------------------------------------------------------------------------------*/
+		
+		/* ENABLE CURRENT FRAME BUTTON */ 
+		this.updateButtons(frame)
+
+		
+		/* SLIDER */ 
+		_rollout.slider_current_time.value = frame
+	),
+	
 	/** Set interval
 	 */
 	function setInterval val =
@@ -97,30 +122,13 @@ struct TimeSliderTools_v
 		frame >= animationRange.start.frame and frame <= animationRange.end.frame
 	),
 	
-	
-	/* set frame */ 
-	function setFrame frame =
+	/** Select objects with key
+	 */
+	function selectObjectsWithKey frame =
 	(
-		--format "\n"; print "TimeSliderTools_v.setFrame()"
-		--format "frame: %\n" frame
-
-		frame = frame as integer
-		--format "FRAME: %\n" FRAME
-		if not this.isInRange(frame) then
-			return false
+		format "\n"; print "TimeSliderTools_v.selectObjectsWithKey()"
 		
-		sliderTime = frame
-		
-		/*------------------------------------------------------------------------------
-			SYNC CONTROLS 
-		--------------------------------------------------------------------------------*/
-		
-		/* ENABLE CURRENT FRAME BUTTON */ 
-		this.updateButtons(frame)
-
-		
-		/* SLIDER */ 
-		_rollout.slider_current_time.value = frame
+		format "\n FUNCTION IS PLACHOLDER"
 	),
 	
 

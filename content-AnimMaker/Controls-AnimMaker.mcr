@@ -1,11 +1,42 @@
 
+
+--/**  
+-- */
+--macroscript AnimMaker_rig_choose
+--category:	"_AnimMaker"
+--buttontext:	"RIG"
+--toolTip:	"Open AnimMaker"
+--icon:	"control:#DROPDOWN|across:2|width:64|items:#( 'Phase', '1', '2', '3', '4', '5', '6', '7', '8', '9')|height:10"
+--(
+--	format "EventFired: %\n" EventFired
+--	
+--)
+
+
+/**  
+ */
+macroscript AnimMaker_rig
+category:	"_AnimMaker"
+buttontext:	"[Rig select]"
+toolTip:	""
+icon:	"control:#DROPDOWN|across:1|width:128"
+(
+	
+	format "EventFired: %\n" EventFired
+)
+
+/*------------------------------------------------------------------------------
+	PHASE
+--------------------------------------------------------------------------------*/
+
+
 /**  
  */
 macroscript AnimMaker_phase_length
 category:	"_AnimMaker"
 buttontext:	"[Phase Length]"
 toolTip:	"Open AnimMaker"
-icon:	"control:#DROPDOWN|across:2|width:48|items:#( '1', '2', '3', '4', '5', '6', '7', '8', '9')"
+icon:	"control:#DROPDOWN|across:2|width:64|items:#( '1', '2', '3', '4', '5', '6', '7', '8', '9')"
 (
 	
 	format "EventFired: %\n" EventFired
@@ -26,13 +57,18 @@ icon:	"control:#CHECKBOX|across:2"
 
 )
 
+/*------------------------------------------------------------------------------
+	INCREMENT
+--------------------------------------------------------------------------------*/
+
 /**  
  */
 macroscript AnimMaker_increment
 category:	"_AnimMaker"
 buttontext:	"[Increment value]"
 toolTip:	"Open AnimMaker"
-icon:	"control:#DROPDOWN|across:2|width:48|items:#( 'Phase', '1', '2', '3', '4', '5', '6', '7', '8', '9')|height:10"
+--icon:	"control:#DROPDOWN|across:2|width:64|items:#( 'Phase', '1', '2', '3', '4', '5', '6', '7', '8', '9')"
+icon:	"control:#DROPDOWN|across:2|width:64|items:#( 'Phase', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')"
 (
 	format "EventFired: %\n" EventFired
 	
@@ -53,32 +89,67 @@ icon:	"control:#CHECKBOX|across:2"
 
 )
 
+/*------------------------------------------------------------------------------
+	BUTTONS 
+--------------------------------------------------------------------------------*/
+
 /**  
  */
 macroscript	template_make_generate
 category:	"content-Template"
-buttontext:	"Generate"
---toolTip:	"Generate"
-icon:	"across:1|width:96|height:32|align:#CENTER"
+buttontext:	"Frame - > Phase"
+toolTip:	"Generate phase from single frame.E.G.: Generate 1st step from first frame"
+icon:	"across:1|width:128|height:32|border:false"
 (
+	
+	/** Get interval
+	 */
+	function getInterval =
+	(
+		--format "\n"; print ".getInterval()"
+		start = currentTime.frame as integer
+		
+		end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
+		format "Interval: %\n" (Interval start end)
+		Interval start end --return
+	)
+	
 	RigWrapper = RigWrapper_v()
 	PhaseCreator = PhaseCreator_v()
 	
 	
 	RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
 	
-	undo "mirrorPhases" on
-	
-	RigWrapper.mirrorPhase ( Interval 1 3 )
+	undo "Frame - > Phase" on
+		RigWrapper.mirrorPhase (getInterval()) increment:DIALOG_content_animmaker.DL_increment_value.selected
 )
 
 /**  
  */
 macroscript	template_mirror_phase
 category:	"content-Template"
-buttontext:	"Mirror"
+buttontext:	"Mirror phase"
 toolTip:	"MIRROR: If 1 side is selected.\n\nSWAP: If 2 side is selected.\n\nE.G.:\n\nA) Left foot selected > MIRROR to rigt foot.\n\nB) Both feet selected > SWAP left <-> right"
-icon:	"across:1|width:96|height:32|align:#CENTER"
+icon:	"across:1|width:128|height:32|border:false"
+(
+	--RigWrapper = RigWrapper_v()
+	--PhaseCreator = PhaseCreator_v()
+	--
+	--
+	--RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
+	--
+	--undo "mirrorPhases" on
+	--
+	--RigWrapper.mirrorPhase ( Interval 1 3 )
+)
+
+/**  
+ */
+macroscript	template_make_cycle
+category:	"content-Template"
+buttontext:	"Cycle"
+toolTip:	""
+icon:	"across:1|width:128|height:32|border:false"
 (
 	--RigWrapper = RigWrapper_v()
 	--PhaseCreator = PhaseCreator_v()
