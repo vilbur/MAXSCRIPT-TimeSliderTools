@@ -118,7 +118,7 @@ function timeSliderToolsDialog =
 	_End.Event #PRESSED	"TimeTools.setAnimRange #END ( animationRange.end.frame - 1 )"	tooltip:" - 1 frame"
 	_End.Event #RIGHTCLICK	"TimeTools.setAnimRange #END ( animationRange.end.frame + 1 )"	tooltip:" + 1 frame"
 
-	
+	 
 	/** Get highlight color
 	 */
 	function getHighlightColor =

@@ -56,8 +56,8 @@ struct TimeSliderTools_v
 			https://help.autodesk.com/view/MAXDEV/2022/ENU/?guid=GUID-5120D063-E771-4700-98FF-60E4E578BE52
 		*/ 
 		trackbar.filter = if toolmode.commandmode == #ROTATE or toolmode.commandmode == #MOVE then
-			#currentTM
-			--#TMOnly 
+			--#currentTM
+			#TMOnly 
 		else
 			#all
 		--format "_rollout: %\n" _rollout.status_bar

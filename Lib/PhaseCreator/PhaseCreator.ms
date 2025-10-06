@@ -76,23 +76,76 @@ struct PhaseCreator_v
 						
 						
 					)
-					
-					
 					--ControllerKeys_left.keys[key_time_shifted]  = flipTransforms obj_left obj_right
-					
 					
 				)
 				--format "rig_controls[control_name]: %\n" rig_controls[control_name]
 				for side in rig_controls[control_name].keys do
 					--format "side: %\n" side
 					format "% % %\n" control_name side rig_controls[control_name][side]
-				
-				
 			
 			)
 			--format "ControllerKeys_left.keys: %\n" ControllerKeys_left.keys_transforms
 			--KeyFrameManager.copyKeys objs:(rig_controller) transforms:true
 		)
+	),
+	
+	
+	/** Repeat phase
+	 */
+	function repeatPhase objs =
+	(
+		format "\n"; print "PhaseCreator_v.repeatPhase()"
+		
+		current_time = currentTime.frame as integer
+		
+		for obj in objs do
+		(
+			format "obj: %\n" obj
+			ControllerKeys = ObjectControllerKeys_v(obj)
+			
+			keys_transforms = ControllerKeys.getKeys #TRANSFORMS undefined
+			--format "ControllerKeys.getKeys #TRANSFORMS: %\n" (ControllerKeys.getKeys #TRANSFORMS undefined ) 
+			
+			if keys_transforms.count > 0 and ( index = findItem keys_transforms current_time ) > 1 then
+			(
+				
+				key_current  = keys_transforms[index]
+				key_prev     = keys_transforms[index - 1]
+				
+				phase_length = key_current - key_prev
+				
+				key_next = key_current + phase_length
+				
+				transform_current = at time key_current obj.transform
+				transform_prev    = at time key_prev    obj.transform
+				
+				
+				--transform_between_keys = transform_current * Inverse transform_prev
+				--transform_between_keys = transform_current - transform_prev
+				--
+				--format "transform_between_keys: %\n" transform_between_keys
+				--
+				--with animate on at time key_next
+				--	obj.transform *= transform_between_keys
+					
+					
+				pos_current = at time key_current obj.pos
+				pos_prev    = at time key_prev    obj.pos
+				
+				pos_between_keys = pos_current - pos_prev
+				
+				with animate on at time key_next
+					obj.pos += pos_between_keys
+					
+					
+			)
+			else
+				messageBox ( obj.name + " has not transform key on TIME: " +current_time as string ) title:"ANIM KEY NOT FOURND"  beep:false
+			
+			
+		)
+		
 	),
 	
 	private

@@ -49,7 +49,7 @@ struct ObjectControllerKeys_v
 
 			for transform_track in transform_tracks where keys_transforms[transform_track] != undefined do
 				for ControllerKeys in keys_transforms[transform_track] do
-					keys_flat += ControllerKeys.filterKeys (time_interval)
+					keys_flat +=  if time_interval != undefined then ControllerKeys.filterKeys (time_interval) else ControllerKeys.keys
 			
 		)
 		else

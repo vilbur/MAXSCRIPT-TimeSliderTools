@@ -93,26 +93,30 @@ icon:	"control:#CHECKBOX|across:2"
 	BUTTONS 
 --------------------------------------------------------------------------------*/
 
+
+
 /**  
  */
 macroscript	template_make_generate
 category:	"content-Template"
-buttontext:	"Frame - > Phase"
+--buttontext:	"Frame - > Phase"
+buttontext:	"Mirror phase"
 toolTip:	"Generate phase from single frame.E.G.: Generate 1st step from first frame"
 icon:	"across:1|width:128|height:32|border:false"
 (
 	
 	/** Get interval
 	 */
-	function getInterval =
+	function getPhaseLenght =
 	(
-		--format "\n"; print ".getInterval()"
+		--format "\n"; print ".getPhaseLenght()"
 		start = currentTime.frame as integer
 		
 		end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
 		format "Interval: %\n" (Interval start end)
 		Interval start end --return
 	)
+
 	
 	RigWrapper = RigWrapper_v()
 	PhaseCreator = PhaseCreator_v()
@@ -121,46 +125,76 @@ icon:	"across:1|width:128|height:32|border:false"
 	RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
 	
 	undo "Frame - > Phase" on
-		RigWrapper.mirrorPhase (getInterval()) increment:DIALOG_content_animmaker.DL_increment_value.selected
+		RigWrapper.mirrorPhase (getPhaseLenght()) increment:DIALOG_content_animmaker.DL_increment_value.selected
 )
 
 /**  
  */
-macroscript	template_mirror_phase
+macroscript	template_repeat_phase
 category:	"content-Template"
-buttontext:	"Mirror phase"
-toolTip:	"MIRROR: If 1 side is selected.\n\nSWAP: If 2 side is selected.\n\nE.G.:\n\nA) Left foot selected > MIRROR to rigt foot.\n\nB) Both feet selected > SWAP left <-> right"
-icon:	"across:1|width:128|height:32|border:false"
-(
-	--RigWrapper = RigWrapper_v()
-	--PhaseCreator = PhaseCreator_v()
-	--
-	--
-	--RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
-	--
-	--undo "mirrorPhases" on
-	--
-	--RigWrapper.mirrorPhase ( Interval 1 3 )
-)
-
-/**  
- */
-macroscript	template_make_cycle
-category:	"content-Template"
-buttontext:	"Cycle"
+buttontext:	"Repeat Phase"
 toolTip:	""
 icon:	"across:1|width:128|height:32|border:false"
 (
+	
+	/** Get interval
+	 */
+	function getPhaseLenght =
+	(
+		--format "\n"; print ".getPhaseLenght()"
+		start = currentTime.frame as integer
+		
+		end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
+		format "Interval: %\n" (Interval start end)
+		Interval start end --return
+	)
+	
 	--RigWrapper = RigWrapper_v()
-	--PhaseCreator = PhaseCreator_v()
-	--
-	--
-	--RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
-	--
-	--undo "mirrorPhases" on
-	--
-	--RigWrapper.mirrorPhase ( Interval 1 3 )
+	PhaseCreator = PhaseCreator_v()
+	
+	PhaseCreator_v.repeatPhase( selection as Array )
+	
+	
 )
+
+
+--/**  
+-- */
+--macroscript	template_mirror_phase
+--category:	"content-Template"
+--buttontext:	"Mirror phase"
+--toolTip:	"MIRROR: If 1 side is selected.\n\nSWAP: If 2 side is selected.\n\nE.G.:\n\nA) Left foot selected > MIRROR to rigt foot.\n\nB) Both feet selected > SWAP left <-> right"
+--icon:	"across:1|width:128|height:32|border:false"
+--(
+--	--RigWrapper = RigWrapper_v()
+--	--PhaseCreator = PhaseCreator_v()
+--	--
+--	--
+--	--RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
+--	--
+--	--undo "mirrorPhases" on
+--	--
+--	--RigWrapper.mirrorPhase ( Interval 1 3 )
+--)
+--
+--/**  
+-- */
+--macroscript	template_make_cycle
+--category:	"content-Template"
+--buttontext:	"Cycle"
+--toolTip:	""
+--icon:	"across:1|width:128|height:32|border:false"
+--(
+--	--RigWrapper = RigWrapper_v()
+--	--PhaseCreator = PhaseCreator_v()
+--	--
+--	--
+--	--RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
+--	--
+--	--undo "mirrorPhases" on
+--	--
+--	--RigWrapper.mirrorPhase ( Interval 1 3 )
+--)
 
 
 
