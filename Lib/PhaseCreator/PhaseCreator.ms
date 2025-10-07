@@ -2,19 +2,6 @@
  */
 struct PhaseCreator_v
 (
-	/* construct */
-	
-	/* required */
-	
-	/* properties */
-	
-	
-	/* private */
-	/* dependency */
-	/* reference */
-	/* inhered */
-
-	
 	/** Mirror sifted phases
 	  
 		GET TRANSFROMS ON KEY TIMES OF BOTH OBJECTS
@@ -23,20 +10,19 @@ struct PhaseCreator_v
 		
 		@param dictionary rig_controls list of controls E.G.: rig_controls["boy_Setup_Ctrl_IKFoot"]["L|R"] = #()
 		
+		@param [ start , end ] phase
 		
 	 */
 	function mirrorPhases rig_controls phase =
 	(
 		format "\n"; print "PhaseCreator_v.mirrorPhases()"
 		
-		--interval 0
-		--phase = [ currentTime.frame as integer , currentTime.frame + 2 ]
-		
 		KeyFrameManager = KeyFrameManager_v time:phase
 
 		all_ctrls = #()
 		
-		increment = ( phase.end - phase.start ) + 1
+		increment = ( phase[2] - phase[1] ) + 1
+		
 		format "INCREMENT: %\n" increment
 		
 		for control_name in rig_controls.keys do 
@@ -61,32 +47,19 @@ struct PhaseCreator_v
 			
 			if ( keys_transfroms_left + keys_transfroms_right ).count > 0 then
 			(
-				
-				
-				
-				for key_time = phase.start.frame as integer to phase.end.frame as integer do
+				for key_time = phase[1] to phase[2] do
 				(
 					format "key_time: %\n" key_time
 					key_time_shifted = key_time + increment
 					
 					/* IF SOURCE KEY EXISTS ON TIME */ 
 					if findItem keys_transfroms_left key_time then
-					(
 						rig_controls[control_name]["L"][key_time] = obj_left.transform
-						
-						
-					)
-					--ControllerKeys_left.keys[key_time_shifted]  = flipTransforms obj_left obj_right
-					
 				)
-				--format "rig_controls[control_name]: %\n" rig_controls[control_name]
-				for side in rig_controls[control_name].keys do
-					--format "side: %\n" side
-					format "% % %\n" control_name side rig_controls[control_name][side]
-			
+
+				--for side in rig_controls[control_name].keys do
+					--FORMAT "% % %\n" control_name side rig_controls[control_name][side]
 			)
-			--format "ControllerKeys_left.keys: %\n" ControllerKeys_left.keys_transforms
-			--KeyFrameManager.copyKeys objs:(rig_controller) transforms:true
 		)
 	),
 	

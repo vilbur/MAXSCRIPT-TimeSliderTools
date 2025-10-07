@@ -297,11 +297,12 @@ struct KeyFrameManager_v
 		else if classOf this.transforms != Array then
 			this.transforms = #( this.transforms )
 		
+		/* PROPERTY KEYS */ 
 		if this.properties == undefined then
 			this.properties = false
 			
 		
-		/* SANITIZE ITEMS I ARRAY */ 		
+		/* SANITIZE ITEMS IN ARRAY */ 		
 		this.transforms = for transform_type in this.transforms collect transform_type as name
 	
 	),
