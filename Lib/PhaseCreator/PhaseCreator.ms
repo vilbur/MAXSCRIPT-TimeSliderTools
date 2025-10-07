@@ -93,7 +93,7 @@ struct PhaseCreator_v
 	
 	/** Repeat phase
 	 */
-	function repeatPhase objs =
+	function repeatPhaseTransform objs =
 	(
 		format "\n"; print "PhaseCreator_v.repeatPhase()"
 		
@@ -101,52 +101,43 @@ struct PhaseCreator_v
 		
 		for obj in objs do
 		(
-			format "obj: %\n" obj
+			--format "obj: %\n" obj
 			ControllerKeys = ObjectControllerKeys_v(obj)
 			
-			keys_transforms = ControllerKeys.getKeys #TRANSFORMS undefined
 			--format "ControllerKeys.getKeys #TRANSFORMS: %\n" (ControllerKeys.getKeys #TRANSFORMS undefined ) 
-			
+			keys_transforms = ControllerKeys.getKeys #TRANSFORMS undefined
+
+			/* IF KEY EXIST ON TIME */ 			
 			if keys_transforms.count > 0 and ( index = findItem keys_transforms current_time ) > 1 then
 			(
-				
-				key_current  = keys_transforms[index]
 				key_prev     = keys_transforms[index - 1]
-				
+				key_current  = keys_transforms[index]
+				format "key_prev:    %\n" key_prev
+				format "key_current: %\n" key_current
 				phase_length = key_current - key_prev
-				
 				key_next = key_current + phase_length
-				
-				transform_current = at time key_current obj.transform
-				transform_prev    = at time key_prev    obj.transform
-				
-				
-				--transform_between_keys = transform_current * Inverse transform_prev
-				--transform_between_keys = transform_current - transform_prev
-				--
-				--format "transform_between_keys: %\n" transform_between_keys
-				--
-				--with animate on at time key_next
-				--	obj.transform *= transform_between_keys
 					
-					
-				pos_current = at time key_current obj.pos
-				pos_prev    = at time key_prev    obj.pos
-				
-				pos_between_keys = pos_current - pos_prev
-				
-				with animate on at time key_next
-					obj.pos += pos_between_keys
-					
+				--for prop in #( #POSITION, #ROTATION )
+				for prop in #( #POSITION, #ROTATION, #SCALE )
+					where ControllerKeys.keyExists prop key_current do
+					(
+						--format "PROP: %\n" prop
+						val_prev    = at time key_prev    ( getProperty obj prop)
+						val_current = at time key_current ( getProperty obj prop)
+						
+						val_between_keys = val_current - val_prev
+						--format "VAL_BETWEEN_KEYS: %\n" val_between_keys
+						/* ADD NEW KEY */ 
+						with animate on at time key_next
+							setProperty obj prop ( val_current + val_between_keys )
+					)
 					
 			)
 			else
 				messageBox ( obj.name + " has not transform key on TIME: " +current_time as string ) title:"ANIM KEY NOT FOURND"  beep:false
-			
-			
 		)
-		
 	),
+	
 	
 	private
 	

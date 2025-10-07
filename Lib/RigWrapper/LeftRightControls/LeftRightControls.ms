@@ -53,10 +53,11 @@ struct LeftRightControls_v
 		 */
 		function isLocked flags = flags.count > 0
 		
-		increment = ( phase.end - phase.start ) + 1
+		if increment == undefined then 
+			increment = ( phase.end - phase.start ) + 1
 
 		/* GET ONLY KEYS IN PHASE */ 
-		keys_L  =  left.getKeys #TRANSFORMS phase
+		keys_L =  left.getKeys #TRANSFORMS phase
 		keys_R = right.getKeys #TRANSFORMS phase
 		
 		keys_all = makeUniqueArray(keys_L + keys_R)
@@ -84,13 +85,15 @@ struct LeftRightControls_v
 		
 		format "\n=====================================================\n"
 		format "\n"; print "RigWrapper_v.switchKeysOnTimes()"
+		format "PHASE:     %\n" phase
+		format "INCREMENT: %\n" increment
 
-		format "left.obj: %\n" left.obj
-		format "right.obj: %\n" right.obj
+		--format "left.obj: %\n" left.obj
+		--format "right.obj: %\n" right.obj
 		
 		for source_time in keys_all do
 		(
-			format "SOURCE_TIME: %\n" source_time
+			--format "SOURCE_TIME: %\n" source_time
 			target_time = source_time + increment
 			
 			rot_key_L = findItem keys_rot_L source_time
@@ -101,8 +104,8 @@ struct LeftRightControls_v
 			
 			position_keys_exists = pos_key_L or pos_key_R 
 			rotation_keys_exists = rot_key_L or rot_key_R 
-			format "position_keys_exists: %\n" position_keys_exists
-			format "rotation_keys_exists: %\n" rotation_keys_exists
+			--format "position_keys_exists: %\n" position_keys_exists
+			--format "rotation_keys_exists: %\n" rotation_keys_exists
 			
 			mode = case of
 			(
@@ -112,14 +115,8 @@ struct LeftRightControls_v
 				default: #BOTH
 			)
 			
-			
 			left_to_right = rot_key_L or pos_key_L
 			right_to_left = rot_key_R or pos_key_R
-			--
-			--format "lock_position_L: %\n" lock_position_L
-			--format "lock_position_R: %\n" lock_position_R
-			--format "lock_rotation_L: %\n" lock_rotation_L
-			--format "lock_rotation_R: %\n" lock_rotation_R
 			
 			is_pos_locked_L = isLocked lock_position_L
 			is_pos_locked_R = isLocked lock_position_R
@@ -127,11 +124,6 @@ struct LeftRightControls_v
 			is_rot_locked_L = isLocked lock_rotation_L
 			is_rot_locked_R = isLocked lock_rotation_R
 			
-			
-			format "is_pos_locked_L: %\n" is_pos_locked_L
-			format "is_pos_locked_R: %\n" is_pos_locked_R
-			format "is_rot_locked_L: %\n" is_rot_locked_L
-			format "is_rot_locked_R: %\n" is_rot_locked_R
 
 			if ( is_pos_locked_L and is_pos_locked_R ) then
 				this.swapLocalRotation source_time target_time mode left_to_right right_to_left
@@ -149,7 +141,7 @@ struct LeftRightControls_v
 	*/
 	function swapLocalRotation time_from time_to mode left_to_right right_to_left =
 	(
-		format "\n"; print "TransformFlipper_v.swapLocalRotation()"
+		--format "\n"; print "TransformFlipper_v.swapLocalRotation()"
 		/* 
 		Function to set only rotation key on object at given time
 		*/
@@ -171,8 +163,8 @@ struct LeftRightControls_v
 		obj_L = left.obj
 		obj_R = right.obj
 		
-		format "time_from: %\n" time_from
-		format "time_to: %\n" time_to
+		--format "time_from: %\n" time_from
+		--format "time_to: %\n" time_to
 		/* store parents */
 		parentA = obj_L.parent
 		parentB = obj_R.parent
@@ -239,7 +231,9 @@ struct LeftRightControls_v
 		format "\n"; print "TransformFlipper_v.flipIKControllers()"
 		time_from = time_from as time
 		time_to   = time_to   as time		
-	
+		format "time_from: %\n" time_from
+		format "time_to: %\n" time_to
+		
 		at time time_from
 		(
 			pos_L = obj_L.pos

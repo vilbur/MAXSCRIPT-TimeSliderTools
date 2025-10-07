@@ -54,21 +54,41 @@ struct ObjectControllerKeys_v
 		)
 		else
 		(
-			format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+			FORMAT "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
 			print "ObjectControllerKeys_v.getKeys()"
 			
-			format "UNSUPORTED VALUE OF parameter which: %\n" which
+			FORMAT "UNSUPORTED VALUE OF parameter which: %\n" which
 		)
 		
 		sort( makeUniqueArray keys_flat ) --return
+	),
+	
+	/** Key exists
+	 */
+	function keyExists transfrom_prop key_time =
+	(
+		--format "\n"; print "ObjectControllerKeys_v.keyExists()"
+		
+		--format "key_time: %\n" key_time
+		--format "transfrom_prop: %\n" transfrom_prop
+		--format "keys_transforms[transfrom_prop]: %\n" keys_transforms[transfrom_prop]
+		--format "INDEX: %\n" ( findItem keys_transforms[transfrom_prop] key_time )
+		--
+		key_found = false
+		
+		if keys_transforms[transfrom_prop] != undefined then 
+			for sub_ctrl in keys_transforms[transfrom_prop] while key_found == false do 
+				key_found = findItem sub_ctrl.keys key_time > 0
+		
+		key_found --return
 	),
 	
 	/** Delete keys
 	 */
 	function removeKeys which keys =
 	(
-		format "\n"; print "ObjectControllerKeys_v.removeKeys()"
-		format "keys: %\n" keys
+		--format "\n"; print "ObjectControllerKeys_v.removeKeys()"
+		--format "keys: %\n" keys
 		
 		if classOf keys != Array then
 			keys = #( keys )
@@ -80,12 +100,12 @@ struct ObjectControllerKeys_v
 			keys_flat = #()
 			
 			transform_tracks = if which == #TRANSFORMS then keys_transforms.keys else #( which )
-			format "transform_tracks: %\n" transform_tracks
+			--format "transform_tracks: %\n" transform_tracks
 			for transform_track in transform_tracks where keys_transforms[transform_track] != undefined do
 				for ControllerKeys in keys_transforms[transform_track] do
 				(
-					format "ControllerKeys.keys: %\n" ControllerKeys.keys
-						format "ControllerKeys.ctrl: %\n" ControllerKeys.ctrl
+					--format "ControllerKeys.keys: %\n" ControllerKeys.keys
+						--format "ControllerKeys.ctrl: %\n" ControllerKeys.ctrl
 					
 					for key in ControllerKeys.keys where findItem keys key > 0 do
 						deleteKey ControllerKeys.ctrl (getKeyIndex ControllerKeys.ctrl key)
@@ -101,10 +121,10 @@ struct ObjectControllerKeys_v
 		)
 		else
 		(
-			format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+			--format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
 			print "ObjectControllerKeys_v.getKeys()"
 			
-			format "UNSUPORTED VALUE OF parameter which: %\n" which
+			--format "UNSUPORTED VALUE OF parameter which: %\n" which
 		)
 		
 		

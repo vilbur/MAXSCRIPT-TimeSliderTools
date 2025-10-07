@@ -8,15 +8,15 @@ function frameButtonRcMenu frame =
 (
 	/** Get int string
 	 */
-	function getIntString num = (num as integer )  as string
+	function getString num = (num as integer )  as string
 
 	transform_tracks = #( "POSITION", "ROTATION", "SCALE" ) 
 	format "\n"; print ".frameButtonRcMenu()"
 	--format "DIALOG_time_slider_tools.DL_phase.selection: %\n" DIALOG_time_slider_tools.DL_phase.selection
 	phase_length = DIALOG_time_slider_tools.DL_phase.items[DIALOG_time_slider_tools.DL_phase.selection] as integer
 	
-	phase_range = [ currentTime, currentTime + phase_length - 1 ] 
-	format "PAHSE_RANGE: %\n" phase_range
+	phase = [ currentTime, currentTime + phase_length - 1 ] 
+	format "PAHSE_RANGE: %\n" phase
 	time_delete = if keyboard.controlPressed then "#RIGHT" else "#CURRENT"
 	KeyFrameManager_side   = "(KeyFrameManager_v( if keyboard.controlPressed then #LEFT else #RIGHT ))"
 
@@ -24,18 +24,18 @@ function frameButtonRcMenu frame =
 		COMMANDS
 	--------------------------------------------------------------------------------*/
 	removeKeys_cmd = "(KeyFrameManager_v( "+time_delete+" )).removeKeys "
-	copyKeys_cmd   = "(KeyFrameManager_v( "+phase_range as string +" )).copyKeys "
-	mirrorKeys_cmd   = "(KeyFrameManager_v( "+phase_range as string +" )).mirrorKeys "
+	copyKeys_cmd   = "(KeyFrameManager_v( "+phase as string +" )).copyKeys "
+	mirrorKeys_cmd   = "(KeyFrameManager_v( "+phase as string +" )).mirrorKeys "
 
 	/*------------------------------------------------------------------------------
 		HELPERS
 	--------------------------------------------------------------------------------*/
-	copy_keys_label = " KEYS " + getIntString (phase_range.x) + " - " + getIntString (phase_range.y)  + " TO: " + getIntString (phase_range.y + 1) + " - " + getIntString (phase_range.y + phase_length+ 1 )
+	copy_keys_label = " KEYS " + getString (phase.x) + " - " + getString (phase.y)  + " TO: " + getString (phase.y + 1) + " - " + getString (phase.y + phase_length+ 1 )
 	
 	/*------------------------------------------------------------------------------
 		MENU
 	--------------------------------------------------------------------------------*/
-	Menu = RcMenu_v name:"MenuName"
+	Menu = RcMenu_v name:"frameButtonMenu"
 	
 	if selection.count > 0 then
 	(
@@ -51,7 +51,7 @@ function frameButtonRcMenu frame =
 		menu_trim.item "TRIM ALL TRANSFORMS" ( KeyFrameManager_side + "transforms:true" )
 		
 		for transform_track in transform_tracks do
-			menu_trim.item ("Trim " + transform_track ) ( KeyFrameManager_side+".removeKeys TRANSFORMS:" + transform_track)
+			menu_trim.item ("Trim " + transform_track ) ( KeyFrameManager_side+".removeKeys TRANSFORMS:#" + transform_track)
 	
 			menu_trim.separator()
 			

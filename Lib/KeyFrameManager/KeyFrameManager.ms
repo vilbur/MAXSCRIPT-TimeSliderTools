@@ -66,24 +66,6 @@ struct KeyFrameManager_v
 		this.setParameters objs:objs transforms:transforms properties:properties time:time
 		
 		this.executeCallback #COPY
-		
-		
-		--	/* FOR EACH CONTROLLER */ 
-		--	
-		--	--if RigWrapper.isRigController(obj.name) then
-		--	--(
-		--	--	RigWrapper.objs_keys[obj.name] = new_keys
-		--	--	
-		--	--	RigWrapper.setControllerToFlip (obj.name)
-		--	--	
-		--	--)
-	
-		
-		--format "RigWrapper.objs_keys: %\n" RigWrapper.objs_keys
-		--format "controllers_to_flip: %\n" RigWrapper.controllers_to_flip
-		--
-		--RigWrapper.mirrorControllerTransfroms()
-		
 	),
 	
 	/** Mirror keys
@@ -162,13 +144,14 @@ struct KeyFrameManager_v
 			/*------------------------------------------------------------------------------
 				TRANSFORMS KEYS
 			--------------------------------------------------------------------------------*/
-			--if this.transforms then
+			--format "this.transforms: %\n" this.transforms
+			--format "ObjectControllerKeys.keys_transforms.keys: %\n" ObjectControllerKeys.keys_transforms.keys
+			
 			for transform_type in ObjectControllerKeys.keys_transforms.keys where findItem this.transforms transform_type > 0 do
 			(
-				--format "%\n" transform_type
+				--format "TRANSFORM_TYPE: %\n" transform_type
 			
 				for ControllerKeys in ObjectControllerKeys.keys_transforms[transform_type] do
-					
 					this._processControllerKeys ControllerKeys callback
 			)
 			/*------------------------------------------------------------------------------
@@ -215,7 +198,7 @@ struct KeyFrameManager_v
 		
 		--keys = for key_time in ControllerKeys.keys collect if this.isKeyMatchTime key_time then key_time
 		keys = for key_time in ControllerKeys.keys where this.isKeyMatchTime key_time collect key_time
-		format "keys: %\n" keys
+		--format "keys: %\n" keys
 		
 		for i = keys.count to 1 by -1 where ( key_index = getKeyIndex ctrl keys[i] ) > 0 do
 		(
@@ -316,6 +299,11 @@ struct KeyFrameManager_v
 		
 		if this.properties == undefined then
 			this.properties = false
+			
+		
+		/* SANITIZE ITEMS I ARRAY */ 		
+		this.transforms = for transform_type in this.transforms collect transform_type as name
+	
 	),
 	
 	/**

@@ -94,28 +94,28 @@ icon:	"control:#CHECKBOX|across:2"
 --------------------------------------------------------------------------------*/
 
 
+/** Get interval
+ */
+function getPhaseRange =
+(
+	--format "\n"; print ".getPhaseRange()"
+	start = currentTime.frame as integer
+	
+	end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
+
+	[ start, end ] --return
+)
+
 
 /**  
  */
 macroscript	template_make_generate
-category:	"content-Template"
+category:	"_AnimMaker"
 --buttontext:	"Frame - > Phase"
-buttontext:	"Mirror phase"
+buttontext:	"M I R R O R phase"
 toolTip:	"Generate phase from single frame.E.G.: Generate 1st step from first frame"
 icon:	"across:1|width:128|height:32|border:false"
 (
-	
-	/** Get interval
-	 */
-	function getPhaseLenght =
-	(
-		--format "\n"; print ".getPhaseLenght()"
-		start = currentTime.frame as integer
-		
-		end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
-		format "Interval: %\n" (Interval start end)
-		Interval start end --return
-	)
 
 	
 	RigWrapper = RigWrapper_v()
@@ -124,35 +124,56 @@ icon:	"across:1|width:128|height:32|border:false"
 	
 	RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
 	
-	undo "Frame - > Phase" on
-		RigWrapper.mirrorPhase (getPhaseLenght()) increment:DIALOG_content_animmaker.DL_increment_value.selected
+	undo "Mirror Phase" on
+		RigWrapper.mirrorPhase (getPhaseRange()) increment:DIALOG_content_animmaker.DL_increment_value.selected
+)
+
+/**  
+ */
+macroscript	template_copy_phase
+category:	"_AnimMaker"
+--buttontext:	"Frame - > Phase"
+buttontext:	"C O P Y phase"
+--toolTip:	"Generate phase from single frame.E.G.: Generate 1st step from first frame"
+icon:	"across:1|width:128|height:32|border:false"
+(
+
+	
+	RigWrapper = RigWrapper_v()
+	PhaseCreator = PhaseCreator_v()
+	
+	
+	RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
+	
+	undo "Copy" on
+		(KeyFrameManager_v( getPhaseRange() )).copyKeys objs:( selection as Array )
 )
 
 /**  
  */
 macroscript	template_repeat_phase
 category:	"content-Template"
-buttontext:	"Repeat Phase"
+buttontext:	"R E P E A T transform"
 toolTip:	""
 icon:	"across:1|width:128|height:32|border:false"
 (
 	
-	/** Get interval
-	 */
-	function getPhaseLenght =
-	(
-		--format "\n"; print ".getPhaseLenght()"
-		start = currentTime.frame as integer
-		
-		end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
-		format "Interval: %\n" (Interval start end)
-		Interval start end --return
-	)
+	--/** Get interval
+	-- */
+	--function getPhaseRange =
+	--(
+	--	--format "\n"; print ".getPhaseRange()"
+	--	start = currentTime.frame as integer
+	--	
+	--	end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
+	--	format "Interval: %\n" ([ start, end] )
+	--	[ start, end ] --return
+	--)
 	
 	--RigWrapper = RigWrapper_v()
 	PhaseCreator = PhaseCreator_v()
 	
-	PhaseCreator_v.repeatPhase( selection as Array )
+	PhaseCreator_v.repeatPhaseTransform( selection as Array )
 	
 	
 )

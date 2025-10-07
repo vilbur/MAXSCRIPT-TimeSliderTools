@@ -95,20 +95,11 @@ struct RigWrapper_v
 
 		all_ctrls = #()
 		
-		format "INCREMENT: %\n" increment
-		
 		for control_name in rig_controls.keys do 
 		(
-		--	TransformFlipper 	= TransformFlipper_v()
-			--format "\n"
 			LeftRightControls = rig_controls[control_name]
 			
-			
 			LeftRightControls.switchKeysOnTimes phase increment:increment
-			
-
-		--	--format "ControllerKeys_left.keys: %\n" ControllerKeys_left.keys_transforms
-		--	--KeyFrameManager.copyKeys objs:(rig_controller) transforms:true
 		)
 	),
 
