@@ -96,12 +96,12 @@ function frameButtonRcMenu frame =
 		
 		Menu.separator()
 		
-		
-		/*------------------------------------------------------------------------------
-			MIRROR
-		--------------------------------------------------------------------------------*/
-		Menu.item ( "MIRROR curretnt keys" ) ( "(KeyFrameManager_v( #CURRENT )).mirrorKeys transforms:true" )
-		Menu.item ( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
+		--
+		--/*------------------------------------------------------------------------------
+		--	MIRROR
+		----------------------------------------------------------------------------------*/
+		--Menu.item ( "MIRROR curretnt keys" ) ( "(KeyFrameManager_v( #CURRENT )).mirrorKeys transforms:true" )
+		--Menu.item ( "MIRROR" + copy_keys_label ) ( mirrorKeys_cmd + " transforms:true" )
 		
 	)
 	else

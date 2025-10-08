@@ -118,14 +118,23 @@ icon:	"across:1|width:128|height:32|border:false"
 (
 
 	
-	RigWrapper = RigWrapper_v()
 	PhaseCreator = PhaseCreator_v()
 	
-	
-	RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
-	
 	undo "Mirror Phase" on
-		RigWrapper.mirrorPhase (getPhaseRange()) increment:DIALOG_content_animmaker.DL_increment_value.selected
+	(
+		increment = DIALOG_content_animmaker.DL_increment_value.selected
+		
+		rig_name = DIALOG_content_animmaker.DL_rig_select.selected
+		
+		phase = getPhaseRange()
+		
+		if trimLeft(rig_name).count > 0 then
+			(RigWrapper_v(rig_name)).mirrorPhase phase increment:increment
+
+		else
+			(KeyFrameManager_v()).copyKeys time:phase transforms:true properties:false -- default increment is length ofrange + 1
+
+	)
 )
 
 /**  
@@ -138,13 +147,6 @@ buttontext:	"C O P Y phase"
 icon:	"across:1|width:128|height:32|border:false"
 (
 
-	
-	RigWrapper = RigWrapper_v()
-	PhaseCreator = PhaseCreator_v()
-	
-	
-	RigWrapper.loadRig $boy_Setup_Ctrl_MasterControl_G
-	
 	undo "Copy" on
 		(KeyFrameManager_v( getPhaseRange() )).copyKeys objs:( selection as Array )
 )

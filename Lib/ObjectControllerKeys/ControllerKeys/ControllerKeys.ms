@@ -16,11 +16,11 @@ struct ControllerKeys_v
 
 	/** Filter keys
 	 */
-	function filterKeys time_interval =
+	function filterKeys phase =
 	(
 		--format "\n"; print "ControllerKeys_v.filterKeys()"
 		for key_time in keys
-			where key_time >= time_interval.start and key_time <= time_interval.end
+			where key_time >= phase[1] and key_time <= phase[2]
 				collect key_time
 	),
 

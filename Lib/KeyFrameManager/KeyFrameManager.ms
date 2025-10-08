@@ -82,15 +82,15 @@ struct KeyFrameManager_v
 		else
 			#( currentTime.frame as integer )
 		
-		RigWrapper = RigWrapper_v key_times:key_times
-		
-		
-		/* ADD OBJECT  TO FLIPPER */ 
-		for obj in this.objs do
-			RigWrapper.addControllerToFlip (obj)
-	
-		/* MIRROR TRANSFORMS */ 
-		RigWrapper.mirrorControllerTransfroms()
+		--RigWrapper = RigWrapper_v key_times:key_times
+		--
+		--
+		--/* ADD OBJECT  TO FLIPPER */ 
+		--for obj in this.objs do
+		--	RigWrapper.addControllerToFlip (obj)
+		--
+		--/* MIRROR TRANSFORMS */ 
+		--RigWrapper.mirrorControllerTransfroms()
 		
 		sliderTime = current_time
 	),
