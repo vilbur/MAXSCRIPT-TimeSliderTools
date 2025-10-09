@@ -57,7 +57,7 @@ struct KeyFrameManager_v
 	 */
 	function copyKeys objs: transforms: properties: time: =
 	(
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		clearListener(); print("Cleared in:\n"+getSourceFileName())
 		--format "\n"; print "KeyFrameManager_v.copyKeys()"
 
 		if phase_length == unsupplied then
@@ -171,20 +171,20 @@ struct KeyFrameManager_v
 	 */
 	function _processControllerKeys ControllerKeys callback =
 	(
-		--format "\n"; print "KeyFrameManager_v._processControllerKeys()"
-		--format "% CALLBACK: %\n" ControllerKeys.ctrl callback
+		format "\n"; print "KeyFrameManager_v._processControllerKeys()"
+		format "% CALLBACK: %\n" ControllerKeys.ctrl callback
 		--format "ControllerKeys.keys: %\n" ControllerKeys.keys
 		/** Copy key
 		 */
 		function _copyKey ctrl key_time =
 		(
-			--format "\n"; print "KeyFrameManager_v._copyKey()"
+			format "\n"; print "KeyFrameManager_v._copyKey()"
 			
 			phase_length = this._getPhaseLenght()
-			--format "phase_length: %\n" phase_length
+			format "phase_length: %\n" phase_length
 			new_time = ( key_time + phase_length ) as integer
 			
-			--format "_copyKey % -> %\n" key_time new_time
+			format "_copyKey % -> %\n" key_time new_time
 			
 			/* COPY KEY */ 
 			with animate on at time new_time
@@ -192,13 +192,9 @@ struct KeyFrameManager_v
 		)
 		
 		
-		
 		ctrl = ControllerKeys.ctrl
-		--format "ctrl: %\n" ctrl
 		
-		--keys = for key_time in ControllerKeys.keys collect if this.isKeyMatchTime key_time then key_time
 		keys = for key_time in ControllerKeys.keys where this.isKeyMatchTime key_time collect key_time
-		--format "keys: %\n" keys
 		
 		for i = keys.count to 1 by -1 where ( key_index = getKeyIndex ctrl keys[i] ) > 0 do
 		(

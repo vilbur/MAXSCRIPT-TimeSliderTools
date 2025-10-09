@@ -22,13 +22,14 @@ struct RigWrapper_v
 	 */
 	function loadRig =
 	(
-		--format "\n"; print "RigWrapper_v.loadRig()"
+		format "\n"; print "RigWrapper_v.loadRig()"
 		
 		master_control = this.loadRigFromScene(rig_name)
-		
+		format "master_control: %\n" master_control
 		processed_objects = #()
 
 		this.rig_controls	= Dictionary #STRING -- KEY: VALUE:
+		format "this.rig_controls: %\n" this.rig_controls
 		
 		rig_name = (filterString master_control.name "_")[1]	
 		
@@ -36,6 +37,7 @@ struct RigWrapper_v
 		
 		for rig_obj in rig_objs where findItem processed_objects rig_obj == 0 do
 		(
+			--format "rig_obj: %\n" rig_obj
 			/* ANALIZE OBJ NAME */ 
 			split_name = this.splitName rig_obj.name
 			basename   = split_name[2]
@@ -97,6 +99,9 @@ struct RigWrapper_v
 			
 			LeftRightControls.switchKeysOnTimes phase increment:increment
 		)
+		
+		/* SET TIME TO FIRST AFTER PHASE */ 
+		sliderTime += increment
 	),
 	
 	/** Load rig from scene
@@ -105,9 +110,35 @@ struct RigWrapper_v
 	 */
 	function loadRigFromScene rig_name =
 	(
-		--format "\n"; print "RigWrapper_v.loadRigFromScene()"
+		format "\n"; print "RigWrapper_v.loadRigFromScene()"
+		format "rig_name: %\n" rig_name
+		format "TEST: %\n" (execute ("$'"+rig_name+"_Setup_Ctrl_MasterControl_G'"))
 
-		execute ("$'"+rig_name+"_Setup_Ctrl_MasterControl_G'")[1] --return
+		--(execute ("$'"+rig_name+"_Setup_Ctrl_MasterControl_G'") as Array )[1] --return
+		execute ("$'"+rig_name+"_Setup_Ctrl_MasterControl_G'") --return
+	),
+
+
+	/** Split name
+	 */
+	function splitName obj_name part: =
+	(
+		--format "\n"; print "RigWrapper_v.splitName()"
+		matches = rx.matches obj_name "(.*)_Setup_Ctrl_([^_]+)_([^_]+).*" -- ( dotNetClass "System.Text.RegularExpressions.RegexOptions" ).IgnoreCase 
+
+		/* RESULT: #(#("boy_Setup_Ctrl_IKFoot_R_O_1LRV", "IKFoot", "L")) */ 
+		result	= ( for matchIdx = 0 to matches.count-1 collect for groupIdx = 0 to matches.item[matchIdx].groups.count-1 collect ( matches.item[matchIdx].groups.item[groupIdx].value ))[1] --return
+		--format "result: %\n" result
+		deleteItem result 1
+		
+		case part of
+		(
+			#RIG:  result[1] 
+			#NAME: result[2] 
+			#SIDE: result[3]
+			
+			default: result
+		)
 	),
 	
 	/** Search for rigs in scene
@@ -146,6 +177,6 @@ struct RigWrapper_v
 	(
 		--format "\n"; print "RigWrapper.onCreate()"
 		if rig_name != undefined then 
-			this.loadRig(rig_name)
+			this.loadRig()
 	)
 )

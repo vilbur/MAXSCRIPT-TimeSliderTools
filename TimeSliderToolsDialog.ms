@@ -79,7 +79,7 @@ function timeSliderToolsDialog =
 	/*------------------------------------------------------------------------------
 		RIGHT GROUPBOX
 	--------------------------------------------------------------------------------*/
-	_Switch	= _Controls.control #BUTTON "S W I T C H"	groupbox:_right.id across:1 width:width_btn_big height:height_btn_big offset:[ 0, -16 ] 
+	_Switch	= _Controls.control #BUTTON "J U M P"	groupbox:_right.id across:1 width:width_btn_big height:height_btn_big offset:[ 0, -16 ] 
 	_Phase_label	= _Controls.control #LABEL "PHASE"	groupbox:_right.id across:2 align:#LEFT  offset:[-6, 10 ] tooltip:"Number of frames in phase"
 	_Phase_dropdown	= _Controls.control #DROPDOWN "[Phase]"	groupbox:_right.id across:2 align:#RIGHT offset:[ 6, 8 ]  width:44  offset:[ 0, 8 ] items:( for i = 1 to 10 collect i as string ) value:2 height:11
 	
