@@ -19,7 +19,6 @@ function createAnimMakerDialog =
 	ContentLoader.create width:168 --lockHeight:true
 	
 	
-	
 	/* LOAD RIGS */
 	DIALOG_content_animmaker.DL_rig_select.items = #(" ") + (RigWrapper_v()).getNamesOfRigsInScene() -- first item empty + rig names
 	DIALOG_content_animmaker.DL_rig_select.selection = 2 -- select first rig name

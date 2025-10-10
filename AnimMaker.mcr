@@ -5,6 +5,8 @@ toolTip:	"Open AnimMaker"
 (
 	filein @"$userscripts\MAXSCRIPT-TimeSliderTools\AnimMaker.ms" --"./AnimMaker.ms"
 	
+
+
 )
 
 

@@ -1,5 +1,7 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
+global DIALOG_content_animmaker
+
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/ContentLoader/ContentLoader.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/ContentLoader/ContentLoader.ms"
 
 
@@ -11,4 +13,5 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/PhaseCreator/PhaseCreator.m
 
 filein( getFilenamePath(getSourceFileName()) + "/AnimMakerDialog.ms" )	--"./AnimMakerDialog.ms"
 
-	createAnimMakerDialog()
+
+createAnimMakerDialog()

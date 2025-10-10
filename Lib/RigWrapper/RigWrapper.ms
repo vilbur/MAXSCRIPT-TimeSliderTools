@@ -83,6 +83,7 @@ struct RigWrapper_v
 	(
 		format "\n"; print "PhaseCreator_v.mirrorPhases()"
 		
+		
 		if increment == undefined or increment as Number == undefined then
 			increment = phase[2] - phase[1] + 1
 		

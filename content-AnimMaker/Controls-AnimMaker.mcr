@@ -1,4 +1,35 @@
-
+/*------------------------------------------------------------------------------
+	TIMER
+--------------------------------------------------------------------------------*/
+/*
+*/
+macroscript	AnimMaker_timer
+category:	"_AnimMaker"
+buttonText:	"Timer"
+tooltip:	"Colorpicker test"
+icon:	"control:timer|interval:500|active:true|height:0"
+(
+	--format "EventFired	= % \n" EventFired
+	--format "DIALOG_content_animmaker: %\n" DIALOG_content_animmaker	
+	/* ADJUST BUTTON TEXT - CREATE PHASE if first frame of range is active else COPY PHASE */
+	on execute do
+		if DIALOG_content_animmaker != undefined then
+		(
+			is_current_time_on_start_of_range = animationRange.start == currentTime
+			
+			BTN_create_phase = DIALOG_content_animmaker.BTN_create_phase
+			
+			BTN_mirror_phase = DIALOG_content_animmaker.BTN_mirror_phase
+			
+			BTN_mirror_phase.pos.x = 	BTN_create_phase.pos.x =  16
+			
+			
+			BTN_create_phase.visible = is_current_time_on_start_of_range
+			
+			BTN_mirror_phase.visible = not BTN_create_phase.visible
+			
+		)
+)
 
 --/**  
 -- */
@@ -101,19 +132,32 @@ icon:	"control:#CHECKBOX|across:2"
 	@return Point2 [ start time, end time ]
   
  */
-function getPhaseRange =
+function getPhaseRange dir:#BACK  =
 (
 	--format "\n"; print ".getPhaseRange()"
-	--end = currentTime.frame as integer 
 	
-	--start = end + DIALOG_content_animmaker.DL_phase_length.selected as integer + 1
 	
-	start = currentTime.frame as integer
-	
-	end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
+	if dir == #BACK then
+	(
+		end = currentTime.frame as integer 
+		
+		start = end + DIALOG_content_animmaker.DL_phase_length.selected as integer + 1
+		
+	)
+	else
+	(
+		start = currentTime.frame as integer
+		
+		end = start + DIALOG_content_animmaker.DL_phase_length.selected as integer - 1
+	)
 
+	
+	
+	
 
 	[ start, end ] --return
+	
+	
 )
 
 /** Get cycle range
@@ -132,14 +176,41 @@ function getCycleRange =
 
 /**  
  */
-macroscript	template_make_generate
+macroscript	template_phase_create
+category:	"_AnimMaker"
+--buttontext:	"Frame - > Phase"
+buttontext:	"C R E A T E phase"
+toolTip:	"Generate phase from single frame.E.G.: Generate 1st step from first frame"
+icon:	"across:2|id:#BTN_create_phase|width:128|height:32|border:false"
+(
+
+	undo "Mirror Phase" on
+	(
+		increment = DIALOG_content_animmaker.DL_increment_value.selected as integer
+		
+		rig_name = DIALOG_content_animmaker.DL_rig_select.selected
+		
+		phase = getPhaseRange dir:#FORWARD
+		
+		if (trimLeft(rig_name)).count > 0 then
+			(RigWrapper_v(rig_name)).mirrorPhase phase increment:increment
+	
+		--else
+			--(KeyFrameManager_v()).copyKeys time:phase transforms:true properties:false -- default increment is length ofrange + 1
+	
+	)
+)
+
+
+/**  
+ */
+macroscript	template_mirror_phase
 category:	"_AnimMaker"
 --buttontext:	"Frame - > Phase"
 buttontext:	"M I R R O R phase"
 toolTip:	"Generate phase from single frame.E.G.: Generate 1st step from first frame"
-icon:	"across:1|width:128|height:32|border:false"
+icon:	"across:2|id:#BTN_mirror_phase|width:128|height:32|border:false|align:#CENTER"
 (
-
 	
 	PhaseCreator = PhaseCreator_v()
 	

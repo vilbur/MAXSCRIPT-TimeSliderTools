@@ -39,7 +39,10 @@ struct TimeSliderTools_v
 		--_rollout.status_bar.visible = true
 		--format "TEST: %\n" (_rollout.slider_current_time.value != sliderTime )
 		--format "_rollout.status_bar.visible: % ANIMATIONMODE: %\n" _rollout.status_bar.visible animButtonState 
+		
+		/* SHOW \ HIDE RED STRIP ON TOP OF ROLLOUT IF AINMATION MODE IS ACTIVE */ 
 		_rollout.status_bar.visible = animButtonState
+
 		
 		/* UPDATE CURRENT FRAME */ 
 		if not is_playing_now then
@@ -50,6 +53,8 @@ struct TimeSliderTools_v
 		)
 		else /* SET NEXT FRAME OF PALYING ANIMATION */ 
 			this.setNextFrame()
+			
+			
 		/*
 		   AUTO FILTER KEYS ON TIME SLIDER
 		  
@@ -61,7 +66,6 @@ struct TimeSliderTools_v
 		else
 			#all
 		--format "_rollout: %\n" _rollout.status_bar
-		
 	),
 	
 	/* set frame */ 
